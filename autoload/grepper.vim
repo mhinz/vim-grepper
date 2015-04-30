@@ -40,6 +40,10 @@ function! s:callback_on_exit()
   if bufexists(expand('#'))
     silent buffer #
   endif
+  echo 'Running '
+  echohl Identifier
+  echon s:grepper.option.program .' '. s:grepper.process.args
+  echohl NONE
 endfunction
 
 " main data structure {{{1
@@ -98,7 +102,7 @@ function! s:set_program(args)
       let s:grepper.process.callbacks.on_stdout =
             \ function('s:callback_on_stdout_ag')
     elseif executable('grep')
-      let s:grepper.option.program = 'command grep'
+      let s:grepper.option.program = 'command grep -Ri'
     endif
   endif
   let s:grepper.process.args = a:args
