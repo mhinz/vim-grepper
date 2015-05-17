@@ -68,6 +68,7 @@ let s:grepper = {
       \ }
 " grepper#start() {{{1
 function! grepper#start()
+  call s:set_program()
   call s:prompt()
   " echomsg 'FOO: '. s:grepper.process.args
   if empty(s:grepper.process.args)
@@ -75,7 +76,6 @@ function! grepper#start()
       execute 'silent bwipeout!' s:grepper.window.bufnr
     endif
   else
-    call s:set_program(s:grepper.process.args)
     call s:setup_window()
     call s:run_program()
   endif
@@ -85,13 +85,13 @@ endfunction
 function! s:prompt()
   echohl Identifier
   call inputsave()
-  let s:grepper.process.args = input('grepper> ')
+  let s:grepper.process.args = input(s:grepper.option.program .'> ')
   call inputrestore()
   echohl NONE
 endfunction
 
 " s:set_program() {{{1
-function! s:set_program(args)
+function! s:set_program()
   if empty(s:grepper.option.program)
     if executable('git')
       let s:grepper.option.program = 'command git grep -i'
@@ -105,7 +105,6 @@ function! s:set_program(args)
       let s:grepper.option.program = 'command grep -Ri'
     endif
   endif
-  let s:grepper.process.args = a:args
 endfunction
 
 " s:setup_window() {{{1
@@ -118,7 +117,7 @@ function! s:setup_window()
     return
   endif
   setlocal filetype=grepper nobuflisted buftype=nofile
-  setlocal number norelativenumber
+  setlocal number norelativenumber foldmethod=manual
   let s:grepper.process.lines = 0
   let s:grepper.window.bufnr = bufnr('%')
   " TODO
