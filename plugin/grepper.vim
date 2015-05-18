@@ -1,1 +1,1 @@
-command! -bar Grep call grepper#start()
+command! -bar Grepper call grepper#start()
