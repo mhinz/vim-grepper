@@ -1,96 +1,114 @@
-" s:callback_on_stdout_git() {{{1
-function! s:callback_on_stdout_git(id, data)
-  execute 'buffer' s:grepper.window.bufnr
-  for line in a:data
-    let tokens = matchlist(line, '\v^(.{-}):(.*)$')
-    if empty(tokens)
-      break
-    endif
-    let s:grepper.process.lines += 1
-    call append(line('$'), printf('%s | %s', tokens[1], tokens[2]))
-  endfor
-  wincmd p
-endfunction
-
-" s:callback_on_stdout_ag() {{{1
-function! s:callback_on_stdout_ag(id, data)
-  execute 'buffer' s:grepper.window.bufnr
-  for line in a:data
-    let tokens = matchlist(line, '\v^(.{-}):(\d+):(\d+):(.*)$')
-    if empty(tokens)
-      break
-    endif
-    let s:grepper.process.lines += 1
-    call append(line('$'), printf('%s | %s', tokens[1], tokens[4]))
-  endfor
-  wincmd p
-endfunction
-" }}}
-
 " s:prototype {{{1
 let s:prototype = {
       \ 'program': {
       \   'order': ['git', 'ag', 'grep'],
-      \   'git' : 'git grep -ne',
-      \   'ag'  : 'command ag --vimgrep',
-      \   'grep': 'command grep -Ri',
+      \   'git': {
+      \     'cmd': 'git grep -ne',
       \   },
+      \   'ag': {
+      \     'cmd':    'ag --vimgrep',
+      \     'format': '%f:%l:%c:%m',
+      \   },
+      \   'ack': {
+      \     'cmd': 'ack --nocolor --noheading --column',
+      \     'format': '%f:%l:%c:%m',
+      \   },
+      \   'grep': {
+      \     'cmd': 'command grep -Ri',
+      \   }
+      \ },
       \ 'process': {
-      \   'cmd'      : '',
-      \   'callbacks': {},
+      \   'cmd': '',
+      \   'args': '',
+      \   'callback': {
+      \     'data': [],
       \   },
+      \ }
       \ }
 
 if exists('g:grepper')
-  call extend(s:prototype, g:grepper)
+  call extend(s:prototype.program, g:grepper)
 endif
 
+" s:prototype.process.callback.on_stdout() {{{1
+function! s:prototype.process.callback.on_stdout(id, data)
+  echomsg 'DATA: '. string(a:data)
+  for d in a:data
+    call insert(self.data, d)
+  endfor
+endfunction
+
 " s:prototype.process.callbacks.on_stderr() {{{1
-function! s:prototype.process.callbacks.on_stderr(id, data)
+function! s:prototype.process.callback.on_stderr(id, data)
+  echohl ErrorMsg
   echomsg 'STDERR: '. join(a:data)
+  echohl NONE
 endfunction
 
 " s:prototype.process.callbacks.on_exit() {{{1
-function! s:prototype.process.callbacks.on_exit()
+function! s:prototype.process.callback.on_exit()
+  if empty(self.data)
+    echohl WarningMsg
+    echomsg 'No matches.'
+    echohl NONE
+  else
+    lgetexpr reverse(self.data)
+    lopen
+  endif
 endfunction
 
 " s:prototype.prompt() {{{1
 function! s:prototype.prompt()
   echohl Identifier
   call inputsave()
-  let input = input(self.process.cmd .'> ')
+  let self.process.args = input(self.program[self.process.program].cmd .'> ')
   call inputrestore()
   echohl NONE
-  redraw!
-  return self.process.cmd .' '. input
 endfunction
 
 " s:prototype.set_program() {{{1
 function! s:prototype.set_program()
   for program in self.program.order
     if executable(program)
-      let self.process.cmd = self.program[program]
-      let self.process.callbacks.on_stdout =
-            \ function('s:callback_on_stdout_'. program)
+      let self.process.program = program
       return
     endif
   endfor
 endfunction
 
 " s:prototype.run_program() {{{1
-function! s:prototype.run_program(cmd)
-  " if has('nvim')
-  "   let id = jobstart(split(a:cmd), self.process.callbacks)
-  "   return
-  " endif
+function! s:prototype.run_program()
+  let prog = self.program[self.process.program]
+
+  if has('nvim')
+    let self.process.callback.data = []
+    let self.process.callback.window = winnr()
+    let cmd = ['sh', '-c'] + [prog.cmd .' '. self.process.args]
+    let id = jobstart(cmd, self.process.callback)
+    return
+  endif
 
   let old_grepprg = &grepprg
-  let &grepprg = a:cmd
+  let &grepprg = prog.cmd
+  if has_key(prog, 'format')
+    let old_grepformat = &grepformat
+    let &grepformat = prog.format
+  endif
   try
-    silent lgrep
-    lopen
+    execute 'silent lgrep' fnameescape(self.process.args)
+    if empty(getloclist(0))
+      echohl WarningMsg
+      echomsg 'No matches.'
+      echohl NONE
+    else
+      lopen
+    endif
   finally
     let &grepprg = old_grepprg
+    if exists('old_grepformat')
+      let &grepformat = old_grepformat
+      unlet old_grepformat
+    endif
   endtry
 endfunction
 " }}}
@@ -99,5 +117,6 @@ endfunction
 function! grepper#start()
   let instance = copy(s:prototype)
   call instance.set_program()
-  call instance.run_program(instance.prompt())
+  call instance.prompt()
+  call instance.run_program()
 endfunction
