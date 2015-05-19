@@ -6,7 +6,7 @@ let s:prototype = {
       \     'cmd': 'git grep -ne',
       \   },
       \   'ag': {
-      \     'cmd':    'ag --vimgrep',
+      \     'cmd': 'ag --vimgrep',
       \     'format': '%f:%l:%c:%m',
       \   },
       \   'ack': {
@@ -32,10 +32,20 @@ endif
 
 " s:prototype.process.callback.on_stdout() {{{1
 function! s:prototype.process.callback.on_stdout(id, data)
-  echomsg 'DATA: '. string(a:data)
-  for d in a:data
-    call insert(self.data, d)
-  endfor
+  if empty(self.data)
+    for d in a:data
+      call insert(self.data, d)
+    endfor
+  else
+    if empty(self.data[0])
+      let self.data[0] = a:data[0]
+    else
+      let self.data[0] .= a:data[0]
+    endif
+    for d in a:data[1:]
+      call insert(self.data, d)
+    endfor
+  endif
 endfunction
 
 " s:prototype.process.callbacks.on_stderr() {{{1
@@ -52,7 +62,7 @@ function! s:prototype.process.callback.on_exit()
     echomsg 'No matches.'
     echohl NONE
   else
-    lgetexpr reverse(self.data)
+    lgetexpr reverse(self.data[1:])
     lopen
   endif
 endfunction
