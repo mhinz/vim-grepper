@@ -1,5 +1,6 @@
 " Variables {{{1
 let s:prototype = {
+      \ 'settings': {},
       \ 'option': {
       \   'use_quickfix': 1,
       \   'do_open': 1,
@@ -16,15 +17,12 @@ let s:prototype = {
       \     'format': '%f:%l:%c:%m',
       \   },
       \   'grep': {
-      \     'cmd': 'command grep -Ri',
+      \     'cmd': 'grep -Ri',
       \   }
       \ },
       \ 'process': {
       \   'args': '',
-      \   'callback': {
-      \     'data': [],
-      \   },
-      \ }
+      \ },
       \ }
 
 if exists('g:grepper')
@@ -35,26 +33,12 @@ let s:getexpr = ['lgetexpr', 'cgetexpr']
 let s:open    = ['lopen',    'copen'   ]
 let s:grep    = ['lgrep',    'grep'    ]
 
-let s:qf = s:prototype.option.use_quickfix
-let s:o  = s:prototype.option.do_open
-" }}}
-
-" s:handle_window() {{{1
-function! s:handle_window()
-  if empty(s:qf ? getqflist() : getloclist(0))
-    echohl WarningMsg
-    echomsg 'No matches.'
-    echohl NONE
-  else
-    if s:o
-      execute s:open[s:qf]
-    endif
-  endif
-endfunction
+let s:qf = s:prototype.option.use_quickfix  " short convenience var
+let s:id = 0  " running job ID
 " }}}
 
 " s:prototype.set_program() {{{1
-function! s:prototype.set_program()
+function! s:prototype.set_program() abort
   for program in self.option.order
     if executable(program)
       let self.process.program = program
@@ -64,7 +48,7 @@ function! s:prototype.set_program()
 endfunction
 
 " s:prototype.prompt() {{{1
-function! s:prototype.prompt()
+function! s:prototype.prompt() abort
   echohl Identifier
   call inputsave()
   let self.process.args = input(self.option[self.process.program].cmd .'> ')
@@ -76,71 +60,120 @@ endfunction
 function! s:prototype.run_program()
   let prog = self.option[self.process.program]
 
+  call self.set_settings()
+
   if has('nvim')
-    let s:window = winnr()
-    let s:tabpage = tabpagenr()
-    let self.process.callback.data = []
+    if s:id
+      call jobstop(s:id)
+      let s:id = 0
+    endif
+
     let cmd = ['sh', '-c'] + [prog.cmd .' '. self.process.args]
-    let id = jobstart(cmd, self.process.callback)
+    let s:id = jobstart(cmd, extend(self, {
+          \ 'process': {
+          \   'data': [],
+          \   'tabpage': tabpagenr(),
+          \   'window': winnr(),
+          \ },
+          \ 'on_stdout': self.on_stdout,
+          \ 'on_stderr': self.on_stderr,
+          \ 'on_exit': self.on_exit }))
     return
   endif
 
-  let old_grepprg = &grepprg
-  let &grepprg = prog.cmd
-  if has_key(prog, 'format')
-    let old_grepformat = &grepformat
-    let &grepformat = prog.format
-  endif
   try
     execute 'silent' s:grep[s:qf] fnameescape(self.process.args)
   finally
-    let &grepprg = old_grepprg
-    if exists('old_grepformat')
-      let &grepformat = old_grepformat
-      unlet old_grepformat
-    endif
+    call self.restore_settings()
   endtry
 
-  call s:handle_window()
+  call self.finish_up()
+  redraw!
+endfunction
+
+" s:prototype.set_settings() {{{1
+function! s:prototype.set_settings() abort
+  let prog = self.option[self.process.program]
+
+  let self.settings.t_ti = &t_ti
+  let self.settings.t_te = &t_te
+  set t_ti= t_te=
+
+  let self.settings.grepprg = &grepprg
+  let &grepprg = prog.cmd
+
+  if has_key(prog, 'format')
+    let self.settings.grepformat = &grepformat
+    let &grepformat = prog.format
+  endif
+endfunction
+
+" s:prototype.restore_settings() {{{1
+function! s:prototype.restore_settings() abort
+    let &grepprg = self.settings.grepprg
+
+    if has_key(self.settings, 'grepformat')
+      let &grepformat = self.settings.grepformat
+    endif
+
+    let &t_ti = self.settings.t_ti
+    let &t_te = self.settings.t_te
+endfunction
+
+" s:prototype.finish_up() {{{1
+function! s:prototype.finish_up() abort
+  if empty(s:qf ? getqflist() : getloclist(0))
+    echohl WarningMsg
+    echomsg 'No matches.'
+    echohl NONE
+  else
+    if self.option.do_open
+      execute s:open[s:qf]
+    endif
+  endif
+
+  silent! doautocmd <nomodeline> User Grepper
 endfunction
 " }}}
 
-" s:prototype.process.callback.on_stdout() {{{1
-function! s:prototype.process.callback.on_stdout(id, data)
-  if empty(self.data)
+" s:prototype.on_stdout() {{{1
+function! s:prototype.on_stdout(id, data) abort
+  if empty(self.process.data)
     for d in a:data
-      call insert(self.data, d)
+      call insert(self.process.data, d)
     endfor
   else
-    if empty(self.data[0])
-      let self.data[0] = a:data[0]
+    if empty(self.process.data[0])
+      let self.process.data[0] = a:data[0]
     else
-      let self.data[0] .= a:data[0]
+      let self.process.data[0] .= a:data[0]
     endif
     for d in a:data[1:]
-      call insert(self.data, d)
+      call insert(self.process.data, d)
     endfor
   endif
 endfunction
 
-" s:prototype.process.callbacks.on_stderr() {{{1
-function! s:prototype.process.callback.on_stderr(id, data)
+" s:prototype.on_stderr() {{{1
+function! s:prototype.on_stderr(id, data) abort
   echohl ErrorMsg
   echomsg 'STDERR: '. join(a:data)
   echohl NONE
 endfunction
 
-" s:prototype.process.callbacks.on_exit() {{{1
-function! s:prototype.process.callback.on_exit()
-  execute 'tabnext' s:tabpage
-  execute s:window .'wincmd w'
-  execute s:getexpr[s:qf] 'reverse(self.data[1:])'
-  call s:handle_window()
+" s:prototype.on_exit() {{{1
+function! s:prototype.on_exit() abort
+  execute 'tabnext' self.process.tabpage
+  execute self.process.window .'wincmd w'
+  execute s:getexpr[s:qf] 'reverse(self.process.data[1:])'
+
+  call self.restore_settings()
+  call self.finish_up()
 endfunction
 " }}}
 
 " grepper#start() {{{1
-function! grepper#start()
+function! grepper#start() abort
   let instance = copy(s:prototype)
   call instance.set_program()
   call instance.prompt()
