@@ -167,6 +167,7 @@ function! s:prototype.on_exit() abort
   execute self.process.window .'wincmd w'
   execute s:getexpr[s:qf] 'reverse(self.process.data[1:])'
 
+  let s:id = 0
   call self.restore_settings()
   call self.finish_up()
 endfunction
