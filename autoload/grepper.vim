@@ -31,7 +31,7 @@ endif
 
 let s:getexpr = ['lgetexpr', 'cgetexpr']
 let s:open    = ['lopen',    'copen'   ]
-let s:grep    = ['lgrep',    'grep'    ]
+let s:grep    = ['lgrep!',   'grep!'   ]
 
 let s:qf = s:prototype.option.use_quickfix  " short convenience var
 let s:id = 0  " running job ID
