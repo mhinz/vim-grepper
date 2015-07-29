@@ -77,9 +77,7 @@ endfunction
 
 " s:on_stderr() {{{1
 function! s:on_stderr(id, data) abort
-  echohl ErrorMsg
-  echomsg 'STDERR: '. join(a:data)
-  echohl NONE
+  call s:error('STDERR: '. join(a:data))
 endfunction
 
 " s:on_exit() {{{1
@@ -232,13 +230,12 @@ endfunction
 
 " s:finish_up() {{{1
 function! s:finish_up() abort
-  if empty(s:qf ? getqflist() : getloclist(0))
-    echohl WarningMsg
-    echomsg 'No matches.'
-    echohl NONE
+  let size = len(s:qf ? getqflist() : getloclist(0))
+  if size == 0
+    call s:warn('No matches.')
   else
     if s:grepper.option.do_open
-      execute s:open[s:qf]
+      execute (size > 10 ? 10 : size) s:open[s:qf]
     endif
   endif
   silent! doautocmd <nomodeline> User Grepper
