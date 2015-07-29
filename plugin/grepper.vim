@@ -19,20 +19,26 @@ let s:grepper = {
       \ 'option': {
       \   'use_quickfix': 1,
       \   'do_open': 1,
-      \   'programs': ['git', 'ag', 'ack', 'grep'],
+      \   'programs': ['git', 'ag', 'pt', 'ack', 'grep'],
       \   'git': {
       \     'cmd': 'git grep -ne',
+      \     'format': '%f:%l:%m',
       \   },
       \   'ag': {
       \     'cmd': 'ag --vimgrep',
       \     'format': '%f:%l:%c:%m',
+      \   },
+      \   'pt': {
+      \     'cmd': 'pt --nocolor --nogroup',
+      \     'format': '%f:%l:%m',
       \   },
       \   'ack': {
       \     'cmd': 'ack --nocolor --noheading --column',
       \     'format': '%f:%l:%c:%m',
       \   },
       \   'grep': {
-      \     'cmd': 'grep -Rn $* .'
+      \     'cmd': 'grep -Rn $* .',
+      \     'format': '%f:%l:%m',
       \   }
       \ },
       \ 'process': {
