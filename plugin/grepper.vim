@@ -216,7 +216,7 @@ function! s:finish_up() abort
       execute (size > 10 ? 10 : size) s:open[s:qf]
     endif
   endif
-  doautocmd <nomodeline> User Grepper
+  silent! doautocmd <nomodeline> User Grepper
 endfunction
 " }}}
 
