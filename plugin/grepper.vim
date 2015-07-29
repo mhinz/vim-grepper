@@ -32,7 +32,7 @@ let s:prototype = {
       \     'format': '%f:%l:%c:%m',
       \   },
       \   'grep': {
-      \     'cmd': 'grep -n $* /dev/null',
+      \     'cmd': 'grep -Rn $* .'
       \   }
       \ },
       \ 'process': {
@@ -163,7 +163,15 @@ function! s:run_program()
       let s:id = 0
     endif
 
-    let cmd = ['sh', '-c'] + [prog.cmd .' '. s:grepper.process.args]
+    let cmd = ['sh', '-c']
+
+    if stridx(prog.cmd, '$*') >= 0
+      let [a, b] = split(prog.cmd, '\V$*')
+      let cmd += [a . s:grepper.process.args . b]
+    else
+      let cmd += [prog.cmd .' '. s:grepper.process.args]
+    endif
+
     let s:id = jobstart(cmd, extend(s:grepper, {
           \ 'process': {
           \   'data': [],
