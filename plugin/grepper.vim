@@ -1,10 +1,25 @@
+" s:warn() {{{1
+function! s:warn(msg)
+  echohl WarningMsg
+  echomsg a:msg
+  echohl NONE
+endfunction
+
+" s:error() {{{1
+function! s:error(msg)
+  echohl ErrorMsg
+  echomsg a:msg
+  echohl NONE
+endfunction
+" }}}
+
 " Variables {{{1
 let s:prototype = {
       \ 'settings': {},
       \ 'option': {
       \   'use_quickfix': 1,
       \   'do_open': 1,
-      \   'programs': ['git', 'ag', 'ack', 'grep'],
+      \   'programs': filter(['git', 'ag', 'ack', 'grep'], 'executable(v:val)'),
       \   'git': {
       \     'cmd': 'git grep -ne',
       \   },
@@ -27,6 +42,11 @@ let s:prototype = {
 
 if exists('g:grepper')
   call extend(s:prototype.option, g:grepper)
+endif
+
+if empty(s:prototype.option.programs)
+  call s:error('No program found!')
+  finish
 endif
 
 let s:getexpr = ['lgetexpr', 'cgetexpr']
@@ -74,21 +94,39 @@ function! s:on_exit() abort
 endfunction
 " }}}
 
-" s:set_program() {{{1
-function! s:set_program() abort
-  call filter(s:grepper.option.programs, 'executable(v:val)')
-  " TODO: check if empty
-  let s:grepper.process.program = s:grepper.option.programs[0]
+" s:start() {{{1
+function! s:start() abort
+  let s:grepper = copy(s:prototype)
+  call s:set_program()
+  call s:prompt('')
+  if !empty(s:grepper.process.args)
+    call s:run_program()
+  endif
+endfunction
 
+" s:set_program() {{{1
+function! s:set_program()
+  if s:grepper.option.programs[0] == 'git'
+        \ && empty(finddir('.git', getcwd().';'))
+    return s:cycle_program('')
+  endif
+
+  let s:grepper.process.program = s:grepper.option.programs[0]
 endfunction
 
 " s:cycle_program() {{{1
 function! s:cycle_program(search) abort
-  " TODO: check length
   let s:grepper.option.programs =
         \ s:grepper.option.programs[1:-1] + [s:grepper.option.programs[0]]
+
+  if s:grepper.option.programs[0] == 'git'
+        \ && empty(finddir('.git', getcwd().';'))
+    return s:cycle_program(a:search)
+  endif
+
   let s:grepper.process.program = s:grepper.option.programs[0]
-  call s:prompt(a:search)
+
+  return s:prompt(a:search)
 endfunction
 
 " s:prompt() {{{1
@@ -191,17 +229,5 @@ function! s:finish_up() abort
   silent! doautocmd <nomodeline> User Grepper
 endfunction
 " }}}
-
-" start() {{{1
-function! s:start() abort
-  let s:executing = 1
-  let s:grepper = copy(s:prototype)
-  call s:set_program()
-  call s:prompt('')
-  if !empty(s:grepper.process.args)
-    call s:run_program()
-  endif
-  let s:executing = 0
-endfunction
 
 command! -bar Grepper call s:start()
