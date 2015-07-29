@@ -103,35 +103,12 @@ function! s:start(...) abort
     let @@ = regsave
   endif
 
-  let prog = s:get_program()
+  let prog = s:grepper.option.programs[0]
   let search = s:prompt(prog, search)
 
   if !empty(search)
-    call s:run_program(prog, search)
+    call s:run_program(search)
   endif
-endfunction
-
-" s:get_program() {{{1
-function! s:get_program()
-  if s:grepper.option.programs[0] == 'git'
-        \ && empty(finddir('.git', getcwd().';'))
-    return s:cycle_program('')
-  endif
-
-  return s:grepper.option.programs[0]
-endfunction
-
-" s:cycle_program() {{{1
-function! s:cycle_program(args) abort
-  let s:grepper.option.programs =
-        \ s:grepper.option.programs[1:-1] + [s:grepper.option.programs[0]]
-
-  if s:grepper.option.programs[0] == 'git'
-        \ && empty(finddir('.git', getcwd().';'))
-    return s:cycle_program(a:args)
-  endif
-
-  return s:prompt(s:grepper.option.programs[0], a:args)
 endfunction
 
 " s:prompt() {{{1
@@ -150,17 +127,17 @@ function! s:prompt(prog, search)
 
   if search =~# '\V$$$mAgIc###\$'
     call histdel('input')
-    return s:cycle_program(search[:-12])
+    let s:grepper.option.programs =
+          \ s:grepper.option.programs[1:-1] + [s:grepper.option.programs[0]]
+    return s:prompt(s:grepper.option.programs[0], search[:-12])
   endif
 
   return search
 endfunction
 
 " s:run_program() {{{1
-function! s:run_program(prog, search)
-  let prog = s:grepper.option[a:prog]
-
-  call s:set_settings(a:prog)
+function! s:run_program(search)
+  call s:set_settings()
 
   if has('nvim')
     if s:id
@@ -170,6 +147,7 @@ function! s:run_program(prog, search)
 
     let cmd = ['sh', '-c']
 
+    let prog = s:grepper.option[s:grepper.option.programs[0]]
     if stridx(prog.cmd, '$*') >= 0
       let [a, b] = split(prog.cmd, '\V$*')
       let cmd += [a . a:search . b]
@@ -200,8 +178,8 @@ function! s:run_program(prog, search)
 endfunction
 
 " s:set_settings() {{{1
-function! s:set_settings(prog) abort
-  let prog = s:grepper.option[a:prog]
+function! s:set_settings() abort
+  let prog = s:grepper.option[s:grepper.option.programs[0]]
 
   let s:grepper.setting.t_ti = &t_ti
   let s:grepper.setting.t_te = &t_te
