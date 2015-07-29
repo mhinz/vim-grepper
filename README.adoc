@@ -24,6 +24,10 @@ will adopt the current visual selection.
 
 Use `<tab>` to iterate through the grep programs.
 
+NOTE: If you're using link:https://github.com/neovim/neovim[Neovim] you'll get
+async execution for free. Thus you'll be able to continue editing until the
+grep program finishes.
+
 == Installation and Documentation
 
 If you don't have a plugin manager, I suggest having a look at
