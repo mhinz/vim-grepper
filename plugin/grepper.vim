@@ -19,7 +19,7 @@ let s:prototype = {
       \ 'option': {
       \   'use_quickfix': 1,
       \   'do_open': 1,
-      \   'programs': filter(['git', 'ag', 'ack', 'grep'], 'executable(v:val)'),
+      \   'programs': ['git', 'ag', 'ack', 'grep'],
       \   'git': {
       \     'cmd': 'git grep -ne',
       \   },
@@ -37,13 +37,13 @@ let s:prototype = {
       \ },
       \ 'process': {
       \   'args': '',
-      \ },
-      \ }
+      \ }}
 
 if exists('g:grepper')
   call extend(s:prototype.option, g:grepper)
 endif
 
+call filter(s:prototype.option.programs, 'executable(v:val)')
 if empty(s:prototype.option.programs)
   call s:error('No program found!')
   finish
@@ -95,10 +95,19 @@ endfunction
 " }}}
 
 " s:start() {{{1
-function! s:start() abort
-  let s:grepper = copy(s:prototype)
+function! s:start(...) abort
+  let s:grepper = deepcopy(s:prototype)
+
+  if a:0
+    let regsave = @@
+    normal! gvy
+    let s:grepper.process.args = @@
+    let @@ = regsave
+  endif
+
   call s:set_program()
-  call s:prompt('')
+  call s:prompt(s:grepper.process.args)
+
   if !empty(s:grepper.process.args)
     call s:run_program()
   endif
@@ -134,20 +143,21 @@ function! s:prompt(search)
   let prog = s:grepper.option[s:grepper.process.program]
   echohl Identifier
   call inputsave()
+
   try
-    cnoremap <leader>s $$$cYcLePlZ###<cr>
+    cnoremap <tab> $$$mAgIc###<cr>
     let input = input(prog.cmd .'> ', a:search)
-    cunmap <leader>s
-  catch
-    return
+    cunmap <tab>
   finally
     call inputrestore()
     echohl NONE
   endtry
-  if input =~# '\V$$$cYcLePlZ###\$'
+
+  if input =~# '\V$$$mAgIc###\$'
     call histdel('input')
-    return s:cycle_program(input[:-15])
+    return s:cycle_program(input[:-12])
   endif
+
   let s:grepper.process.args = input
 endfunction
 
@@ -238,4 +248,7 @@ function! s:finish_up() abort
 endfunction
 " }}}
 
-command! -bar Grepper call s:start()
+nnoremap <silent> <plug>Grepper :call <sid>start()<cr>
+xnoremap <silent> <plug>Grepper :call <sid>start('visual')<cr>
+
+command! -nargs=0 -bar Grepper call s:start()
