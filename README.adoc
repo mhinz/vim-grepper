@@ -24,6 +24,12 @@ will adopt the current visual selection.
 
 Use `<tab>` to iterate through the grep programs.
 
+If the grep program finishes, a user event is triggered. Use it like this:
+
+```vim
+autocmd User Grepper echomsg 'Grep program finished!'
+```
+
 NOTE: If you're using link:https://github.com/neovim/neovim[Neovim] you'll get
 async execution for free. Thus you'll be able to continue editing until the
 grep program finishes.
