@@ -1,0 +1,41 @@
+image:https://github.com/mhinz/vim-grepper/blob/master/demo.gif[vim-grepper]
+
+_If you use any of my plugins, please star them on github. It's a great way of
+getting feedback and gives me the kick to put more time into their development.
+If you encounter any bugs or have feature requests, just open an issue report
+on Github._
+
+_Follow me:_ link:https://twitter.com/\_mhinz_[Twitter]
+
+== Intro
+
+This plugin lets you quickly iterate through all common grep programs. Missing
+ones can easily be added.
+
+A `:Grepper` command exists, but I suggest setting up proper mappings, e.g.
+
+```vim
+nmap <leader>g <plug>Grepper
+xmap <leader>g <plug>Grepper
+```
+
+`<leader>g` in normal mode will prompt for a new search term and in visual mode
+will adopt the current visual selection.
+
+Use `<tab>` to iterate through the grep programs.
+
+== Installation and Documentation
+
+If you don't have a plugin manager, I suggest having a look at
+link:https://github.com/junegunn/vim-plug.git[vim-plug]. Installation is a
+breeze afterwards:
+
+    Plug 'mhinz/vim-grepper'
+
+Restart Vim or `:source $MYVIMRC`, then do `:PlugInstall`.
+
+TIP: Read `:h grepper` for more information about this plugin.
+
+== License
+
+MIT license. Copyright (c) 2015 Marco Hinz.
