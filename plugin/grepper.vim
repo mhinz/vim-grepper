@@ -4,7 +4,7 @@ let s:prototype = {
       \ 'option': {
       \   'use_quickfix': 1,
       \   'do_open': 1,
-      \   'order': ['git', 'ag', 'ack', 'grep'],
+      \   'programs': ['git', 'ag', 'ack', 'grep'],
       \   'git': {
       \     'cmd': 'git grep -ne',
       \   },
@@ -37,37 +37,80 @@ let s:qf = s:prototype.option.use_quickfix  " short convenience var
 let s:id = 0  " running job ID
 " }}}
 
+" s:on_stdout() {{{1
+function! s:on_stdout(id, data) abort
+  if empty(s:grepper.process.data)
+    for d in a:data
+      call insert(s:grepper.process.data, d)
+    endfor
+  else
+    if empty(s:grepper.process.data[0])
+      let s:grepper.process.data[0] = a:data[0]
+    else
+      let s:grepper.process.data[0] .= a:data[0]
+    endif
+    for d in a:data[1:]
+      call insert(s:grepper.process.data, d)
+    endfor
+  endif
+endfunction
+
+" s:on_stderr() {{{1
+function! s:on_stderr(id, data) abort
+  echohl ErrorMsg
+  echomsg 'STDERR: '. join(a:data)
+  echohl NONE
+endfunction
+
+" s:on_exit() {{{1
+function! s:on_exit() abort
+  execute 'tabnext' s:grepper.process.tabpage
+  execute s:grepper.process.window .'wincmd w'
+  execute s:getexpr[s:qf] 'reverse(s:grepper.process.data[1:])'
+
+  let s:id = 0
+  call s:restore_settings()
+  call s:finish_up()
+endfunction
+" }}}
+
 " s:set_program() {{{1
 function! s:set_program() abort
-  call filter(s:grepper.option.order, 'executable(v:val)')
+  call filter(s:grepper.option.programs, 'executable(v:val)')
   " TODO: check if empty
-  let s:grepper.process.program = s:grepper.option.order[0]
+  let s:grepper.process.program = s:grepper.option.programs[0]
 
 endfunction
 
 " s:cycle_program() {{{1
-function! s:cycle_program() abort
+function! s:cycle_program(search) abort
   " TODO: check length
-  let s:grepper.option.order = [s:grepper.option.order[0]] + s:grepper.option.order[1:-1]
-  let s:grepper.process.program = s:grepper.option.order[0]
-  return s:grepper.prompt()
+  let s:grepper.option.programs =
+        \ s:grepper.option.programs[1:-1] + [s:grepper.option.programs[0]]
+  let s:grepper.process.program = s:grepper.option.programs[0]
+  call s:prompt(a:search)
 endfunction
 
 " s:prompt() {{{1
-function! s:prompt() abort
+function! s:prompt(search)
   let prog = s:grepper.option[s:grepper.process.program]
-  cnoremap <leader>s <esc>:call <sid>cycle_program()<cr>
   echohl Identifier
   call inputsave()
   try
-   let input = input(prog.cmd .'> ')
+    cnoremap <leader>s $$$cYcLePlZ###<cr>
+    let input = input(prog.cmd .'> ', a:search)
+    cunmap <leader>s
   catch
     return
   finally
     call inputrestore()
+    echohl NONE
   endtry
+  if input =~# '\V$$$cYcLePlZ###\$'
+    call histdel('input')
+    return s:cycle_program(input[:-15])
+  endif
   let s:grepper.process.args = input
-  echohl NONE
 endfunction
 
 " s:run_program() {{{1
@@ -134,7 +177,7 @@ function! s:restore_settings() abort
     let &t_te = s:grepper.settings.t_te
 endfunction
 
-" s:.finish_up() {{{1
+" s:finish_up() {{{1
 function! s:finish_up() abort
   if empty(s:qf ? getqflist() : getloclist(0))
     echohl WarningMsg
@@ -145,56 +188,20 @@ function! s:finish_up() abort
       execute s:open[s:qf]
     endif
   endif
-
   silent! doautocmd <nomodeline> User Grepper
-endfunction
-" }}}
-
-" s:on_stdout() {{{1
-function! s:on_stdout(id, data) abort
-  if empty(s:grepper.process.data)
-    for d in a:data
-      call insert(s:grepper.process.data, d)
-    endfor
-  else
-    if empty(s:grepper.process.data[0])
-      let s:grepper.process.data[0] = a:data[0]
-    else
-      let s:grepper.process.data[0] .= a:data[0]
-    endif
-    for d in a:data[1:]
-      call insert(s:grepper.process.data, d)
-    endfor
-  endif
-endfunction
-
-" s:on_stderr() {{{1
-function! s:on_stderr(id, data) abort
-  echohl ErrorMsg
-  echomsg 'STDERR: '. join(a:data)
-  echohl NONE
-endfunction
-
-" s:on_exit() {{{1
-function! s:on_exit() abort
-  execute 'tabnext' s:grepper.process.tabpage
-  execute s:grepper.process.window .'wincmd w'
-  execute s:getexpr[s:qf] 'reverse(s:grepper.process.data[1:])'
-
-  let s:id = 0
-  call s:restore_settings()
-  call s:finish_up()
 endfunction
 " }}}
 
 " start() {{{1
 function! s:start() abort
+  let s:executing = 1
   let s:grepper = copy(s:prototype)
   call s:set_program()
-  call s:prompt()
+  call s:prompt('')
   if !empty(s:grepper.process.args)
     call s:run_program()
   endif
+  let s:executing = 0
 endfunction
 
 command! -bar Grepper call s:start()
