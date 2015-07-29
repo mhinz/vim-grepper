@@ -14,8 +14,8 @@ endfunction
 " }}}
 
 " Variables {{{1
-let s:prototype = {
-      \ 'settings': {},
+let s:grepper = {
+      \ 'setting': {},
       \ 'option': {
       \   'use_quickfix': 1,
       \   'do_open': 1,
@@ -40,11 +40,11 @@ let s:prototype = {
       \ }}
 
 if exists('g:grepper')
-  call extend(s:prototype.option, g:grepper)
+  call extend(s:grepper.option, g:grepper)
 endif
 
-call filter(s:prototype.option.programs, 'executable(v:val)')
-if empty(s:prototype.option.programs)
+call filter(s:grepper.option.programs, 'executable(v:val)')
+if empty(s:grepper.option.programs)
   call s:error('No program found!')
   finish
 endif
@@ -53,7 +53,7 @@ let s:getexpr = ['lgetexpr', 'cgetexpr']
 let s:open    = ['lopen',    'copen'   ]
 let s:grep    = ['lgrep!',   'grep!'   ]
 
-let s:qf = s:prototype.option.use_quickfix  " short convenience var
+let s:qf = s:grepper.option.use_quickfix  " short convenience var
 let s:id = 0  " running job ID
 " }}}
 
@@ -96,76 +96,73 @@ endfunction
 
 " s:start() {{{1
 function! s:start(...) abort
-  let s:grepper = deepcopy(s:prototype)
+  let search = ''
 
   if a:0
     let regsave = @@
     normal! gvy
-    let s:grepper.process.args = @@
+    let search = @@
     let @@ = regsave
   endif
 
-  call s:set_program()
-  call s:prompt(s:grepper.process.args)
+  let prog = s:get_program()
+  let search = s:prompt(prog, search)
 
-  if !empty(s:grepper.process.args)
-    call s:run_program()
+  if !empty(search)
+    call s:run_program(prog, search)
   endif
 endfunction
 
-" s:set_program() {{{1
-function! s:set_program()
+" s:get_program() {{{1
+function! s:get_program()
   if s:grepper.option.programs[0] == 'git'
         \ && empty(finddir('.git', getcwd().';'))
     return s:cycle_program('')
   endif
 
-  let s:grepper.process.program = s:grepper.option.programs[0]
+  return s:grepper.option.programs[0]
 endfunction
 
 " s:cycle_program() {{{1
-function! s:cycle_program(search) abort
+function! s:cycle_program(args) abort
   let s:grepper.option.programs =
         \ s:grepper.option.programs[1:-1] + [s:grepper.option.programs[0]]
 
   if s:grepper.option.programs[0] == 'git'
         \ && empty(finddir('.git', getcwd().';'))
-    return s:cycle_program(a:search)
+    return s:cycle_program(a:args)
   endif
 
-  let s:grepper.process.program = s:grepper.option.programs[0]
-
-  return s:prompt(a:search)
+  return s:prompt(s:grepper.option.programs[0], a:args)
 endfunction
 
 " s:prompt() {{{1
-function! s:prompt(search)
-  let prog = s:grepper.option[s:grepper.process.program]
+function! s:prompt(prog, search)
   echohl Identifier
   call inputsave()
 
   try
     cnoremap <tab> $$$mAgIc###<cr>
-    let input = input(prog.cmd .'> ', a:search)
+    let search = input(s:grepper.option[a:prog].cmd .'> ', a:search)
     cunmap <tab>
   finally
     call inputrestore()
     echohl NONE
   endtry
 
-  if input =~# '\V$$$mAgIc###\$'
+  if search =~# '\V$$$mAgIc###\$'
     call histdel('input')
-    return s:cycle_program(input[:-12])
+    return s:cycle_program(search[:-12])
   endif
 
-  let s:grepper.process.args = input
+  return search
 endfunction
 
 " s:run_program() {{{1
-function! s:run_program()
-  let prog = s:grepper.option[s:grepper.process.program]
+function! s:run_program(prog, search)
+  let prog = s:grepper.option[a:prog]
 
-  call s:set_settings()
+  call s:set_settings(a:prog)
 
   if has('nvim')
     if s:id
@@ -177,9 +174,9 @@ function! s:run_program()
 
     if stridx(prog.cmd, '$*') >= 0
       let [a, b] = split(prog.cmd, '\V$*')
-      let cmd += [a . s:grepper.process.args . b]
+      let cmd += [a . a:search . b]
     else
-      let cmd += [prog.cmd .' '. s:grepper.process.args]
+      let cmd += [prog.cmd .' '. a:search]
     endif
 
     let s:id = jobstart(cmd, extend(s:grepper, {
@@ -195,7 +192,7 @@ function! s:run_program()
   endif
 
   try
-    execute 'silent' s:grep[s:qf] fnameescape(s:grepper.process.args)
+    execute 'silent' s:grep[s:qf] fnameescape(a:search)
   finally
     call s:restore_settings()
   endtry
@@ -205,32 +202,32 @@ function! s:run_program()
 endfunction
 
 " s:set_settings() {{{1
-function! s:set_settings() abort
-  let prog = s:grepper.option[s:grepper.process.program]
+function! s:set_settings(prog) abort
+  let prog = s:grepper.option[a:prog]
 
-  let s:grepper.settings.t_ti = &t_ti
-  let s:grepper.settings.t_te = &t_te
+  let s:grepper.setting.t_ti = &t_ti
+  let s:grepper.setting.t_te = &t_te
   set t_ti= t_te=
 
-  let s:grepper.settings.grepprg = &grepprg
+  let s:grepper.setting.grepprg = &grepprg
   let &grepprg = prog.cmd
 
   if has_key(prog, 'format')
-    let s:grepper.settings.grepformat = &grepformat
+    let s:grepper.setting.grepformat = &grepformat
     let &grepformat = prog.format
   endif
 endfunction
 
 " s:restore_settings() {{{1
 function! s:restore_settings() abort
-    let &grepprg = s:grepper.settings.grepprg
+    let &grepprg = s:grepper.setting.grepprg
 
-    if has_key(s:grepper.settings, 'grepformat')
-      let &grepformat = s:grepper.settings.grepformat
+    if has_key(s:grepper.setting, 'grepformat')
+      let &grepformat = s:grepper.setting.grepformat
     endif
 
-    let &t_ti = s:grepper.settings.t_ti
-    let &t_te = s:grepper.settings.t_te
+    let &t_ti = s:grepper.setting.t_ti
+    let &t_te = s:grepper.setting.t_te
 endfunction
 
 " s:finish_up() {{{1
