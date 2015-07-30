@@ -1,43 +1,11 @@
+let s:initialized = 0
+
 " s:error() {{{1
 function! s:error(msg)
   echohl ErrorMsg
   echomsg a:msg
   echohl NONE
 endfunction
-" }}}
-
-" Variables {{{1
-let s:grepper = {
-      \ 'setting': {},
-      \ 'option': {
-      \   'use_quickfix': 1,
-      \   'do_open': 1,
-      \   'do_switch': 1,
-      \   'do_jump': 0,
-      \   'programs': ['git', 'ag', 'pt', 'ack', 'grep', 'findstr'],
-      \   'git':     { 'grepprg': 'git grep -ne',             'grepformat': '%f:%l:%m'    },
-      \   'ag':      { 'grepprg': 'ag --vimgrep',             'grepformat': '%f:%l:%c:%m' },
-      \   'pt':      { 'grepprg': 'pt --nogroup',             'grepformat': '%f:%l:%m'    },
-      \   'ack':     { 'grepprg': 'ack --noheading --column', 'grepformat': '%f:%l:%c:%m' },
-      \   'grep':    { 'grepprg': 'grep -Rn $* .',            'grepformat': '%f:%l:%m'    },
-      \   'findstr': { 'grepprg': 'findstr -rspnc:"$*" *',    'grepformat': '%f:%l:%m'    },
-      \ },
-      \ 'process': {
-      \   'args': '',
-      \ }}
-
-if exists('g:grepper')
-  call extend(s:grepper.option, g:grepper)
-endif
-
-call filter(s:grepper.option.programs, 'executable(v:val)')
-
-let s:getfile = ['lgetfile', 'cgetfile']
-let s:open    = ['lopen',    'copen'   ]
-let s:grep    = ['lgrep!',   'grep!'   ]
-
-let s:qf = s:grepper.option.use_quickfix  " short convenience var
-let s:id = 0  " running job ID
 " }}}
 
 " s:on_stderr() {{{1
@@ -59,8 +27,56 @@ function! s:on_exit() abort
 endfunction
 " }}}
 
+" s:init() {{{1
+function! s:init() abort
+  let s:grepper = {
+        \ 'setting': {},
+        \ 'option': {
+        \   'use_quickfix': 1,
+        \   'do_open': 1,
+        \   'do_switch': 1,
+        \   'do_jump': 0,
+        \   'programs': ['git', 'ag', 'pt', 'ack', 'grep', 'findstr'],
+        \   'git':     { 'grepprg': 'git grep -ne',             'grepformat': '%f:%l:%m'    },
+        \   'ag':      { 'grepprg': 'ag --vimgrep',             'grepformat': '%f:%l:%c:%m' },
+        \   'pt':      { 'grepprg': 'pt --nogroup',             'grepformat': '%f:%l:%m'    },
+        \   'ack':     { 'grepprg': 'ack --noheading --column', 'grepformat': '%f:%l:%c:%m' },
+        \   'grep':    { 'grepprg': 'grep -Rn $* .',            'grepformat': '%f:%l:%m'    },
+        \   'findstr': { 'grepprg': 'findstr -rspnc:"$*" *',    'grepformat': '%f:%l:%m'    },
+        \ },
+        \ 'process': {
+        \   'args': '',
+        \ }}
+
+  if exists('g:grepper')
+    call extend(s:grepper.option, g:grepper)
+  endif
+
+  call filter(s:grepper.option.programs, 'executable(v:val)')
+
+  let ack     = index(s:grepper.option.programs, 'ack')
+  let ackgrep = index(s:grepper.option.programs, 'ack-grep')
+
+  if (ack >= 0) && (ackgrep >= 0)
+    call remove(s:grepper.option.programs, ackgrep)
+  endif
+
+  let s:getfile = ['lgetfile', 'cgetfile']
+  let s:open    = ['lopen',    'copen'   ]
+  let s:grep    = ['lgrep!',   'grep!'   ]
+
+  let s:qf = s:grepper.option.use_quickfix  " short convenience var
+  let s:id = 0  " running job ID
+
+  let s:initialized = 1
+endfunction
+
 " s:start() {{{1
 function! s:start(...) abort
+  if !s:initialized
+    call s:init()
+  endif
+
   let search = ''
 
   if empty(s:grepper.option.programs)
