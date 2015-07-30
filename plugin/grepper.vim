@@ -56,31 +56,13 @@ if empty(s:grepper.option.programs)
   finish
 endif
 
-let s:getexpr = ['lgetexpr', 'cgetexpr']
+let s:getfile = ['lgetfile', 'cgetfile']
 let s:open    = ['lopen',    'copen'   ]
 let s:grep    = ['lgrep!',   'grep!'   ]
 
 let s:qf = s:grepper.option.use_quickfix  " short convenience var
 let s:id = 0  " running job ID
 " }}}
-
-" s:on_stdout() {{{1
-function! s:on_stdout(id, data) abort
-  if empty(s:grepper.process.data)
-    for d in a:data
-      call insert(s:grepper.process.data, d)
-    endfor
-  else
-    if empty(s:grepper.process.data[0])
-      let s:grepper.process.data[0] = a:data[0]
-    else
-      let s:grepper.process.data[0] .= a:data[0]
-    endif
-    for d in a:data[1:]
-      call insert(s:grepper.process.data, d)
-    endfor
-  endif
-endfunction
 
 " s:on_stderr() {{{1
 function! s:on_stderr(id, data) abort
@@ -91,11 +73,13 @@ endfunction
 function! s:on_exit() abort
   execute 'tabnext' s:grepper.process.tabpage
   execute s:grepper.process.window .'wincmd w'
-  execute s:getexpr[s:qf] 'reverse(s:grepper.process.data[1:])'
+
+  execute s:getfile[s:qf] s:grepper.process.tempfile
+  call delete(s:grepper.process.tempfile)
 
   let s:id = 0
   call s:restore_settings()
-  call s:finish_up()
+  return s:finish_up()
 endfunction
 " }}}
 
@@ -148,7 +132,7 @@ function! s:run_program(search)
 
   if has('nvim')
     if s:id
-      call jobstop(s:id)
+      silent! call jobstop(s:id)
       let s:id = 0
     endif
 
@@ -162,14 +146,18 @@ function! s:run_program(search)
       let cmd += [prog.grepprg .' '. a:search]
     endif
 
+    let tempfile = fnameescape(tempname())
+    if exists('*mkdir')
+      silent! call mkdir(fnamemodify(tempfile, ':h'), 'p', 0600)
+    endif
+    let cmd[-1] .= ' >'. tempfile
+
     let s:id = jobstart(cmd, extend(s:grepper, {
           \ 'process': {
-          \   'data': [],
           \   'tabpage': tabpagenr(),
           \   'window': winnr(),
+          \   'tempfile': tempfile,
           \ },
-          \ 'on_stdout': function('s:on_stdout'),
-          \ 'on_stderr': function('s:on_stderr'),
           \ 'on_exit': function('s:on_exit') }))
     return
   endif
