@@ -1,10 +1,3 @@
-" s:warn() {{{1
-function! s:warn(msg)
-  echohl WarningMsg
-  echomsg a:msg
-  echohl NONE
-endfunction
-
 " s:error() {{{1
 function! s:error(msg)
   echohl ErrorMsg
@@ -208,7 +201,8 @@ endfunction
 function! s:finish_up(cmd) abort
   let size = len(s:qf ? getqflist() : getloclist(0))
   if size == 0
-    call s:warn('No matches.')
+    execute s:qf ? 'cclose' : 'lclose'
+    echomsg 'No matches found.'
   else
     if s:grepper.option.do_open
       execute (size > 10 ? 10 : size) s:open[s:qf]
@@ -217,8 +211,8 @@ function! s:finish_up(cmd) abort
         wincmd p
       endif
     endif
+    redraw!
   endif
-  redraw!
   silent! doautocmd <nomodeline> User Grepper
 endfunction
 " }}}
