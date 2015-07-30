@@ -79,7 +79,7 @@ function! s:on_exit() abort
 
   let s:id = 0
   call s:restore_settings()
-  return s:finish_up()
+  return s:finish_up(s:grepper.process.cmd)
 endfunction
 " }}}
 
@@ -128,6 +128,8 @@ endfunction
 
 " s:run_program() {{{1
 function! s:run_program(search)
+  let prog = s:grepper.option[s:grepper.option.programs[0]]
+  let cmdline = prog.grepprg .' '. a:search
   call s:set_settings()
 
   if has('nvim')
@@ -138,7 +140,6 @@ function! s:run_program(search)
 
     let cmd = ['sh', '-c']
 
-    let prog = s:grepper.option[s:grepper.option.programs[0]]
     if stridx(prog.grepprg, '$*') >= 0
       let [a, b] = split(prog.grepprg, '\V$*')
       let cmd += [a . a:search . b]
@@ -157,7 +158,9 @@ function! s:run_program(search)
           \   'tabpage': tabpagenr(),
           \   'window': winnr(),
           \   'tempfile': tempfile,
+          \   'cmd': cmdline,
           \ },
+          \ 'on_stderr': function('s:on_stderr'),
           \ 'on_exit': function('s:on_exit') }))
     return
   endif
@@ -168,8 +171,7 @@ function! s:run_program(search)
     call s:restore_settings()
   endtry
 
-  call s:finish_up()
-  redraw!
+  call s:finish_up(cmdline)
 endfunction
 
 " s:set_settings() {{{1
@@ -202,18 +204,20 @@ function! s:restore_settings() abort
 endfunction
 
 " s:finish_up() {{{1
-function! s:finish_up() abort
+function! s:finish_up(cmd) abort
   let size = len(s:qf ? getqflist() : getloclist(0))
   if size == 0
     call s:warn('No matches.')
   else
     if s:grepper.option.do_open
       execute (size > 10 ? 10 : size) s:open[s:qf]
+      let &l:statusline = a:cmd
       if !s:grepper.option.do_switch
         wincmd p
       endif
     endif
   endif
+  redraw!
   silent! doautocmd <nomodeline> User Grepper
 endfunction
 " }}}
