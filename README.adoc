@@ -20,7 +20,7 @@ list.
 If you use Neovim the search will be executed asynchronously. Thus you will be
 able to continue editing while the grep program is still running.
 
-Supports by default: *git grep*, *ag*, *pt*, *ack*, *grep*
+Supports by default: *git grep*, *ag*, *pt*, *ack*, *grep*, *findstr*
 
 == Mappings
 

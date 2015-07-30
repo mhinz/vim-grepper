@@ -14,26 +14,12 @@ let s:grepper = {
       \   'do_open': 1,
       \   'do_switch': 1,
       \   'programs': ['git', 'ag', 'pt', 'ack', 'grep'],
-      \   'git': {
-      \     'grepprg': 'git grep -ne',
-      \     'grepformat': '%f:%l:%m',
-      \   },
-      \   'ag': {
-      \     'grepprg': 'ag --vimgrep',
-      \     'grepformat': '%f:%l:%c:%m',
-      \   },
-      \   'pt': {
-      \     'grepprg': 'pt --nocolor --nogroup',
-      \     'grepformat': '%f:%l:%m',
-      \   },
-      \   'ack': {
-      \     'grepprg': 'ack --nocolor --noheading --column',
-      \     'grepformat': '%f:%l:%c:%m',
-      \   },
-      \   'grep': {
-      \     'grepprg': 'grep -Rn $* .',
-      \     'grepformat': '%f:%l:%m',
-      \   }
+      \   'git':     { 'grepprg': 'git grep -ne',             'grepformat': '%f:%l:%m'    },
+      \   'ag':      { 'grepprg': 'ag --vimgrep',             'grepformat': '%f:%l:%c:%m' },
+      \   'pt':      { 'grepprg': 'pt --nogroup',             'grepformat': '%f:%l:%m'    },
+      \   'ack':     { 'grepprg': 'ack --noheading --column', 'grepformat': '%f:%l:%c:%m' },
+      \   'grep':    { 'grepprg': 'grep -Rn $* .',            'grepformat': '%f:%l:%m'    },
+      \   'findstr': { 'grepprg': 'findstr -rspnc:"$*" *',    'grepformat': '%f:%l:%m'    },
       \ },
       \ 'process': {
       \   'args': '',

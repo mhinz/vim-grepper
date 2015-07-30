@@ -46,6 +46,7 @@ Supports by default:~
     pt
     ack
     grep
+    findstr
 
 ==============================================================================
 MAPPINGS                                                      *grepper-mappings*
