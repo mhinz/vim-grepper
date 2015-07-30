@@ -51,10 +51,6 @@ if exists('g:grepper')
 endif
 
 call filter(s:grepper.option.programs, 'executable(v:val)')
-if empty(s:grepper.option.programs)
-  call s:error('No program found!')
-  finish
-endif
 
 let s:getfile = ['lgetfile', 'cgetfile']
 let s:open    = ['lopen',    'copen'   ]
@@ -86,6 +82,11 @@ endfunction
 " s:start() {{{1
 function! s:start(...) abort
   let search = ''
+
+  if empty(s:grepper.option.programs)
+    call s:error('No grep program found!')
+    return
+  endif
 
   if a:0
     let regsave = @@
