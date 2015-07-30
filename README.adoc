@@ -1,3 +1,5 @@
+== vim-grepper
+
 image:https://github.com/mhinz/vim-grepper/blob/master/demo.gif[vim-grepper]
 
 _If you use any of my plugins, please star them on github. It's a great way of
@@ -27,12 +29,12 @@ Use `<tab>` to iterate through the grep programs.
 If the grep program finishes, a user event is triggered. Use it like this:
 
 ```vim
-autocmd User Grepper echomsg 'Grep program finished!'
+autocmd User Grepper <execute any normal commands here>
 ```
 
 NOTE: If you're using link:https://github.com/neovim/neovim[Neovim] you'll get
-async execution for free. Thus you'll be able to continue editing until the
-grep program finishes.
+async execution for free. Thus you'll be able to continue editing while the
+grep program is still running.
 
 == Installation and Documentation
 

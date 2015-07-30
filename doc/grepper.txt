@@ -1,0 +1,139 @@
+*grepper.txt*  Grep it!
+*grepper*
+
+  by Marco Hinz~
+
+  Twitter: https://twitter.com/_mhinz_
+  Github:  http://github.com/mhinz
+  IRC:     mhi^ (Freenode)
+>
+  If you use any of my plugins, please star them on github. It's a great way
+  of getting feedback and gives me the kick to put more time into their
+  development.
+
+  If you encounter any bugs or have feature requests, just open an issue
+  report on Github.
+
+  Thank you for flying mhi^ airlines. Get the Vim on!
+<
+==============================================================================
+CONTENTS                                                      *grepper-contents*
+
+    INTRO .......................................... |grepper-intro|
+    MAPPINGS ....................................... |grepper-mappings|
+    COMMANDS ....................................... |grepper-commands|
+    OPTIONS ........................................ |grepper-options|
+    AUTOCMD ........................................ |grepper-autocmd|
+    COLORS ......................................... |grepper-colors|
+    FAQ ............................................ |grepper-faq|
+    EXAMPLE ........................................ |grepper-example|
+
+==============================================================================
+INTRO                                                            *grepper-intro*
+
+This plugin is a convenience wrapper around all common grep programs. You
+choose a tool, enter a search term, and get your matches into a quickfix list.
+
+If you use Neovim the search will be executed asynchronously. Thus you will be
+able to continue editing while the grep program is still running.
+
+==============================================================================
+MAPPINGS                                                      *grepper-mappings*
+
+There are no pre-defined mappings, but 2 |<plug>| mappings, that should be
+used:
+>
+    nmap gs <plug>Grepper
+    vmap gs <plug>Grepper
+>
+Now, gs in normal mode will prompt for a new search term and in visual mode
+will adopt the current visual selection.
+
+Use <tab> to iterate through all found grep programs.
+
+==============================================================================
+COMMANDS                                                      *grepper-commands*
+>
+    :Grepper
+<
+This is the only command and simply kicks off a new search.
+
+==============================================================================
+OPTIONS                                                       *startify-options*
+
+Opposed to most other plugins, there aren't several global variables, but only
+one global |Dictionary|: g:grepper. All keys of this dictionary are plugin
+options. The shown values are also the default values.
+>
+    'use_quickfix': 1
+<
+Use the quickfix list for the matches or the location list otherwise.
+>
+    'do_open': 1
+<
+Do open the the quickfix/location window after the grep program finished
+running (and there was at least one match).
+>
+    'programs': ['git', 'ag', 'pt', 'ack', 'grep']
+<
+------------------------------------------------------------------------------
+
+If you don't like the default arguments to a grep program or you want to add a
+new one, just replace/add a key to s:grepper!
+
+In the best case, the output of the program uses a format that is already
+recognized by |'grepformat'|. Otherwise you can define it yourself. Here an
+example:
+>
+    let g:grepper = {
+        \ 'programs': ['pt'],
+        \ 'pt': {
+        \   'grepprg': 'pt --nocolor --nogroup',
+        \   'grepformat': '%f:%l:%m',
+        \ }}
+<
+This would always use 'pt' as grep program.
+
+==============================================================================
+AUTOCMD                                                        *grepper-autocmd*
+
+If the grep program finished running, the plugin emits an event. Handle it
+like this:
+>
+    autocmd User Grepper <execute any normal commands here>
+<
+==============================================================================
+COLORS                                                          *grepper-colors*
+
+The search prompt is highlighted via the |hl-Question| group. Change it like
+this:
+>
+    highlight Question ctermfg=160 guifg=#ff0000 cterm=NONE
+>
+Other groups used are |hl-WarningMsg| and |hl-ErrorMsg| for, well, warning and
+error messages.
+
+==============================================================================
+FAQ                                                                *grepper-faq*
+
+    |grepper-faq-01|  How to switch to the qf/loc window automatically?
+
+------------------------------------------------------------------------------
+                                                                *grepper-faq-01*
+How to switch to the qf/loc window automatically?~
+
+NOT IMPLEMENTED YET
+
+==============================================================================
+EXAMPLE                                                        *grepper-example*
+
+This is my configuration..
+>
+    let g:grepper = {
+        \ 'programs': ['git', 'ag'],
+        \ 'use_quickfix': 1,
+        \ 'do_open: 1,
+        \ }
+<
+==============================================================================
+vim: tw=78
