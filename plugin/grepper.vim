@@ -119,7 +119,7 @@ endfunction
 
 " s:prompt() {{{1
 function! s:prompt(prog, search)
-  echohl Identifier
+  echohl Question
   call inputsave()
 
   try
