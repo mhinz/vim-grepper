@@ -30,8 +30,11 @@ CONTENTS                                                      *grepper-contents*
 ==============================================================================
 INTRO                                                            *grepper-intro*
 
-This plugin is a convenience wrapper around all common grep programs. You
-choose a tool, enter a search term, and get your matches into a quickfix list.
+This plugin is a convenience wrapper around |'grepprg'| and |'grepformat'|,
+supports most common grep tools, and is easily extendable.
+
+You choose a tool, enter a search term, and get your matches into a quickfix
+list.
 
 If you use Neovim the search will be executed asynchronously. Thus you will be
 able to continue editing while the grep program is still running.

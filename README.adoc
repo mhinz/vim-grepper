@@ -11,30 +11,29 @@ _Follow me:_ link:https://twitter.com/\_mhinz_[Twitter]
 
 == Intro
 
-This plugin lets you quickly iterate through all common grep programs. Missing
-ones can easily be added.
+This plugin is a convenience wrapper around `'grepprg'` and `'grepformat'`,
+supports most common grep tools, and is easily extendable.
 
-A `:Grepper` command exists, but I suggest setting up proper mappings, e.g.
+You choose a tool, enter a search term, and get your matches into a quickfix
+list.
 
-```vim
-nmap <leader>g <plug>Grepper
-xmap <leader>g <plug>Grepper
-```
+If you use Neovim the search will be executed asynchronously. Thus you will be
+able to continue editing while the grep program is still running.
 
-`<leader>g` in normal mode will prompt for a new search term and in visual mode
+== Mappings
+
+There are no pre-defined mappings, but 2 `<plug>` mappings, that should be
+used:
+
+    nmap gs <plug>Grepper
+    vmap gs <plug>Grepper
+
+Now, gs in normal mode will prompt for a new search term and in visual mode
 will adopt the current visual selection.
 
-Use `<tab>` to iterate through the grep programs.
+Use <tab> to iterate through all found grep programs.
 
-If the grep program finishes, a user event is triggered. Use it like this:
-
-```vim
-autocmd User Grepper <execute any normal commands here>
-```
-
-NOTE: If you're using link:https://github.com/neovim/neovim[Neovim] you'll get
-async execution for free. Thus you'll be able to continue editing while the
-grep program is still running.
+TIP: Read `:h grepper` for more information about this plugin.
 
 == Installation and Documentation
 
@@ -45,8 +44,6 @@ breeze afterwards:
     Plug 'mhinz/vim-grepper'
 
 Restart Vim or `:source $MYVIMRC`, then do `:PlugInstall`.
-
-TIP: Read `:h grepper` for more information about this plugin.
 
 == License
 
