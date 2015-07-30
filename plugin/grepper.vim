@@ -1,3 +1,8 @@
+if exists('g:loaded_grepper') || &compatible
+  finish
+endif
+let g:loaded_grepper = 1
+
 let s:initialized = 0
 
 " s:error() {{{1
