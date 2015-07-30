@@ -13,7 +13,7 @@ let s:grepper = {
       \   'use_quickfix': 1,
       \   'do_open': 1,
       \   'do_switch': 1,
-      \   'programs': ['git', 'ag', 'pt', 'ack', 'grep'],
+      \   'programs': ['git', 'ag', 'pt', 'ack', 'grep', 'findstr'],
       \   'git':     { 'grepprg': 'git grep -ne',             'grepformat': '%f:%l:%m'    },
       \   'ag':      { 'grepprg': 'ag --vimgrep',             'grepformat': '%f:%l:%c:%m' },
       \   'pt':      { 'grepprg': 'pt --nogroup',             'grepformat': '%f:%l:%m'    },
