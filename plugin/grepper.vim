@@ -19,6 +19,7 @@ let s:grepper = {
       \ 'option': {
       \   'use_quickfix': 1,
       \   'do_open': 1,
+      \   'do_switch': 1,
       \   'programs': ['git', 'ag', 'pt', 'ack', 'grep'],
       \   'git': {
       \     'cmd': 'git grep -ne',
@@ -220,6 +221,9 @@ function! s:finish_up() abort
   else
     if s:grepper.option.do_open
       execute (size > 10 ? 10 : size) s:open[s:qf]
+      if !s:grepper.option.do_switch
+        wincmd p
+      endif
     endif
   endif
   silent! doautocmd <nomodeline> User Grepper

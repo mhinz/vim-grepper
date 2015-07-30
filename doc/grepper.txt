@@ -19,14 +19,13 @@
 ==============================================================================
 CONTENTS                                                      *grepper-contents*
 
-    INTRO .......................................... |grepper-intro|
-    MAPPINGS ....................................... |grepper-mappings|
-    COMMANDS ....................................... |grepper-commands|
-    OPTIONS ........................................ |grepper-options|
-    AUTOCMD ........................................ |grepper-autocmd|
-    COLORS ......................................... |grepper-colors|
-    FAQ ............................................ |grepper-faq|
-    EXAMPLE ........................................ |grepper-example|
+            INTRO .................. |grepper-intro|
+            MAPPINGS ............... |grepper-mappings|
+            COMMANDS ............... |grepper-commands|
+            OPTIONS ................ |grepper-options|
+            AUTOCMD ................ |grepper-autocmd|
+            COLORS ................. |grepper-colors|
+            EXAMPLE ................ |grepper-example|
 
 ==============================================================================
 INTRO                                                            *grepper-intro*
@@ -59,11 +58,13 @@ COMMANDS                                                      *grepper-commands*
 This is the only command and simply kicks off a new search.
 
 ==============================================================================
-OPTIONS                                                       *startify-options*
+OPTIONS                                                        *grepper-options*
 
 Opposed to most other plugins, there aren't several global variables, but only
 one global |Dictionary|: g:grepper. All keys of this dictionary are plugin
 options. The shown values are also the default values.
+
+NOTE: If you're unsure how to use dictionary, have a look at |grepper-example|.
 >
     'use_quickfix': 1
 <
@@ -74,8 +75,15 @@ Use the quickfix list for the matches or the location list otherwise.
 Do open the the quickfix/location window after the grep program finished
 running (and there was at least one match).
 >
+    'do_switch': 1
+<
+When the quickfix/location window opens, switch to it.
+>
     'programs': ['git', 'ag', 'pt', 'ack', 'grep']
 <
+These are the programs that you can choose between (as long as they're
+executable). The order matters.
+
 ------------------------------------------------------------------------------
 
 If you don't like the default arguments to a grep program or you want to add a
@@ -114,17 +122,6 @@ Other groups used are |hl-WarningMsg| and |hl-ErrorMsg| for, well, warning and
 error messages.
 
 ==============================================================================
-FAQ                                                                *grepper-faq*
-
-    |grepper-faq-01|  How to switch to the qf/loc window automatically?
-
-------------------------------------------------------------------------------
-                                                                *grepper-faq-01*
-How to switch to the qf/loc window automatically?~
-
-NOT IMPLEMENTED YET
-
-==============================================================================
 EXAMPLE                                                        *grepper-example*
 
 This is my configuration..
@@ -132,8 +129,17 @@ This is my configuration..
     let g:grepper = {
         \ 'programs': ['git', 'ag'],
         \ 'use_quickfix': 1,
-        \ 'do_open: 1,
+        \ 'do_open': 1,
+        \ 'do_switch': 1,
         \ }
+<
+If you don't like this way of setting options, you can also set it like this:
+>
+    let g:grepper              = {}
+    let g:grepper.programs     = ['git', 'ag']
+    let g:grepper.use_quickfix = 1
+    let g:grepper.do_open      = 1
+    let g:grepper.do_switch    = 1
 <
 ==============================================================================
 vim: tw=78
