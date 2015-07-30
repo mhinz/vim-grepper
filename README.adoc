@@ -1,6 +1,6 @@
 == vim-grepper
 
-image:https://github.com/mhinz/vim-grepper/blob/master/demo.gif[vim-grepper]
+image:https://github.com/mhinz/vim-grepper/blob/master/grepper.gif[vim-grepper]
 
 _If you use any of my plugins, please star them on github. It's a great way of
 getting feedback and gives me the kick to put more time into their development.
