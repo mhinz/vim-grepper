@@ -22,24 +22,24 @@ let s:grepper = {
       \   'do_switch': 1,
       \   'programs': ['git', 'ag', 'pt', 'ack', 'grep'],
       \   'git': {
-      \     'cmd': 'git grep -ne',
-      \     'format': '%f:%l:%m',
+      \     'grepprg': 'git grep -ne',
+      \     'grepformat': '%f:%l:%m',
       \   },
       \   'ag': {
-      \     'cmd': 'ag --vimgrep',
-      \     'format': '%f:%l:%c:%m',
+      \     'grepprg': 'ag --vimgrep',
+      \     'grepformat': '%f:%l:%c:%m',
       \   },
       \   'pt': {
-      \     'cmd': 'pt --nocolor --nogroup',
-      \     'format': '%f:%l:%m',
+      \     'grepprg': 'pt --nocolor --nogroup',
+      \     'grepformat': '%f:%l:%m',
       \   },
       \   'ack': {
-      \     'cmd': 'ack --nocolor --noheading --column',
-      \     'format': '%f:%l:%c:%m',
+      \     'grepprg': 'ack --nocolor --noheading --column',
+      \     'grepformat': '%f:%l:%c:%m',
       \   },
       \   'grep': {
-      \     'cmd': 'grep -Rn $* .',
-      \     'format': '%f:%l:%m',
+      \     'grepprg': 'grep -Rn $* .',
+      \     'grepformat': '%f:%l:%m',
       \   }
       \ },
       \ 'process': {
@@ -125,7 +125,7 @@ function! s:prompt(prog, search)
 
   try
     cnoremap <tab> $$$mAgIc###<cr>
-    let search = input(s:grepper.option[a:prog].cmd .'> ', a:search)
+    let search = input(s:grepper.option[a:prog].grepprg .'> ', a:search)
     cunmap <tab>
   finally
     call inputrestore()
@@ -155,11 +155,11 @@ function! s:run_program(search)
     let cmd = ['sh', '-c']
 
     let prog = s:grepper.option[s:grepper.option.programs[0]]
-    if stridx(prog.cmd, '$*') >= 0
-      let [a, b] = split(prog.cmd, '\V$*')
+    if stridx(prog.grepprg, '$*') >= 0
+      let [a, b] = split(prog.grepprg, '\V$*')
       let cmd += [a . a:search . b]
     else
-      let cmd += [prog.cmd .' '. a:search]
+      let cmd += [prog.grepprg .' '. a:search]
     endif
 
     let s:id = jobstart(cmd, extend(s:grepper, {
@@ -193,11 +193,11 @@ function! s:set_settings() abort
   set t_ti= t_te=
 
   let s:grepper.setting.grepprg = &grepprg
-  let &grepprg = prog.cmd
+  let &grepprg = prog.grepprg
 
   if has_key(prog, 'format')
     let s:grepper.setting.grepformat = &grepformat
-    let &grepformat = prog.format
+    let &grepformat = prog.grepformat
   endif
 endfunction
 
