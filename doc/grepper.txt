@@ -62,6 +62,9 @@ will adopt the current visual selection.
 
 Use <tab> to iterate through all found grep programs.
 
+Use <up> and <down> for going through the input history or use <c-f> to open
+it in the |cmdwin|.
+
 ==============================================================================
 COMMANDS                                                      *grepper-commands*
 >
@@ -142,6 +145,13 @@ EXAMPLE                                                        *grepper-example*
 
 This is my configuration..
 >
+    nmap <leader>g <plug>Grepper
+    xmap <leader>g <plug>Grepper
+
+    " for browsing the input history
+    cnoremap <c-n> <down>
+    cnoremap <c-p> <up>
+
     let g:grepper = {
         \ 'programs': ['git', 'ag'],
         \ 'use_quickfix': 1,
