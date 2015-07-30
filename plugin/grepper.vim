@@ -13,6 +13,7 @@ let s:grepper = {
       \   'use_quickfix': 1,
       \   'do_open': 1,
       \   'do_switch': 1,
+      \   'do_jump': 0,
       \   'programs': ['git', 'ag', 'pt', 'ack', 'grep', 'findstr'],
       \   'git':     { 'grepprg': 'git grep -ne',             'grepformat': '%f:%l:%m'    },
       \   'ag':      { 'grepprg': 'ag --vimgrep',             'grepformat': '%f:%l:%c:%m' },
@@ -195,6 +196,9 @@ function! s:finish_up(cmd) abort
       let &l:statusline = a:cmd
       if !s:grepper.option.do_switch
         wincmd p
+      endif
+      if s:grepper.option.do_jump
+        cfirst
       endif
     endif
     redraw!
