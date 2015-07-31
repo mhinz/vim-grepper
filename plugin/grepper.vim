@@ -223,6 +223,7 @@ function! s:finish_up(cmd) abort
       endif
     endif
     redraw!
+    echo printf('Found %d matches.', size)
   endif
   silent! doautocmd <nomodeline> User Grepper
 endfunction
