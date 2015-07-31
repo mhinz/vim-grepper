@@ -131,7 +131,14 @@ endfunction
 " s:run_program() {{{1
 function! s:run_program(search)
   let prog = s:grepper.option[s:grepper.option.programs[0]]
-  let cmdline = prog.grepprg .' '. a:search
+
+  if stridx(prog.grepprg, '$*') >= 0
+    let [a, b] = split(prog.grepprg, '\V$*')
+    let cmdline = printf('%s%s%s', a, a:search, b)
+  else
+    let cmdline = printf('%s %s', prog.grepprg, a:search)
+  endif
+
   call s:set_settings()
 
   if has('nvim')
@@ -140,14 +147,8 @@ function! s:run_program(search)
       let s:id = 0
     endif
 
-    let cmd = ['sh', '-c']
+    let cmd = ['sh', '-c', cmdline]
 
-    if stridx(prog.grepprg, '$*') >= 0
-      let [a, b] = split(prog.grepprg, '\V$*')
-      let cmd += [a . a:search . b]
-    else
-      let cmd += [prog.grepprg .' '. a:search]
-    endif
 
     let tempfile = fnameescape(tempname())
     if exists('*mkdir')
