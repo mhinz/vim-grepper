@@ -42,7 +42,7 @@ function! s:init() abort
         \   'do_switch': 1,
         \   'do_jump': 0,
         \   'programs': ['git', 'ag', 'pt', 'ack', 'grep', 'findstr'],
-        \   'git':     { 'grepprg': 'git grep -ne',             'grepformat': '%f:%l:%m'    },
+        \   'git':     { 'grepprg': 'git grep -n',              'grepformat': '%f:%l:%m'    },
         \   'ag':      { 'grepprg': 'ag --vimgrep',             'grepformat': '%f:%l:%c:%m' },
         \   'pt':      { 'grepprg': 'pt --nogroup',             'grepformat': '%f:%l:%m'    },
         \   'ack':     { 'grepprg': 'ack --noheading --column', 'grepformat': '%f:%l:%c:%m' },
