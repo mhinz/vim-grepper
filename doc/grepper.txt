@@ -103,6 +103,9 @@ Automatically jump to the first match.
 These are the programs that you can choose between (as long as they're
 executable). The order matters.
 
+NOTE: Because of a name clash, some systems use "ack-grep" instead of "ack".
+If you include "ack" here, "ack-grep" will be found, too.
+
 ------------------------------------------------------------------------------
 
 If you don't like the default arguments to a grep program or you want to add a
@@ -153,7 +156,7 @@ This is my configuration..
     cnoremap <c-p> <up>
 
     let g:grepper = {
-        \ 'programs': ['git', 'ag'],
+        \ 'programs': ['git', 'ag', 'grep'],
         \ 'use_quickfix': 1,
         \ 'do_open': 1,
         \ 'do_switch': 1,
@@ -163,7 +166,7 @@ This is my configuration..
 If you don't like this way of setting options, you can also set it like this:
 >
     let g:grepper              = {}
-    let g:grepper.programs     = ['git', 'ag']
+    let g:grepper.programs     = ['git', 'ag', 'grep']
     let g:grepper.use_quickfix = 1
     let g:grepper.do_open      = 1
     let g:grepper.do_switch    = 1
