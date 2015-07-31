@@ -33,11 +33,11 @@ INTRO                                                            *grepper-intro*
 This plugin is a convenience wrapper around |'grepprg'| and |'grepformat'|,
 supports most common grep tools, and is easily extendable.
 
-You choose a tool, enter a search term, and get your matches into a quickfix
+You choose a tool, enter a search term, and get your matches into a |quickfix|
 list.
 
-If you use Neovim the search will be executed asynchronously. Thus you will be
-able to continue editing while the grep program is still running.
+If you use Neovim, the search will be executed asynchronously. Thus you will
+be able to continue editing while the grep program is still running.
 
 Supports by default:~
 
@@ -47,6 +47,11 @@ Supports by default:~
     ack
     grep
     findstr
+
+NOTE: Your grep tool and search term will be provided to a shell, so feel free
+to use its power. E.g. if your tool is "git grep", your search term could be
+"foo | head -n10". Then the quickfix list would only show the first 10
+matches. Be creative!
 
 ==============================================================================
 MAPPINGS                                                      *grepper-mappings*
@@ -79,7 +84,8 @@ Opposed to most other plugins, there aren't several global variables, but only
 one global |Dictionary|: g:grepper. All keys of this dictionary are plugin
 options. The shown values are also the default values.
 
-NOTE: If you're unsure how to use dictionary, have a look at |grepper-example|.
+NOTE: If you're unsure how to use a dictionary, have a look at
+|grepper-example|.
 >
     'use_quickfix': 1
 <
