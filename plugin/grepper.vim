@@ -108,6 +108,7 @@ endfunction
 function! s:prompt(prog, search)
   echohl Question
   call inputsave()
+  let mapping = maparg('<tab>', 'c', '', 1)
 
   try
     cnoremap <tab> $$$mAgIc###<cr>
@@ -115,6 +116,7 @@ function! s:prompt(prog, search)
     cunmap <tab>
   finally
     call inputrestore()
+    call s:restore_mapping(mapping)
     echohl NONE
   endtry
 
@@ -204,6 +206,20 @@ function! s:restore_settings() abort
 
     let &t_ti = s:grepper.setting.t_ti
     let &t_te = s:grepper.setting.t_te
+endfunction
+
+" s:restore_mapping() {{{1
+function! s:restore_mapping(mapping)
+  if !empty(a:mapping)
+    execute printf('%s %s%s%s%s %s %s',
+          \ (a:mapping.noremap ? 'cnoremap' : 'cmap'),
+          \ (a:mapping.silent  ? '<silent>' : ''    ),
+          \ (a:mapping.buffer  ? '<buffer>' : ''    ),
+          \ (a:mapping.nowait  ? '<nowait>' : ''    ),
+          \ (a:mapping.expr    ? '<expr>'   : ''    ),
+          \  a:mapping.lhs,
+          \  a:mapping.rhs)
+  endif
 endfunction
 
 " s:finish_up() {{{1
