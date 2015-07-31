@@ -83,22 +83,13 @@ function! s:start(...) abort
     call s:init()
   endif
 
-  let search = ''
-
   if empty(s:grepper.option.programs)
     call s:error('No grep program found!')
     return
   endif
 
-  if a:0
-    let regsave = @@
-    normal! gvy
-    let search = @@
-    let @@ = regsave
-  endif
-
-  let prog = s:grepper.option.programs[0]
-  let search = s:prompt(prog, search)
+  let prog   = s:grepper.option.programs[0]
+  let search = s:prompt(prog, a:0 ? a:1 : '')
 
   if !empty(search)
     call s:run_program(search)
@@ -277,8 +268,33 @@ function! s:finish_up(cmd) abort
 endfunction
 " }}}
 
-nnoremap <silent> <plug>Grepper     :call <sid>start()<cr>
-xnoremap <silent> <plug>Grepper     :call <sid>start('visual')<cr>
-cnoremap <silent> <plug>GrepperNext $$$mAgIc###<cr>
+" s:operator() {{{1
+function! s:operator(type, ...) abort
+  let selsave = &selection
+  let regsave = @@
+  let &selection = 'inclusive'
+
+  if a:0
+    silent execute "normal! gvy"
+  elseif a:type == 'line'
+    silent execute "normal! '[V']y"
+  else
+    silent execute "normal! `[v`]y"
+  endif
+
+  call s:start(@@)
+
+  let &selection = selsave
+  let @@ = regsave
+endfunction
+" }}}
+
+nnoremap <silent> <plug>(Grepper)       :call <sid>start()<cr>
+xnoremap <silent> <plug>(Grepper)       :<c-u>call <sid>operator(visualmode(), 1)<cr>
+
+cnoremap <silent> <plug>(GrepperNext)   $$$mAgIc###<cr>
+
+nnoremap <silent> <plug>(GrepperMotion) :set opfunc=<sid>operator<cr>g@
+xnoremap <silent> <plug>(GrepperMotion) :<c-u>call <sid>operator(visualmode(), 1)<cr>
 
 command! -nargs=0 -bar Grepper call s:start()

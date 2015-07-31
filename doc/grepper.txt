@@ -59,16 +59,18 @@ MAPPINGS                                                      *grepper-mappings*
 There are no pre-defined mappings, but 3 |<plug>| mappings that should be
 used:
 >
-    nmap gs    <plug>Grepper
-    vmap gs    <plug>Grepper
-    cmap <tab> <plug>GrepperNext
->
-Now, gs in normal mode will prompt for a new search term and in visual mode
-will adopt the current visual selection.
+    nmap <leader>g <plug>(Grepper)
+    xmap <leader>g <plug>(Grepper)
+    cmap <leader>g <plug>(GrepperNext)
+    nmap gs        <plug>(GrepperMotion)
+    xmap gs        <plug>(GrepperMotion)
+<
+Now, "<leader>g" in normal mode will prompt for a new search term and in
+visual mode will adopt the current visual selection.
 
-Use <tab> to iterate through all found grep programs.
+If you're at the search prompt, "<leader>g" will switch to the next grep tool.
 
-Pro tip: You can set all 3 mappings to the same keys, too.
+"gs" is an |operator| and takes any |{motion}|, e.g. "gsi(" or "gsap".
 
 Use <up> and <down> for going through the input history or use <c-f> to open
 it in the |cmdwin|.
@@ -78,7 +80,8 @@ COMMANDS                                                      *grepper-commands*
 >
     :Grepper
 <
-This is the only command and simply kicks off a new search.
+This is the only command and simply kicks off a new search. Not really
+needed; map "<plug>(Grepper)" instead.
 
 ==============================================================================
 OPTIONS                                                        *grepper-options*
@@ -157,9 +160,11 @@ EXAMPLE                                                        *grepper-example*
 
 This is my configuration..
 >
-    nmap <leader>g <plug>Grepper
-    xmap <leader>g <plug>Grepper
-    cmap <leader>g <plug>GrepperNext
+    nmap <leader>g <plug>(Grepper)
+    xmap <leader>g <plug>(Grepper)
+    cmap <leader>g <plug>(GrepperNext)
+    nmap gs        <plug>(GrepperMotion)
+    xmap gs        <plug>(GrepperMotion)
 
     " for browsing the input history
     cnoremap <c-n> <down>
