@@ -87,6 +87,10 @@ options. The shown values are also the default values.
 NOTE: If you're unsure how to use a dictionary, have a look at
 |grepper-example|.
 >
+    'next_tool': '<tab>'
+<
+The mapping for switching to the next grep tool.
+>
     'use_quickfix': 1
 <
 Use the quickfix list for the matches or the location list otherwise.
@@ -167,6 +171,7 @@ This is my configuration..
         \ 'do_open': 1,
         \ 'do_switch': 1,
         \ 'do_jump': 0,
+        \ 'next_tool': '<leader>g',
         \ }
 <
 If you don't like this way of setting options, you can also set it like this:
@@ -177,6 +182,7 @@ If you don't like this way of setting options, you can also set it like this:
     let g:grepper.do_open      = 1
     let g:grepper.do_switch    = 1
     let g:grepper.do_jump      = 0
+    let g:grepper.next_tool    = '<leader>g'
 <
 ==============================================================================
 vim: tw=78

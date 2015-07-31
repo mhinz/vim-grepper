@@ -38,6 +38,7 @@ function! s:init() abort
   let s:grepper = {
         \ 'setting': {},
         \ 'option': {
+        \   'next_tool': '<tab>',
         \   'use_quickfix': 1,
         \   'do_open': 1,
         \   'do_switch': 1,
@@ -109,13 +110,13 @@ endfunction
 function! s:prompt(prog, search)
   echohl Question
   call inputsave()
-  let mapping = maparg('<tab>', 'c', '', 1)
+  let mapping = maparg(s:grepper.option.next_tool, 'c', '', 1)
 
   try
-    cnoremap <tab> $$$mAgIc###<cr>
+    execute 'cnoremap' s:grepper.option.next_tool '$$$mAgIc###<cr>'
     let search = input(s:grepper.option[a:prog].grepprg .'> ', a:search,
           \ 'customlist,Complete_files')
-    cunmap <tab>
+    execute 'cunmap' s:grepper.option.next_tool
   finally
     call inputrestore()
     call s:restore_mapping(mapping)
