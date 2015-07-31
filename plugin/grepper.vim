@@ -4,6 +4,7 @@ endif
 let g:loaded_grepper = 1
 
 let s:initialized = 0
+let s:slash = exists('+shellslash') && !&shellslash ? '\' : '/'
 
 " s:error() {{{1
 function! s:error(msg)
@@ -112,7 +113,8 @@ function! s:prompt(prog, search)
 
   try
     cnoremap <tab> $$$mAgIc###<cr>
-    let search = input(s:grepper.option[a:prog].grepprg .'> ', a:search)
+    let search = input(s:grepper.option[a:prog].grepprg .'> ', a:search,
+          \ 'customlist,Complete_files')
     cunmap <tab>
   finally
     call inputrestore()
@@ -220,6 +222,35 @@ function! s:restore_mapping(mapping)
           \  a:mapping.lhs,
           \  a:mapping.rhs)
   endif
+endfunction
+
+" Complete_files() {{{1
+function! Complete_files(lead, line, _)
+  let [head, path] = s:extract_path(a:lead)
+  " handle relative paths
+  if empty(path) || (path =~ '\s$')
+    return map(split(globpath('.'.s:slash, path.'*'), '\n'), 'head . "." . v:val[1:] . (isdirectory(v:val) ? s:slash : "")')
+  " handle sub paths
+  elseif path =~ '^.\/'
+    return map(split(globpath('.'.s:slash, path[2:].'*'), '\n'), 'head . "." . v:val[1:] . (isdirectory(v:val) ? s:slash : "")')
+  " handle absolute paths
+  elseif path[0] == '/'
+    return map(split(globpath(s:slash, path.'*'), '\n'), 'head . v:val[1:] . (isdirectory(v:val) ? s:slash : "")')
+  endif
+endfunction
+
+" s:extract_path() {{{1
+function! s:extract_path(string) abort
+  let item = split(a:string, '.*\s\zs', 1)
+  let len  = len(item)
+
+  if     len == 0 | let [head, path] = ['', '']
+  elseif len == 1 | let [head, path] = ['', item[0]]
+  elseif len == 2 | let [head, path] = item
+  else            | throw 'The unexpected happened!'
+  endif
+
+  return [head, path]
 endfunction
 
 " s:finish_up() {{{1
