@@ -24,18 +24,23 @@ Supports by default: *git grep*, *ag*, *pt*, *ack*, *grep*, *findstr*
 
 == Mappings
 
-There are no pre-defined mappings, but 2 `<plug>` mappings, that should be
-used:
+There are no pre-defined mappings, but 3 `<plug>` mappings that should be used:
 
-    nmap gs <plug>Grepper
-    vmap gs <plug>Grepper
+    nmap gs    <plug>Grepper
+    vmap gs    <plug>Grepper
+    cmap <tab> <plug>GrepperNext
 
-Now, gs in normal mode will prompt for a new search term and in visual mode
+Now, `gs` in normal mode will prompt for a new search term and in visual mode
 will adopt the current visual selection.
 
-Use <tab> to iterate through all found grep programs.
+Use `<tab>` to iterate through all found grep programs.
 
-TIP: Read `:h grepper` for more information about this plugin.
+Pro tip: You can set all 3 mappings to the same keys, too.
+
+Use `<up>` and `<down>` for going through the input history or use `<c-f>` to
+open it in the cmdwin.
+
+TIP: Read `:h grepper` for the whole truth.
 
 == Installation and Documentation
 

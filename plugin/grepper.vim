@@ -38,7 +38,6 @@ function! s:init() abort
   let s:grepper = {
         \ 'setting': {},
         \ 'option': {
-        \   'next_tool': '<tab>',
         \   'use_quickfix': 1,
         \   'do_open': 1,
         \   'do_switch': 1,
@@ -110,13 +109,13 @@ endfunction
 function! s:prompt(prog, search)
   echohl Question
   call inputsave()
-  let mapping = maparg(s:grepper.option.next_tool, 'c', '', 1)
+  let mapping = maparg('<plug>GrepperNext', 'c', '', 1)
 
   try
-    execute 'cnoremap' s:grepper.option.next_tool '$$$mAgIc###<cr>'
+    cnoremap <plug>GrepperNext $$$mAgIc###<cr>
     let search = input(s:grepper.option[a:prog].grepprg .'> ', a:search,
           \ 'customlist,Complete_files')
-    execute 'cunmap' s:grepper.option.next_tool
+    cunmap <plug>GrepperNext
   finally
     call inputrestore()
     call s:restore_mapping(mapping)
@@ -278,7 +277,8 @@ function! s:finish_up(cmd) abort
 endfunction
 " }}}
 
-nnoremap <silent> <plug>Grepper :call <sid>start()<cr>
-xnoremap <silent> <plug>Grepper :call <sid>start('visual')<cr>
+nnoremap <silent> <plug>Grepper     :call <sid>start()<cr>
+xnoremap <silent> <plug>Grepper     :call <sid>start('visual')<cr>
+cnoremap <silent> <plug>GrepperNext $$$mAgIc###<cr>
 
 command! -nargs=0 -bar Grepper call s:start()

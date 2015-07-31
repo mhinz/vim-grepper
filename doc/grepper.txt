@@ -56,16 +56,19 @@ matches. Be creative!
 ==============================================================================
 MAPPINGS                                                      *grepper-mappings*
 
-There are no pre-defined mappings, but 2 |<plug>| mappings, that should be
+There are no pre-defined mappings, but 3 |<plug>| mappings that should be
 used:
 >
-    nmap gs <plug>Grepper
-    vmap gs <plug>Grepper
+    nmap gs    <plug>Grepper
+    vmap gs    <plug>Grepper
+    cmap <tab> <plug>GrepperNext
 >
 Now, gs in normal mode will prompt for a new search term and in visual mode
 will adopt the current visual selection.
 
 Use <tab> to iterate through all found grep programs.
+
+Pro tip: You can set all 3 mappings to the same keys, too.
 
 Use <up> and <down> for going through the input history or use <c-f> to open
 it in the |cmdwin|.
@@ -86,10 +89,6 @@ options. The shown values are also the default values.
 
 NOTE: If you're unsure how to use a dictionary, have a look at
 |grepper-example|.
->
-    'next_tool': '<tab>'
-<
-The mapping for switching to the next grep tool.
 >
     'use_quickfix': 1
 <
@@ -160,6 +159,7 @@ This is my configuration..
 >
     nmap <leader>g <plug>Grepper
     xmap <leader>g <plug>Grepper
+    cmap <leader>g <plug>GrepperNext
 
     " for browsing the input history
     cnoremap <c-n> <down>
@@ -171,7 +171,6 @@ This is my configuration..
         \ 'do_open': 1,
         \ 'do_switch': 1,
         \ 'do_jump': 0,
-        \ 'next_tool': '<leader>g',
         \ }
 <
 If you don't like this way of setting options, you can also set it like this:
@@ -182,7 +181,6 @@ If you don't like this way of setting options, you can also set it like this:
     let g:grepper.do_open      = 1
     let g:grepper.do_switch    = 1
     let g:grepper.do_jump      = 0
-    let g:grepper.next_tool    = '<leader>g'
 <
 ==============================================================================
 vim: tw=78
