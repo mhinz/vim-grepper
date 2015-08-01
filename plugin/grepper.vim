@@ -100,13 +100,13 @@ endfunction
 function! s:prompt(prog, search)
   echohl Question
   call inputsave()
-  let mapping = maparg('<plug>GrepperNext', 'c', '', 1)
+  let mapping = maparg('<plug>(GrepperNext)', 'c', '', 1)
 
   try
-    cnoremap <plug>GrepperNext $$$mAgIc###<cr>
+    cnoremap <plug>(GrepperNext) $$$mAgIc###<cr>
     let search = input(s:grepper.option[a:prog].grepprg .'> ', a:search,
           \ 'customlist,Complete_files')
-    cunmap <plug>GrepperNext
+    cunmap <plug>(GrepperNext)
   finally
     call inputrestore()
     call s:restore_mapping(mapping)
@@ -291,9 +291,6 @@ endfunction
 
 nnoremap <silent> <plug>(Grepper)       :call <sid>start()<cr>
 xnoremap <silent> <plug>(Grepper)       :<c-u>call <sid>operator(visualmode(), 1)<cr>
-
-cnoremap <silent> <plug>(GrepperNext)   $$$mAgIc###<cr>
-
 nnoremap <silent> <plug>(GrepperMotion) :set opfunc=<sid>operator<cr>g@
 xnoremap <silent> <plug>(GrepperMotion) :<c-u>call <sid>operator(visualmode(), 1)<cr>
 
