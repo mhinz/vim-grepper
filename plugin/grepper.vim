@@ -41,7 +41,7 @@ function! s:init() abort
         \   'use_quickfix': 1,
         \   'do_open': 1,
         \   'do_switch': 1,
-        \   'do_jump': 0,
+        \   'do_jump': 1,
         \   'programs': ['git', 'ag', 'pt', 'ack', 'grep', 'findstr'],
         \   'git':     { 'grepprg': 'git grep -n',              'grepformat': '%f:%l:%m'    },
         \   'ag':      { 'grepprg': 'ag --vimgrep',             'grepformat': '%f:%l:%c:%m' },
@@ -69,7 +69,7 @@ function! s:init() abort
 
   let s:getfile = ['lgetfile', 'cgetfile']
   let s:open    = ['lopen',    'copen'   ]
-  let s:grep    = ['lgrep!',   'grep!'   ]
+  let s:grep    = ['lgrep',    'grep'    ]
 
   let s:qf = s:grepper.option.use_quickfix  " short convenience var
   let s:id = 0  " running job ID
@@ -78,7 +78,7 @@ function! s:init() abort
 endfunction
 
 " s:start() {{{1
-function! s:start(...) abort
+function! s:start(bang, ...) abort
   if !s:initialized
     call s:init()
   endif
@@ -90,6 +90,7 @@ function! s:start(...) abort
 
   let prog   = s:grepper.option.programs[0]
   let search = s:prompt(prog, a:0 ? a:1 : '')
+  let s:grepper.option.do_jump = !a:bang
 
   if !empty(search)
     call s:run_program(search)
@@ -163,8 +164,12 @@ function! s:run_program(search)
     return
   endif
 
+  let grep = s:grep[s:qf]
+  if !s:grepper.option.do_jump
+    let grep .= '!'
+  endif
   try
-    execute 'silent' s:grep[s:qf] fnameescape(a:search)
+    execute 'silent' grep fnameescape(a:search)
   finally
     call s:restore_settings()
   endtry
@@ -257,7 +262,8 @@ function! s:finish_up(cmd) abort
       if !s:grepper.option.do_switch
         wincmd p
       endif
-      if s:grepper.option.do_jump
+      " For normal Vim, this is handled by running either :grep or :grep!
+      if has('nvim') && s:grepper.option.do_jump
         cfirst
       endif
     endif
@@ -269,7 +275,7 @@ endfunction
 " }}}
 
 " s:operator() {{{1
-function! s:operator(type, ...) abort
+function! s:operator(bang, type, ...) abort
   let selsave = &selection
   let regsave = @@
   let &selection = 'inclusive'
@@ -282,16 +288,45 @@ function! s:operator(type, ...) abort
     silent execute "normal! `[v`]y"
   endif
 
-  call s:start(@@)
+  call s:start(a:bang, @@)
 
   let &selection = selsave
   let @@ = regsave
 endfunction
 " }}}
 
-nnoremap <silent> <plug>(Grepper)       :call <sid>start()<cr>
-xnoremap <silent> <plug>(Grepper)       :<c-u>call <sid>operator(visualmode(), 1)<cr>
-nnoremap <silent> <plug>(GrepperMotion) :set opfunc=<sid>operator<cr>g@
-xnoremap <silent> <plug>(GrepperMotion) :<c-u>call <sid>operator(visualmode(), 1)<cr>
+" s:jumper() {{{1
+function! s:jumper(type, ...) abort
+  if a:0
+    call <sid>operator(0, a:type)
+  else
+    exe printf('call <sid>operator(0, a:type, %s)',
+          \    join(map(range(1, a:0), '"a:".v:val'),
+          \         ', '))
+  endif
+endfunction
+" }}}
 
-command! -nargs=0 -bar Grepper call s:start()
+" s:nojump() {{{1
+function! s:nojump(type, ...) abort
+  if a:0
+    call <sid>operator(1, a:type)
+  else
+    exe printf('call <sid>operator(1, a:type, %s)',
+          \    join(map(range(1, a:0), '"a:".v:val'),
+          \         ', '))
+  endif
+endfunction
+" }}}
+
+nnoremap <silent> <plug>(Grepper)        :call <sid>start(0)<cr>
+nnoremap <silent> <plug>(Grepper!)       :call <sid>start(1)<cr>
+xnoremap <silent> <plug>(Grepper)        :<c-u>call <sid>jumper(visualmode(), 1)<cr>
+xnoremap <silent> <plug>(Grepper!)       :<c-u>call <sid>nojump(visualmode(), 1)<cr>
+
+nnoremap <silent> <plug>(GrepperMotion)  :set opfunc=<sid>jumper<cr>g@
+nnoremap <silent> <plug>(GrepperMotion!) :set opfunc=<sid>nojump<cr>g@
+xnoremap <silent> <plug>(GrepperMotion)  :<c-u>call <sid>jumper(visualmode(), 1)<cr>
+xnoremap <silent> <plug>(GrepperMotion!) :<c-u>call <sid>nojump(visualmode(), 1)<cr>
+
+command! -nargs=0 -bang -bar Grepper call s:start(<bang>)

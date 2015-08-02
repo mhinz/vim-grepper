@@ -56,21 +56,28 @@ matches. Be creative!
 ==============================================================================
 MAPPINGS                                                      *grepper-mappings*
 
-There are no pre-defined mappings, but 3 |<plug>| mappings that should be
+There are no pre-defined mappings, but 5 |<plug>| mappings that should be
 used:
 >
     nmap <leader>g <plug>(Grepper)
+    nmap <leader>G <plug>(Grepper!)
     xmap <leader>g <plug>(Grepper)
+    xmap <leader>G <plug>(Grepper!)
     cmap <leader>g <plug>(GrepperNext)
     nmap gs        <plug>(GrepperMotion)
+    nmap gS        <plug>(GrepperMotion!)
     xmap gs        <plug>(GrepperMotion)
+    xmap gS        <plug>(GrepperMotion!)
 <
+The |<plug>| mappings with an "!" will behave like "|:grep|!" and those without
+will behave like "|:grep|".
+
 Now, "<leader>g" in normal mode will prompt for a new search term and in
 visual mode will adopt the current visual selection.
 
 If you're at the search prompt, "<leader>g" will switch to the next grep tool.
 
-"gs" is an |operator| and takes any |{motion}|, e.g. "gsi(" or "gsap".
+"gs" and "gS" are |operator|s and take any |{motion}|, e.g. "gsi(" or "gsap".
 
 Use <up> and <down> for going through the input history or use <c-f> to open
 it in the |cmdwin|.
@@ -78,7 +85,7 @@ it in the |cmdwin|.
 ==============================================================================
 COMMANDS                                                      *grepper-commands*
 >
-    :Grepper
+    :Grepper[!]
 <
 This is the only command and simply kicks off a new search. Not really
 needed; map "<plug>(Grepper)" instead.
@@ -105,10 +112,6 @@ running (and there was at least one match).
     'do_switch': 1
 <
 When the quickfix/location window opens, switch to it.
->
-    'do_jump': 0
-<
-Automatically jump to the first match.
 >
     'programs': ['git', 'ag', 'pt', 'ack', 'grep']
 <
@@ -175,7 +178,6 @@ This is my configuration..
         \ 'use_quickfix': 1,
         \ 'do_open': 1,
         \ 'do_switch': 1,
-        \ 'do_jump': 0,
         \ }
 <
 If you don't like this way of setting options, you can also set it like this:
@@ -185,7 +187,6 @@ If you don't like this way of setting options, you can also set it like this:
     let g:grepper.use_quickfix = 1
     let g:grepper.do_open      = 1
     let g:grepper.do_switch    = 1
-    let g:grepper.do_jump      = 0
 <
 ==============================================================================
 vim: tw=78
