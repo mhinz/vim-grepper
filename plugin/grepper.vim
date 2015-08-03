@@ -94,9 +94,9 @@ function! s:parse_command(bang, ...) abort
   while i < a:0
     let flag = a:000[i]
 
-    if     flag =~? '^-\%[no]quickfix$' | let s:flags.quickfix = flag !~? '^-no'
-    elseif flag =~? '^-\%[no]switch$'   | let s:flags.switch   = flag !~? '^-no'
-    elseif flag =~? '^-\%[no]open$'     | let s:flags.open     = flag !~? '^-no'
+    if     flag =~? '\v^-%(no)?quickfix$' | let s:flags.quickfix = flag !~? '^-no'
+    elseif flag =~? '\v^-%(no)?switch$'   | let s:flags.switch   = flag !~? '^-no'
+    elseif flag =~? '\v^-%(no)?open$'     | let s:flags.open     = flag !~? '^-no'
     elseif flag =~? '^-search$'
       let i += 1
       if i < a:0
