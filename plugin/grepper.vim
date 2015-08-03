@@ -1,9 +1,32 @@
-if exists('g:loaded_grepper') || &compatible
-  finish
-endif
-let g:loaded_grepper = 1
+let s:options = {
+      \ 'quickfix':  1,
+      \ 'open':      0,
+      \ 'switch':    1,
+      \ 'jump':      1,
+      \ 'next_tool': '<tab>',
+      \ 'programs':  ['git', 'ag', 'pt', 'ack', 'grep', 'findstr'],
+      \ 'git':       { 'grepprg': 'git grep -n',              'grepformat': '%f:%l:%m'    },
+      \ 'ag':        { 'grepprg': 'ag --vimgrep',             'grepformat': '%f:%l:%c:%m' },
+      \ 'pt':        { 'grepprg': 'pt --nogroup',             'grepformat': '%f:%l:%m'    },
+      \ 'ack':       { 'grepprg': 'ack --noheading --column', 'grepformat': '%f:%l:%c:%m' },
+      \ 'grep':      { 'grepprg': 'grep -Rn $* .',            'grepformat': '%f:%l:%m'    },
+      \ 'findstr':   { 'grepprg': 'findstr -rspnc:"$*" *',    'grepformat': '%f:%l:%m'    },
+      \ }
 
-let s:initialized = 0
+if exists('g:grepper')
+  call extend(s:options, g:grepper)
+endif
+
+call filter(s:options.programs, 'executable(v:val)')
+
+let ack     = index(s:options.programs, 'ack')
+let ackgrep = index(s:options.programs, 'ack-grep')
+
+if (ack >= 0) && (ackgrep >= 0)
+  call remove(s:options.programs, ackgrep)
+endif
+
+let s:id    = 0
 let s:slash = exists('+shellslash') && !&shellslash ? '\' : '/'
 
 " s:error() {{{1
@@ -21,199 +44,17 @@ endfunction
 
 " s:on_exit() {{{1
 function! s:on_exit() abort
-  execute 'tabnext' s:grepper.process.tabpage
-  execute s:grepper.process.window .'wincmd w'
+  execute 'tabnext' self.tabpage
+  execute self.window .'wincmd w'
 
-  execute s:getfile[s:qf] s:grepper.process.tempfile
-  call delete(s:grepper.process.tempfile)
+  execute (s:qf ? 'cgetfile' : 'lgetfile') self.tempfile
+  call delete(self.tempfile)
 
   let s:id = 0
   call s:restore_settings()
-  return s:finish_up(s:grepper.process.cmd)
+  return s:finish_up(self.cmd)
 endfunction
 " }}}
-
-" s:init() {{{1
-function! s:init() abort
-  let s:grepper = {
-        \ 'setting': {},
-        \ 'option': {
-        \   'use_quickfix': 1,
-        \   'do_open': 1,
-        \   'do_switch': 1,
-        \   'do_jump': 0,
-        \   'programs': ['git', 'ag', 'pt', 'ack', 'grep', 'findstr'],
-        \   'git':     { 'grepprg': 'git grep -n',              'grepformat': '%f:%l:%m'    },
-        \   'ag':      { 'grepprg': 'ag --vimgrep',             'grepformat': '%f:%l:%c:%m' },
-        \   'pt':      { 'grepprg': 'pt --nogroup',             'grepformat': '%f:%l:%m'    },
-        \   'ack':     { 'grepprg': 'ack --noheading --column', 'grepformat': '%f:%l:%c:%m' },
-        \   'grep':    { 'grepprg': 'grep -Rn $* .',            'grepformat': '%f:%l:%m'    },
-        \   'findstr': { 'grepprg': 'findstr -rspnc:"$*" *',    'grepformat': '%f:%l:%m'    },
-        \ },
-        \ 'process': {
-        \   'args': '',
-        \ }}
-
-  if exists('g:grepper')
-    call extend(s:grepper.option, g:grepper)
-  endif
-
-  call filter(s:grepper.option.programs, 'executable(v:val)')
-
-  let ack     = index(s:grepper.option.programs, 'ack')
-  let ackgrep = index(s:grepper.option.programs, 'ack-grep')
-
-  if (ack >= 0) && (ackgrep >= 0)
-    call remove(s:grepper.option.programs, ackgrep)
-  endif
-
-  let s:getfile = ['lgetfile', 'cgetfile']
-  let s:open    = ['lopen',    'copen'   ]
-  let s:grep    = ['lgrep!',   'grep!'   ]
-
-  let s:qf = s:grepper.option.use_quickfix  " short convenience var
-  let s:id = 0  " running job ID
-
-  let s:initialized = 1
-endfunction
-
-" s:start() {{{1
-function! s:start(...) abort
-  if !s:initialized
-    call s:init()
-  endif
-
-  if empty(s:grepper.option.programs)
-    call s:error('No grep program found!')
-    return
-  endif
-
-  let prog   = s:grepper.option.programs[0]
-  let search = s:prompt(prog, a:0 ? a:1 : '')
-
-  if !empty(search)
-    call s:run_program(search)
-  endif
-endfunction
-
-" s:prompt() {{{1
-function! s:prompt(prog, search)
-  echohl Question
-  call inputsave()
-  let mapping = maparg('<plug>(GrepperNext)', 'c', '', 1)
-
-  try
-    cnoremap <plug>(GrepperNext) $$$mAgIc###<cr>
-    let search = input(s:grepper.option[a:prog].grepprg .'> ', a:search,
-          \ 'customlist,Complete_files')
-    cunmap <plug>(GrepperNext)
-  finally
-    call inputrestore()
-    call s:restore_mapping(mapping)
-    echohl NONE
-  endtry
-
-  if search =~# '\V$$$mAgIc###\$'
-    call histdel('input')
-    let s:grepper.option.programs =
-          \ s:grepper.option.programs[1:-1] + [s:grepper.option.programs[0]]
-    return s:prompt(s:grepper.option.programs[0], search[:-12])
-  endif
-
-  return search
-endfunction
-
-" s:run_program() {{{1
-function! s:run_program(search)
-  let prog = s:grepper.option[s:grepper.option.programs[0]]
-
-  if stridx(prog.grepprg, '$*') >= 0
-    let [a, b] = split(prog.grepprg, '\V$*')
-    let cmdline = printf('%s%s%s', a, a:search, b)
-  else
-    let cmdline = printf('%s %s', prog.grepprg, a:search)
-  endif
-
-  call s:set_settings()
-
-  if has('nvim')
-    if s:id
-      silent! call jobstop(s:id)
-      let s:id = 0
-    endif
-
-    let cmd = ['sh', '-c', cmdline]
-
-
-    let tempfile = fnameescape(tempname())
-    if exists('*mkdir')
-      silent! call mkdir(fnamemodify(tempfile, ':h'), 'p', 0600)
-    endif
-    let cmd[-1] .= ' >'. tempfile
-
-    let s:id = jobstart(cmd, extend(s:grepper, {
-          \ 'process': {
-          \   'tabpage': tabpagenr(),
-          \   'window': winnr(),
-          \   'tempfile': tempfile,
-          \   'cmd': cmdline,
-          \ },
-          \ 'on_stderr': function('s:on_stderr'),
-          \ 'on_exit': function('s:on_exit') }))
-    return
-  endif
-
-  try
-    execute 'silent' s:grep[s:qf] fnameescape(a:search)
-  finally
-    call s:restore_settings()
-  endtry
-
-  call s:finish_up(cmdline)
-endfunction
-
-" s:set_settings() {{{1
-function! s:set_settings() abort
-  let prog = s:grepper.option[s:grepper.option.programs[0]]
-
-  let s:grepper.setting.t_ti = &t_ti
-  let s:grepper.setting.t_te = &t_te
-  set t_ti= t_te=
-
-  let s:grepper.setting.grepprg = &grepprg
-  let &grepprg = prog.grepprg
-
-  if has_key(prog, 'format')
-    let s:grepper.setting.grepformat = &grepformat
-    let &grepformat = prog.grepformat
-  endif
-endfunction
-
-" s:restore_settings() {{{1
-function! s:restore_settings() abort
-    let &grepprg = s:grepper.setting.grepprg
-
-    if has_key(s:grepper.setting, 'grepformat')
-      let &grepformat = s:grepper.setting.grepformat
-    endif
-
-    let &t_ti = s:grepper.setting.t_ti
-    let &t_te = s:grepper.setting.t_te
-endfunction
-
-" s:restore_mapping() {{{1
-function! s:restore_mapping(mapping)
-  if !empty(a:mapping)
-    execute printf('%s %s%s%s%s %s %s',
-          \ (a:mapping.noremap ? 'cnoremap' : 'cmap'),
-          \ (a:mapping.silent  ? '<silent>' : ''    ),
-          \ (a:mapping.buffer  ? '<buffer>' : ''    ),
-          \ (a:mapping.nowait  ? '<nowait>' : ''    ),
-          \ (a:mapping.expr    ? '<expr>'   : ''    ),
-          \  a:mapping.lhs,
-          \  a:mapping.rhs)
-  endif
-endfunction
 
 " Complete_files() {{{1
 function! Complete_files(lead, line, _)
@@ -243,27 +84,226 @@ function! s:extract_path(string) abort
 
   return [head, path]
 endfunction
+" }}}
+
+" s:parse_command() {{{1
+function! s:parse_command(bang, ...) abort
+  let s:flags = { 'jump': !a:bang }
+
+  let i = 0
+  while i < a:0
+    let flag = a:000[i]
+
+    if     flag =~? '^-\%[no]quickfix$' | let s:flags.quickfix = flag !~? '^-no'
+    elseif flag =~? '^-\%[no]switch$'   | let s:flags.switch   = flag !~? '^-no'
+    elseif flag =~? '^-\%[no]open$'     | let s:flags.open     = flag !~? '^-no'
+    elseif flag =~? '^-search$'
+      let i += 1
+      if i < a:0
+        " Funny Vim bug: [i:] doesn't work. [(i):] and [i :] do.
+        return s:start(join(a:000[i :]), 1)
+      else
+        " No warning message here. This allows for..
+        " nnoremap ... :Grepper! -tool ag -search<space>
+        " ..thus you get nicer file completion.
+        break
+      endif
+    elseif flag =~? '^-tool$'
+      let i += 1
+      if i < a:0
+        let tool = a:000[i]
+      else
+        echomsg 'Missing argument for: -tool'
+        break
+      endif
+      if index(s:options.programs, tool) >= 0
+        let s:flags.programs =
+              \ [tool] + filter(copy(s:options.programs), 'v:val != tool')
+      else
+        echomsg 'No such tool: '. tool
+      endif
+    else
+      echomsg "Don't understand: ". flag
+    endif
+
+    let i += 1
+  endwhile
+
+  return s:start('', 0)
+endfunction
+
+" s:start() {{{1
+function! s:start(search, skip_prompt) abort
+  if empty(s:options.programs)
+    call s:error('No grep program found!')
+    return
+  endif
+
+  let search = a:search
+  let search = a:skip_prompt ? a:search : s:prompt(a:search)
+  if empty(search)
+    return
+  endif
+
+  return s:run_program(search)
+endfunction
+
+" s:prompt() {{{1
+function! s:prompt(search)
+  let mapping = maparg(s:options.next_tool, 'c', '', 1)
+  execute 'cnoremap' s:options.next_tool '$$$mAgIc###<cr>'
+  echohl Question
+  call inputsave()
+
+  try
+    let search = input(s:get_option('deftool').grepprg .'> ', a:search,
+          \ 'customlist,Complete_files')
+  finally
+    execute 'cunmap' s:options.next_tool
+    call inputrestore()
+    call s:restore_mapping(mapping)
+    echohl NONE
+  endtry
+
+  if search =~# '\V$$$mAgIc###\$'
+    call histdel('input')
+    if has_key(s:flags, 'programs')
+      let s:flags.programs =
+            \ s:flags.programs[1:-1] + [s:flags.programs[0]]
+    else
+      let s:options.programs =
+            \ s:options.programs[1:-1] + [s:options.programs[0]]
+    endif
+    return s:prompt(search[:-12])
+  endif
+
+  return search
+endfunction
+
+" s:run_program() {{{1
+function! s:run_program(search)
+  let prog = s:get_option('deftool')
+
+  if stridx(prog.grepprg, '$*') >= 0
+    let [a, b] = split(prog.grepprg, '\V$*')
+    let cmdline = printf('%s%s%s', a, a:search, b)
+  else
+    let cmdline = printf('%s %s', prog.grepprg, a:search)
+  endif
+
+  call s:set_settings(prog)
+
+  if has('nvim')
+    if s:id
+      silent! call jobstop(s:id)
+    endif
+
+    let cmd = ['sh', '-c', cmdline]
+
+    let tempfile = fnameescape(tempname())
+    if exists('*mkdir')
+      silent! call mkdir(fnamemodify(tempfile, ':h'), 'p', 0600)
+    endif
+    let cmd[-1] .= ' >'. tempfile
+
+    let s:id = jobstart(cmd, extend
+          \ 'tempfile':  tempfile,
+          \ 'cmd':       cmdline,
+          \ 'tabpage':   tabpagenr(),
+          \ 'window':    winnr(),
+          \ 'on_stderr': function('s:on_stderr'),
+          \ 'on_exit':   function('s:on_exit') })
+    return
+  endif
+
+  try
+    execute 'silent' (s:get_option('quickfix') ? 'grep!' : 'lgrep!')
+          \ fnameescape(a:search)
+  finally
+    call s:restore_settings()
+  endtry
+
+  call s:finish_up(cmdline)
+endfunction
+
+" s:get_option() {{{1
+function! s:get_option(opt) abort
+  if a:opt == 'deftool'
+    if has_key(s:flags, 'programs')
+      return s:options[s:flags.programs[0]]
+    else
+      return s:options[s:options.programs[0]]
+    endif
+  else
+    return has_key(s:flags, a:opt) ? s:flags[a:opt] : s:options[a:opt]
+  endif
+endfunction
+
+" s:set_settings() {{{1
+function! s:set_settings(prog) abort
+  let s:settings = {}
+  let s:settings.t_ti = &t_ti
+  let s:settings.t_te = &t_te
+  set t_ti= t_te=
+
+  let s:settings.grepprg = &grepprg
+  let &grepprg = a:prog.grepprg
+
+  if has_key(a:prog, 'format')
+    let s:settings.grepformat = &grepformat
+    let &grepformat = a:prog.grepformat
+  endif
+endfunction
+
+" s:restore_settings() {{{1
+function! s:restore_settings() abort
+    let &grepprg = s:settings.grepprg
+
+    if has_key(s:settings, 'grepformat')
+      let &grepformat = s:settings.grepformat
+    endif
+
+    let &t_ti = s:settings.t_ti
+    let &t_te = s:settings.t_te
+endfunction
+
+" s:restore_mapping() {{{1
+function! s:restore_mapping(mapping)
+  if !empty(a:mapping)
+    execute printf('%s %s%s%s%s %s %s',
+          \ (a:mapping.noremap ? 'cnoremap' : 'cmap'),
+          \ (a:mapping.silent  ? '<silent>' : ''    ),
+          \ (a:mapping.buffer  ? '<buffer>' : ''    ),
+          \ (a:mapping.nowait  ? '<nowait>' : ''    ),
+          \ (a:mapping.expr    ? '<expr>'   : ''    ),
+          \  a:mapping.lhs,
+          \  a:mapping.rhs)
+  endif
+endfunction
 
 " s:finish_up() {{{1
 function! s:finish_up(cmd) abort
-  let size = len(s:qf ? getqflist() : getloclist(0))
+  let qf = s:get_option('quickfix')
+  let size = len(qf ? getqflist() : getloclist(0))
+
   if size == 0
-    execute s:qf ? 'cclose' : 'lclose'
+    execute (qf ? 'cclose' : 'lclose')
     echomsg 'No matches found.'
   else
-    if s:grepper.option.do_open
-      execute (size > 10 ? 10 : size) s:open[s:qf]
+    if s:get_option('open')
+      execute (size > 10 ? 10 : size) (qf ? 'copen' : 'lopen')
       let &l:statusline = a:cmd
-      if !s:grepper.option.do_switch
+      if !s:get_option('switch')
         wincmd p
       endif
-      if s:grepper.option.do_jump
-        cfirst
-      endif
+    endif
+    if s:get_option('jump')
+      execute (qf ? 'cfirst' : 'lfirst')
     endif
     redraw!
     echo printf('Found %d matches.', size)
   endif
+
   silent! doautocmd <nomodeline> User Grepper
 endfunction
 " }}}
@@ -274,24 +314,23 @@ function! s:operator(type, ...) abort
   let regsave = @@
   let &selection = 'inclusive'
 
-  if a:0
-    silent execute "normal! gvy"
-  elseif a:type == 'line'
+  " if a:0
+  "   silent execute "normal! gvy"
+  if a:type == 'line'
     silent execute "normal! '[V']y"
   else
     silent execute "normal! `[v`]y"
   endif
 
-  call s:start(@@)
+  let s:flags = {}
+  call s:start(@@, 0)
 
   let &selection = selsave
   let @@ = regsave
 endfunction
 " }}}
 
-nnoremap <silent> <plug>(Grepper)       :call <sid>start()<cr>
-xnoremap <silent> <plug>(Grepper)       :<c-u>call <sid>operator(visualmode(), 1)<cr>
-nnoremap <silent> <plug>(GrepperMotion) :set opfunc=<sid>operator<cr>g@
-xnoremap <silent> <plug>(GrepperMotion) :<c-u>call <sid>operator(visualmode(), 1)<cr>
+nnoremap <silent> <plug>(GrepperOperator) :set opfunc=<sid>operator<cr>g@
+xnoremap <silent> <plug>(GrepperOperator) :<c-u>call <sid>operator(visualmode())<cr>
 
-command! -nargs=0 -bar Grepper call s:start()
+command! -nargs=* -bar -bang -complete=file Grepper call <sid>parse_command(<bang>0, <f-args>)
