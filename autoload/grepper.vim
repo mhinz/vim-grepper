@@ -1,10 +1,10 @@
 let s:options = {
       \ 'quickfix':  1,
       \ 'open':      0,
-      \ 'switch':    1,
+      \ 'switch':    0,
       \ 'jump':      1,
       \ 'next_tool': '<tab>',
-      \ 'programs':  ['git', 'ag', 'pt', 'ack', 'grep', 'findstr'],
+      \ 'tools':     ['git', 'ag', 'pt', 'ack', 'grep', 'findstr'],
       \ 'git':       { 'grepprg': 'git grep -n',              'grepformat': '%f:%l:%m'    },
       \ 'ag':        { 'grepprg': 'ag --vimgrep',             'grepformat': '%f:%l:%c:%m' },
       \ 'pt':        { 'grepprg': 'pt --nogroup',             'grepformat': '%f:%l:%m'    },
@@ -17,13 +17,13 @@ if exists('g:grepper')
   call extend(s:options, g:grepper)
 endif
 
-call filter(s:options.programs, 'executable(v:val)')
+call filter(s:options.tools, 'executable(v:val)')
 
-let ack     = index(s:options.programs, 'ack')
-let ackgrep = index(s:options.programs, 'ack-grep')
+let ack     = index(s:options.tools, 'ack')
+let ackgrep = index(s:options.tools, 'ack-grep')
 
 if (ack >= 0) && (ackgrep >= 0)
-  call remove(s:options.programs, ackgrep)
+  call remove(s:options.tools, ackgrep)
 endif
 
 let s:id    = 0
@@ -95,8 +95,8 @@ function! grepper#parse_command(bang, ...) abort
     let flag = a:000[i]
 
     if     flag =~? '\v^-%(no)?quickfix$' | let s:flags.quickfix = flag !~? '^-no'
-    elseif flag =~? '\v^-%(no)?switch$'   | let s:flags.switch   = flag !~? '^-no'
     elseif flag =~? '\v^-%(no)?open$'     | let s:flags.open     = flag !~? '^-no'
+    elseif flag =~? '\v^-%(no)?switch$'   | let s:flags.switch   = flag !~? '^-no'
     elseif flag =~? '^-search$'
       let i += 1
       if i < a:0
@@ -116,9 +116,9 @@ function! grepper#parse_command(bang, ...) abort
         echomsg 'Missing argument for: -tool'
         break
       endif
-      if index(s:options.programs, tool) >= 0
-        let s:flags.programs =
-              \ [tool] + filter(copy(s:options.programs), 'v:val != tool')
+      if index(s:options.tools, tool) >= 0
+        let s:flags.tools =
+              \ [tool] + filter(copy(s:options.tools), 'v:val != tool')
       else
         echomsg 'No such tool: '. tool
       endif
@@ -134,7 +134,7 @@ endfunction
 
 " s:start() {{{1
 function! s:start(search, skip_prompt) abort
-  if empty(s:options.programs)
+  if empty(s:options.tools)
     call s:error('No grep program found!')
     return
   endif
@@ -167,12 +167,12 @@ function! s:prompt(search)
 
   if search =~# '\V$$$mAgIc###\$'
     call histdel('input')
-    if has_key(s:flags, 'programs')
-      let s:flags.programs =
-            \ s:flags.programs[1:-1] + [s:flags.programs[0]]
+    if has_key(s:flags, 'tools')
+      let s:flags.tools =
+            \ s:flags.tools[1:-1] + [s:flags.tools[0]]
     else
-      let s:options.programs =
-            \ s:options.programs[1:-1] + [s:options.programs[0]]
+      let s:options.tools =
+            \ s:options.tools[1:-1] + [s:options.tools[0]]
     endif
     return s:prompt(search[:-12])
   endif
@@ -229,10 +229,10 @@ endfunction
 " s:get_option() {{{1
 function! s:get_option(opt) abort
   if a:opt == 'deftool'
-    if has_key(s:flags, 'programs')
-      return s:options[s:flags.programs[0]]
+    if has_key(s:flags, 'tools')
+      return s:options[s:flags.tools[0]]
     else
-      return s:options[s:options.programs[0]]
+      return s:options[s:options.tools[0]]
     endif
   else
     return has_key(s:flags, a:opt) ? s:flags[a:opt] : s:options[a:opt]

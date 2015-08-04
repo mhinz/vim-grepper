@@ -20,8 +20,8 @@
 CONTENTS                                                      *grepper-contents*
 
             INTRO .................. |grepper-intro|
-            MAPPINGS ............... |grepper-mappings|
             COMMANDS ............... |grepper-commands|
+            MAPPINGS ............... |grepper-mappings|
             OPTIONS ................ |grepper-options|
             AUTOCMD ................ |grepper-autocmd|
             COLORS ................. |grepper-colors|
@@ -54,34 +54,72 @@ to use its power. E.g. if your tool is "git grep", your search term could be
 matches. Be creative!
 
 ==============================================================================
-MAPPINGS                                                      *grepper-mappings*
-
-There are no pre-defined mappings, but 3 |<plug>| mappings that should be
-used:
->
-    nmap <leader>g <plug>(Grepper)
-    xmap <leader>g <plug>(Grepper)
-    cmap <leader>g <plug>(GrepperNext)
-    nmap gs        <plug>(GrepperMotion)
-    xmap gs        <plug>(GrepperMotion)
-<
-Now, "<leader>g" in normal mode will prompt for a new search term and in
-visual mode will adopt the current visual selection.
-
-If you're at the search prompt, "<leader>g" will switch to the next grep tool.
-
-"gs" is an |operator| and takes any |{motion}|, e.g. "gsi(" or "gsap".
-
-Use <up> and <down> for going through the input history or use <c-f> to open
-it in the |cmdwin|.
-
-==============================================================================
 COMMANDS                                                      *grepper-commands*
+
+There is only one command:
 >
     :Grepper
 <
-This is the only command and simply kicks off a new search. Not really
-needed; map "<plug>(Grepper)" instead.
+Supported flags:~
+
+    -[no]quickfix         -> use quickfix list (or location list)
+    -[no]open             -> open quickfix/location window
+    -[no]switch           -> switch to qf/loc window
+    -tool <tool>          -> any supported tool
+    -search <query>       -> skip the search prompt
+
+:Grepper opens the search prompt with the default tool. If you want to switch
+to another tool, hit <tab>.
+
+After you inserted a query and hit <cr>, an external process will be kicked
+off and its result will be put into the quickfix list.
+
+The default behaviour of :Grepper mimics |:grep|, so the quickfix window won't
+be opened and one jumps to the first found match.
+
+If you don't want to jump to the first match, again mimicking |:grep|, append
+a bang instead:
+>
+    :Grepper!
+<
+Taking all flags into account, this is what :Grepper does by default:
+>
+    :Grepper -quickfix -noopen -noswitch -jump
+<
+Of course you don't have to specify this all the time, you can just use
+|grepper-options| to to the same. The cool thing about flags is, that you can
+use multiple mappings with differing configurations:
+>
+    nnoremap <leader>git :Grepper  -tool git -open -nojump
+    nnoremap <leader>ag  :Grepper! -tool ag  -open -switch
+<
+The search prompt supports file completion, which unfortunately can never be as
+good as the built-in file completion of commands. So if you often have to
+specify directories, use a mapping like this instead:
+>
+    nnoremap <leader>ag :Grepper -tool ag -search<space>
+<
+This way the command line pops up populated with this line already and you can
+use the full power of command completion. And since the query is specified on
+the commandline already, the search prompt is skipped.
+
+NOTE: Use <up> and <down> to go through the input history or <c-f> to open it
+in the |cmdwin|.
+
+==============================================================================
+MAPPINGS                                                      *grepper-mappings*
+
+There are no pre-defined mappings, but one operator that should be used:
+>
+    nmap gs  <plug>(GrepperOperator)
+    xmap gs  <plug>(GrepperOperator)
+<
+This defines an |operator| "gs" that takes any |{motion}| and uses that
+selection to populate the search prompt.
+
+Useful examples are gsW, gsiw, or gsi". See |text-objects| for all of them.
+
+In visual mode, it uses the current selection.
 
 ==============================================================================
 OPTIONS                                                        *grepper-options*
@@ -93,57 +131,68 @@ options. The shown values are also the default values.
 NOTE: If you're unsure how to use a dictionary, have a look at
 |grepper-example|.
 >
-    'use_quickfix': 1
+    'quickfix': 1
 <
 Use the quickfix list for the matches or the location list otherwise.
 >
-    'do_open': 1
+    'open': 0
 <
-Do open the the quickfix/location window after the grep program finished
-running (and there was at least one match).
+Do open the the quickfix/location window after the grep tool finished running
+(and there was at least one match).
 >
-    'do_switch': 1
+    'switch': 0
 <
 When the quickfix/location window opens, switch to it.
 >
-    'do_jump': 0
+    'jump': 1
 <
 Automatically jump to the first match.
 >
-    'programs': ['git', 'ag', 'pt', 'ack', 'grep']
+    'tools': ['git', 'ag', 'pt', 'ack', 'grep']
 <
-These are the programs that you can choose between (as long as they're
-executable). The order matters.
+These are the tools that you can choose between (as long as they're
+executable). The order matters. The first element is the default tool.
 
 NOTE: Because of a name clash, some systems use "ack-grep" instead of "ack".
 If you include "ack" here, "ack-grep" will be found, too.
+>
+    'next_tool': '<tab>'
+<
+These keys will be used during the search prompt to switch to the next tool.
 
+NOTE: This could also be the same keys as the ones that opened the search
+prompt in the first place, e.g.:
+>
+    nnoremap <leader>g :Grepper!<cr>
+    let g:grepper = {}
+    let g:grepper.next_tool = '<leader>g'
+<
 ------------------------------------------------------------------------------
 
-If you don't like the default arguments to a grep program or you want to add a
-new one, just replace/add a key to s:grepper!
+If you don't like the default arguments to a grep tool or you want to add a
+new one, just replace/add a key to g:grepper!
 
-In the best case, the output of the program uses a format that is already
-recognized by |'grepformat'|. Otherwise you can define it yourself. Here an
-example:
+In the best case, the output of the tool uses a format that is already
+recognized by |'grepformat'|. Otherwise you can define it yourself:
 >
     let g:grepper = {
-        \ 'programs': ['pt'],
+        \ 'tools': ['pt'],
         \ 'pt': {
         \   'grepprg': 'pt --nocolor --nogroup',
         \   'grepformat': '%f:%l:%m',
         \ }}
 <
-This would always use 'pt' as grep program.
-
 ==============================================================================
 AUTOCMD                                                        *grepper-autocmd*
 
-If the grep program finished running, the plugin emits an event. Handle it
-like this:
+When a grep tool finishes running, the plugin emits an event. Handle it like
+this:
 >
     autocmd User Grepper <execute any normal commands here>
 <
+NOTE: If you intend to use |:echo| or a similar command, also use |:unsilent|
+before it.
+
 ==============================================================================
 COLORS                                                          *grepper-colors*
 
@@ -152,40 +201,40 @@ this:
 >
     highlight Question ctermfg=160 guifg=#ff0000 cterm=NONE
 >
-Other groups used are |hl-WarningMsg| and |hl-ErrorMsg| for, well, warning and
-error messages.
+For error messages, |hl-ErrorMsg| is used.
 
 ==============================================================================
 EXAMPLE                                                        *grepper-example*
 
-This is my configuration..
+This is a possible configuration..
 >
-    nmap <leader>g <plug>(Grepper)
-    xmap <leader>g <plug>(Grepper)
-    cmap <leader>g <plug>(GrepperNext)
-    nmap gs        <plug>(GrepperMotion)
-    xmap gs        <plug>(GrepperMotion)
-
     " for browsing the input history
     cnoremap <c-n> <down>
     cnoremap <c-p> <up>
 
+    nmap gs <plug>(GrepperOperator)
+    xmap gs <plug>(GrepperOperator)
+
+    nnoremap <leader>gg :Grepper!<cr>
+    nnoremap <leader>ga :Grepper! -tool ag<cr>
+
     let g:grepper = {
-        \ 'programs': ['git', 'ag', 'grep'],
-        \ 'use_quickfix': 1,
-        \ 'do_open': 1,
-        \ 'do_switch': 1,
-        \ 'do_jump': 0,
+        \ 'tools':     ['git', 'ag', 'grep'],
+        \ 'open':      1,
+        \ 'switch':    1,
+        \ 'jump':      0,
+        \ 'next_tool': '<leader>gg',
         \ }
 <
-If you don't like this way of setting options, you can also set it like this:
+If you don't like this way of setting options, you can also set them like
+this:
 >
-    let g:grepper              = {}
-    let g:grepper.programs     = ['git', 'ag', 'grep']
-    let g:grepper.use_quickfix = 1
-    let g:grepper.do_open      = 1
-    let g:grepper.do_switch    = 1
-    let g:grepper.do_jump      = 0
+    let g:grepper           = {}
+    let g:grepper.tools     = ['git', 'ag', 'grep']
+    let g:grepper.open      = 1
+    let g:grepper.switch    = 1
+    let g:grepper.jump      = 0
+    let g:grepper.next_tool = '<leader>gg'
 <
 ==============================================================================
 vim: tw=78
