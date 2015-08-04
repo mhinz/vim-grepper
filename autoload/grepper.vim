@@ -97,14 +97,14 @@ function! grepper#parse_command(bang, ...) abort
     if     flag =~? '\v^-%(no)?quickfix$' | let s:flags.quickfix = flag !~? '^-no'
     elseif flag =~? '\v^-%(no)?open$'     | let s:flags.open     = flag !~? '^-no'
     elseif flag =~? '\v^-%(no)?switch$'   | let s:flags.switch   = flag !~? '^-no'
-    elseif flag =~? '^-search$'
+    elseif flag =~? '^-query$'
       let i += 1
       if i < a:0
         " Funny Vim bug: [i:] doesn't work. [(i):] and [i :] do.
         return s:start(join(a:000[i :]), 1)
       else
         " No warning message here. This allows for..
-        " nnoremap ... :Grepper! -tool ag -search<space>
+        " nnoremap ... :Grepper! -tool ag -query<space>
         " ..thus you get nicer file completion.
         break
       endif
@@ -133,30 +133,29 @@ function! grepper#parse_command(bang, ...) abort
 endfunction
 
 " s:start() {{{1
-function! s:start(search, skip_prompt) abort
+function! s:start(query, skip_prompt) abort
   if empty(s:options.tools)
     call s:error('No grep program found!')
     return
   endif
 
-  let search = a:search
-  let search = a:skip_prompt ? a:search : s:prompt(a:search)
-  if empty(search)
+  let query = a:skip_prompt ? a:query : s:prompt(a:query)
+  if empty(query)
     return
   endif
 
-  return s:run_program(search)
+  return s:run(query)
 endfunction
 
 " s:prompt() {{{1
-function! s:prompt(search)
+function! s:prompt(query)
   let mapping = maparg(s:options.next_tool, 'c', '', 1)
   execute 'cnoremap' s:options.next_tool '$$$mAgIc###<cr>'
   echohl Question
   call inputsave()
 
   try
-    let search = input(s:get_option('deftool').grepprg .'> ', a:search,
+    let query = input(s:get_option('deftool').grepprg .'> ', a:query,
           \ 'customlist,grepper#complete_files')
   finally
     execute 'cunmap' s:options.next_tool
@@ -165,7 +164,7 @@ function! s:prompt(search)
     echohl NONE
   endtry
 
-  if search =~# '\V$$$mAgIc###\$'
+  if query =~# '\V$$$mAgIc###\$'
     call histdel('input')
     if has_key(s:flags, 'tools')
       let s:flags.tools =
@@ -174,21 +173,21 @@ function! s:prompt(search)
       let s:options.tools =
             \ s:options.tools[1:-1] + [s:options.tools[0]]
     endif
-    return s:prompt(search[:-12])
+    return s:prompt(query[:-12])
   endif
 
-  return search
+  return query
 endfunction
 
-" s:run_program() {{{1
-function! s:run_program(search)
+" s:run() {{{1
+function! s:run(query)
   let prog = s:get_option('deftool')
 
   if stridx(prog.grepprg, '$*') >= 0
     let [a, b] = split(prog.grepprg, '\V$*')
-    let cmdline = printf('%s%s%s', a, a:search, b)
+    let cmdline = printf('%s%s%s', a, a:query, b)
   else
-    let cmdline = printf('%s %s', prog.grepprg, a:search)
+    let cmdline = printf('%s %s', prog.grepprg, a:query)
   endif
 
   call s:set_settings(prog)
@@ -218,7 +217,7 @@ function! s:run_program(search)
 
   try
     execute 'silent' (s:get_option('quickfix') ? 'grep!' : 'lgrep!')
-          \ fnameescape(a:search)
+          \ fnameescape(a:query)
   finally
     call s:restore_settings()
   endtry
@@ -247,20 +246,26 @@ function! s:set_settings(prog) abort
   set t_ti= t_te=
 
   let s:settings.grepprg = &grepprg
+  let s:settings.makeprg = &makeprg
   let &grepprg = a:prog.grepprg
+  let &makeprg = a:prog.grepprg
 
   if has_key(a:prog, 'format')
-    let s:settings.grepformat = &grepformat
-    let &grepformat = a:prog.grepformat
+    let s:settings.grepformat  = &grepformat
+    let s:settings.errorformat = &errorformat
+    let &grepformat  = a:prog.grepformat
+    let &errorformat = a:prog.grepformat
   endif
 endfunction
 
 " s:restore_settings() {{{1
 function! s:restore_settings() abort
     let &grepprg = s:settings.grepprg
+    let &makeprg = s:settings.makeprg
 
     if has_key(s:settings, 'grepformat')
-      let &grepformat = s:settings.grepformat
+      let &grepformat  = s:settings.grepformat
+      let &errorformat = s:settings.errorformat
     endif
 
     let &t_ti = s:settings.t_ti

@@ -33,8 +33,7 @@ INTRO                                                            *grepper-intro*
 This plugin is a convenience wrapper around |'grepprg'| and |'grepformat'|,
 supports most common grep tools, and is easily extendable.
 
-You choose a tool, enter a search term, and get your matches into a |quickfix|
-list.
+You choose a tool, enter a query, and get your matches into a |quickfix| list.
 
 If you use Neovim, the search will be executed asynchronously. Thus you will
 be able to continue editing while the grep program is still running.
@@ -48,10 +47,10 @@ Supports by default:~
     grep
     findstr
 
-NOTE: Your grep tool and search term will be provided to a shell, so feel free
-to use its power. E.g. if your tool is "git grep", your search term could be
-"foo | head -n10". Then the quickfix list would only show the first 10
-matches. Be creative!
+NOTE: Your grep tool and query will be provided to a shell, so feel free to
+use its power. E.g. if your tool is "git grep", your query could be "foo |
+head -n10". Then the quickfix list would only show the first 10 matches. Be
+creative!
 
 ==============================================================================
 COMMANDS                                                      *grepper-commands*
@@ -66,7 +65,7 @@ Supported flags:~
     -[no]open             -> open quickfix/location window
     -[no]switch           -> switch to qf/loc window
     -tool <tool>          -> any supported tool
-    -search <query>       -> skip the search prompt
+    -query <query>        -> skip the search prompt
 
 :Grepper opens the search prompt with the default tool. If you want to switch
 to another tool, hit <tab>.
@@ -97,7 +96,7 @@ The search prompt supports file completion, which unfortunately can never be as
 good as the built-in file completion of commands. So if you often have to
 specify directories, use a mapping like this instead:
 >
-    nnoremap <leader>ag :Grepper -tool ag -search<space>
+    nnoremap <leader>ag :Grepper -tool ag -query<space>
 <
 This way the command line pops up populated with this line already and you can
 use the full power of command completion. And since the query is specified on
