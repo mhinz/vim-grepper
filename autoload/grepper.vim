@@ -335,14 +335,14 @@ endfunction
 " }}}
 
 " #operator() {{{1
-function! grepper#operator(type, ...) abort
+function! grepper#operator(type) abort
   let selsave = &selection
   let regsave = @@
   let &selection = 'inclusive'
 
-  " if a:0
-  "   silent execute "normal! gvy"
-  if a:type == 'line'
+  if a:type =~? 'v'
+    silent execute "normal! gvy"
+  elseif a:type == 'line'
     silent execute "normal! '[V']y"
   else
     silent execute "normal! `[v`]y"
