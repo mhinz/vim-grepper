@@ -1,4 +1,5 @@
 let s:options = {
+      \ 'dispatch':  0,
       \ 'quickfix':  1,
       \ 'open':      0,
       \ 'switch':    0,
@@ -26,8 +27,9 @@ if (ack >= 0) && (ackgrep >= 0)
   call remove(s:options.tools, ackgrep)
 endif
 
-let s:id    = 0
-let s:slash = exists('+shellslash') && !&shellslash ? '\' : '/'
+let s:cmdline = ''
+let s:id      = 0
+let s:slash   = exists('+shellslash') && !&shellslash ? '\' : '/'
 
 " s:error() {{{1
 function! s:error(msg)
@@ -52,7 +54,7 @@ function! s:on_exit() abort
 
   let s:id = 0
   call s:restore_settings()
-  return s:finish_up(self.cmd)
+  return s:finish_up()
 endfunction
 " }}}
 
@@ -94,7 +96,8 @@ function! grepper#parse_command(bang, ...) abort
   while i < a:0
     let flag = a:000[i]
 
-    if     flag =~? '\v^-%(no)?quickfix$' | let s:flags.quickfix = flag !~? '^-no'
+    if     flag =~? '\v^-%(no)?dispatch$' | let s:flags.dispatch = flag !~? '^-no'
+    elseif flag =~? '\v^-%(no)?quickfix$' | let s:flags.quickfix = flag !~? '^-no'
     elseif flag =~? '\v^-%(no)?open$'     | let s:flags.open     = flag !~? '^-no'
     elseif flag =~? '\v^-%(no)?switch$'   | let s:flags.switch   = flag !~? '^-no'
     elseif flag =~? '^-query$'
@@ -185,9 +188,9 @@ function! s:run(query)
 
   if stridx(prog.grepprg, '$*') >= 0
     let [a, b] = split(prog.grepprg, '\V$*')
-    let cmdline = printf('%s%s%s', a, a:query, b)
+    let s:cmdline = printf('%s%s%s', a, a:query, b)
   else
-    let cmdline = printf('%s %s', prog.grepprg, a:query)
+    let s:cmdline = printf('%s %s', prog.grepprg, a:query)
   endif
 
   call s:set_settings(prog)
@@ -197,7 +200,7 @@ function! s:run(query)
       silent! call jobstop(s:id)
     endif
 
-    let cmd = ['sh', '-c', cmdline]
+    let cmd = ['sh', '-c', s:cmdline]
 
     let tempfile = fnameescape(tempname())
     if exists('*mkdir')
@@ -207,22 +210,34 @@ function! s:run(query)
 
     let s:id = jobstart(cmd, {
           \ 'tempfile':  tempfile,
-          \ 'cmd':       cmdline,
+          \ 'cmd':       s:cmdline,
           \ 'tabpage':   tabpagenr(),
           \ 'window':    winnr(),
           \ 'on_stderr': function('s:on_stderr'),
           \ 'on_exit':   function('s:on_exit') })
     return
+  elseif s:get_option('dispatch')
+    augroup grepper
+      autocmd User dispatch-quickfix cclose | call s:finish_up()
+    augroup END
+    try
+      " The 'cat' is currently needed to strip these control sequences from
+      " tmux output (http://stackoverflow.com/a/13608153):
+      "   - CSI ? 1h + ESC =
+      "   - CSI ? 1l + ESC >
+      execute 'silent Make' a:query '| cat'
+    finally
+      call s:restore_settings()
+    endtry
+  else
+    try
+      execute 'silent' (s:get_option('quickfix') ? 'grep!' : 'lgrep!')
+            \ fnameescape(a:query)
+    finally
+      call s:restore_settings()
+    endtry
+    call s:finish_up()
   endif
-
-  try
-    execute 'silent' (s:get_option('quickfix') ? 'grep!' : 'lgrep!')
-          \ fnameescape(a:query)
-  finally
-    call s:restore_settings()
-  endtry
-
-  call s:finish_up(cmdline)
 endfunction
 
 " s:get_option() {{{1
@@ -241,9 +256,12 @@ endfunction
 " s:set_settings() {{{1
 function! s:set_settings(prog) abort
   let s:settings = {}
-  let s:settings.t_ti = &t_ti
-  let s:settings.t_te = &t_te
-  set t_ti= t_te=
+
+  if !has('nvim') || !s:get_option('dispatch')
+    let s:settings.t_ti = &t_ti
+    let s:settings.t_te = &t_te
+    set t_ti= t_te=
+  endif
 
   let s:settings.grepprg = &grepprg
   let s:settings.makeprg = &makeprg
@@ -268,8 +286,10 @@ function! s:restore_settings() abort
       let &errorformat = s:settings.errorformat
     endif
 
-    let &t_ti = s:settings.t_ti
-    let &t_te = s:settings.t_te
+    if has_key(s:settings, 't_ti')
+      let &t_ti = s:settings.t_ti
+      let &t_te = s:settings.t_te
+    endif
 endfunction
 
 " s:restore_mapping() {{{1
@@ -287,7 +307,7 @@ function! s:restore_mapping(mapping)
 endfunction
 
 " s:finish_up() {{{1
-function! s:finish_up(cmd) abort
+function! s:finish_up() abort
   let qf = s:get_option('quickfix')
   let size = len(qf ? getqflist() : getloclist(0))
 
@@ -297,7 +317,7 @@ function! s:finish_up(cmd) abort
   else
     if s:get_option('open')
       execute (size > 10 ? 10 : size) (qf ? 'copen' : 'lopen')
-      let &l:statusline = a:cmd
+      let &l:statusline = s:cmdline
       if !s:get_option('switch')
         wincmd p
       endif
@@ -309,6 +329,7 @@ function! s:finish_up(cmd) abort
     echo printf('Found %d matches.', size)
   endif
 
+  autocmd! grepper
   silent! doautocmd <nomodeline> User Grepper
 endfunction
 " }}}

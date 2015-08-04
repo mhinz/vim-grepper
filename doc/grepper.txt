@@ -61,6 +61,7 @@ There is only one command:
 <
 Supported flags:~
 
+    -[no]dispatch         -> use vim-dispatch
     -[no]quickfix         -> use quickfix list (or location list)
     -[no]open             -> open quickfix/location window
     -[no]switch           -> switch to qf/loc window
@@ -129,6 +130,15 @@ options. The shown values are also the default values.
 
 NOTE: If you're unsure how to use a dictionary, have a look at
 |grepper-example|.
+>
+    'dispatch': 0
+<
+Can be used to start an async search with Vim. It uses |dispatch-:Make| from
+vim-dispatch.
+
+NOTE: No matter what options or flags are set, vim-dispatch currently always
+opens the quickfix list, doesn't switch to it, and doesn't jump to the first
+match. This is an "issue" in vim-dispatch and will hopefully be solved soon.
 >
     'quickfix': 1
 <
