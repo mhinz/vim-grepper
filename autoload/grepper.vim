@@ -329,8 +329,10 @@ function! s:finish_up() abort
     echo printf('Found %d matches.', size)
   endif
 
-  autocmd! grepper
-  silent! doautocmd <nomodeline> User Grepper
+  augroup grepper
+    autocmd!
+  augroup END
+  silent doautocmd <nomodeline> User Grepper
 endfunction
 " }}}
 
