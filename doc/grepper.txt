@@ -121,6 +121,11 @@ Useful examples are gsW, gsiw, or gsi". See |text-objects| for all of them.
 
 In visual mode, it uses the current selection.
 
+If you have vim-repeat installed, you can repeat the operator action. For
+example, you can "gsiw" on "nice_word" to populate the search prompt with
+"nice_word". Next time you hit ".", "gsiw" will be repeated and the search
+prompt populated with the current |word| under the cursor.
+
 ==============================================================================
 OPTIONS                                                        *grepper-options*
 
@@ -135,10 +140,6 @@ NOTE: If you're unsure how to use a dictionary, have a look at
 <
 Can be used to start an async search with Vim. It uses |dispatch-:Make| from
 vim-dispatch.
-
-NOTE: No matter what options or flags are set, vim-dispatch currently always
-opens the quickfix list, doesn't switch to it, and doesn't jump to the first
-match. This is an "issue" in vim-dispatch and will hopefully be solved soon.
 >
     'quickfix': 1
 <
