@@ -20,7 +20,7 @@
 CONTENTS                                                      *grepper-contents*
 
             INTRO .................. |grepper-intro|
-            COMMANDS ............... |grepper-commands|
+            COMMAND ................ |grepper-:Grepper|
             MAPPINGS ............... |grepper-mappings|
             OPTIONS ................ |grepper-options|
             AUTOCMD ................ |grepper-autocmd|
@@ -53,7 +53,7 @@ head -n10". Then the quickfix list would only show the first 10 matches. Be
 creative!
 
 ==============================================================================
-COMMANDS                                                      *grepper-commands*
+COMMANDS                                                      *grepper-:Grepper*
 
 There is only one command:
 >
