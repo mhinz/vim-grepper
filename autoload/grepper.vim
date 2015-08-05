@@ -1,3 +1,5 @@
+" vim: tw=80
+
 let s:options = {
       \ 'dispatch':  0,
       \ 'quickfix':  1,
@@ -49,7 +51,7 @@ function! s:on_exit() abort
   execute 'tabnext' self.tabpage
   execute self.window .'wincmd w'
 
-  execute (s:get_option('quickfix') ? 'cgetfile' : 'lgetfile') self.tempfile
+  execute (s:option('quickfix') ? 'cgetfile' : 'lgetfile') self.tempfile
   call delete(self.tempfile)
 
   let s:id = 0
@@ -147,6 +149,10 @@ function! s:start(query, skip_prompt) abort
     return
   endif
 
+  " let foo = map(split(query, '--'), 'fnameescape(v:val)')
+  " echomsg 'DEBUG: '. string(foo)
+  " let query = join(foo)
+
   return s:run(query)
 endfunction
 
@@ -158,7 +164,7 @@ function! s:prompt(query)
   call inputsave()
 
   try
-    let query = input(s:get_option('deftool').grepprg .'> ', a:query,
+    let query = input(s:option('deftool').grepprg .'> ', a:query,
           \ 'customlist,grepper#complete_files')
   finally
     execute 'cunmap' s:options.next_tool
@@ -184,7 +190,7 @@ endfunction
 
 " s:run() {{{1
 function! s:run(query)
-  let prog = s:get_option('deftool')
+  let prog = s:option('deftool')
 
   if stridx(prog.grepprg, '$*') >= 0
     let [a, b] = split(prog.grepprg, '\V$*')
@@ -216,23 +222,22 @@ function! s:run(query)
           \ 'on_stderr': function('s:on_stderr'),
           \ 'on_exit':   function('s:on_exit') })
     return
-  elseif s:get_option('dispatch')
+  elseif s:option('dispatch')
     augroup grepper
-      autocmd User dispatch-quickfix cclose | call s:finish_up()
+      autocmd FileType qf call s:finish_up()
     augroup END
     try
       " The 'cat' is currently needed to strip these control sequences from
       " tmux output (http://stackoverflow.com/a/13608153):
       "   - CSI ? 1h + ESC =
       "   - CSI ? 1l + ESC >
-      execute 'silent Make' a:query '| cat'
+      execute 'Make' a:query '| cat'
     finally
       call s:restore_settings()
     endtry
   else
     try
-      execute 'silent' (s:get_option('quickfix') ? 'grep!' : 'lgrep!')
-            \ fnameescape(a:query)
+      execute 'silent' (s:option('quickfix') ? 'grep!' : 'lgrep!') a:query
     finally
       call s:restore_settings()
     endtry
@@ -240,8 +245,8 @@ function! s:run(query)
   endif
 endfunction
 
-" s:get_option() {{{1
-function! s:get_option(opt) abort
+" s:option() {{{1
+function! s:option(opt) abort
   if a:opt == 'deftool'
     if has_key(s:flags, 'tools')
       return s:options[s:flags.tools[0]]
@@ -257,7 +262,7 @@ endfunction
 function! s:set_settings(prog) abort
   let s:settings = {}
 
-  if !has('nvim') || !s:get_option('dispatch')
+  if !has('nvim') || !s:option('dispatch')
     let s:settings.t_ti = &t_ti
     let s:settings.t_te = &t_te
     set t_ti= t_te=
@@ -308,30 +313,32 @@ endfunction
 
 " s:finish_up() {{{1
 function! s:finish_up() abort
-  let qf = s:get_option('quickfix')
+  augroup grepper
+    autocmd!
+  augroup END
+
+  let qf = s:option('quickfix')
   let size = len(qf ? getqflist() : getloclist(0))
 
   if size == 0
     execute (qf ? 'cclose' : 'lclose')
-    echomsg 'No matches found.'
+    echo 'No matches found.'
   else
-    if s:get_option('open')
-      execute (size > 10 ? 10 : size) (qf ? 'copen' : 'lopen')
-      let &l:statusline = s:cmdline
-      if !s:get_option('switch')
-        wincmd p
-      endif
-    endif
-    if s:get_option('jump')
+    if s:option('jump')
       execute (qf ? 'cfirst' : 'lfirst')
     endif
-    redraw!
-    echo printf('Found %d matches.', size)
+
+    if s:option('open')
+      execute (qf ? 'copen' : 'lopen') (size > 10 ? 10 : size)
+      let &l:statusline = s:cmdline
+      if xor(s:option('switch'), !s:option('dispatch'))
+        call feedkeys("\<c-w>p", 'n')
+      endif
+    endif
   endif
 
-  augroup grepper
-    autocmd!
-  augroup END
+  redraw!
+  echo printf('Found %d matches.', size)
   silent doautocmd <nomodeline> User Grepper
 endfunction
 " }}}
