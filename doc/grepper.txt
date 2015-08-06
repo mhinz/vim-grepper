@@ -99,9 +99,10 @@ specify directories, use a mapping like this instead:
 >
     nnoremap <leader>ag :Grepper -tool ag -query<space>
 <
-This way the command line pops up populated with this line already and you can
-use the full power of command completion. And since the query is specified on
-the commandline already, the search prompt is skipped.
+
+This way the commandline pops up populated with this line already and you can
+use the full power of file completion. And since the query is specified on the
+commandline already, the search prompt is skipped.
 
 NOTE: Use <up> and <down> to go through the input history or <c-f> to open it
 in the |cmdwin|.
@@ -115,7 +116,7 @@ There are no pre-defined mappings, but one operator that should be used:
     xmap gs  <plug>(GrepperOperator)
 <
 This defines an |operator| "gs" that takes any |{motion}| and uses that
-selection to populate the search prompt.
+selection to populate the search prompt. The query is quoted automatically.
 
 Useful examples are gsW, gsiw, or gsi". See |text-objects| for all of them.
 

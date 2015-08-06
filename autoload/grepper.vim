@@ -91,12 +91,14 @@ endfunction
 " }}}
 
 " #parse_command() {{{1
-function! grepper#parse_command(bang, ...) abort
+function! grepper#parse_command(bang, args) abort
   let s:flags = { 'jump': !a:bang }
+  let args    = split(a:args, ' ')
+  let len     = len(args)
+  let i       = 0
 
-  let i = 0
-  while i < a:0
-    let flag = a:000[i]
+  while i < len
+    let flag = args[i]
 
     if     flag =~? '\v^-%(no)?dispatch$' | let s:flags.dispatch = flag !~? '^-no'
     elseif flag =~? '\v^-%(no)?quickfix$' | let s:flags.quickfix = flag !~? '^-no'
@@ -104,9 +106,9 @@ function! grepper#parse_command(bang, ...) abort
     elseif flag =~? '\v^-%(no)?switch$'   | let s:flags.switch   = flag !~? '^-no'
     elseif flag =~? '^-query$'
       let i += 1
-      if i < a:0
+      if i < len
         " Funny Vim bug: [i:] doesn't work. [(i):] and [i :] do.
-        return s:start(join(a:000[i :]), 1)
+        return s:start(join(args[i :]), 1)
       else
         " No warning message here. This allows for..
         " nnoremap ... :Grepper! -tool ag -query<space>
@@ -115,8 +117,8 @@ function! grepper#parse_command(bang, ...) abort
       endif
     elseif flag =~? '^-tool$'
       let i += 1
-      if i < a:0
-        let tool = a:000[i]
+      if i < len
+        let tool = args[i]
       else
         echomsg 'Missing argument for: -tool'
         break
@@ -143,17 +145,8 @@ function! s:start(query, skip_prompt) abort
     call s:error('No grep program found!')
     return
   endif
-
   let query = a:skip_prompt ? a:query : s:prompt(a:query)
-  if empty(query)
-    return
-  endif
-
-  " let foo = map(split(query, '--'), 'fnameescape(v:val)')
-  " echomsg 'DEBUG: '. string(foo)
-  " let query = join(foo)
-
-  return s:run(query)
+  return empty(query) ? '' : s:run(query)
 endfunction
 
 " s:prompt() {{{1
@@ -358,7 +351,7 @@ function! grepper#operator(type) abort
   endif
 
   let s:flags = {}
-  call s:start(@@, 0)
+  call s:start(shellescape(@@), 0)
 
   let &selection = selsave
   let @@ = regsave
