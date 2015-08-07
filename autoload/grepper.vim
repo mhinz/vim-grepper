@@ -323,7 +323,7 @@ function! s:finish_up() abort
 
     if s:option('open')
       execute (qf ? 'copen' : 'lopen') (size > 10 ? 10 : size)
-      let &l:statusline = s:cmdline
+      let w:quickfix_title = s:cmdline
       if xor(s:option('switch'), !s:option('dispatch'))
         call feedkeys("\<c-w>p", 'n')
       endif
