@@ -33,6 +33,7 @@ _Features:_
 - `:Grepper` takes flags that overrule options (thus you can use different
   mappings for different configurations)
 - emits an User event when a search finishes, for further customization
+- support for proper statusline plugins
 
 TIP: Read `:h grepper` for the whole truth.
 
