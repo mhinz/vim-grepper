@@ -1,4 +1,4 @@
-*grepper.txt*  Grep it!
+*grepper.txt*  Helps you win at grep!
 *grepper*
 
   by Marco Hinz~
@@ -226,15 +226,15 @@ This is a possible configuration..
     nmap gs <plug>(GrepperOperator)
     xmap gs <plug>(GrepperOperator)
 
-    nnoremap <leader>gg :Grepper!<cr>
-    nnoremap <leader>ga :Grepper! -tool ag<cr>
+    nnoremap <leader>g :Grepper! -tool git<cr>
+    nnoremap <leader>G :Grepper! -tool ag<cr>
 
     let g:grepper = {
         \ 'tools':     ['git', 'ag', 'grep'],
         \ 'open':      1,
         \ 'switch':    1,
         \ 'jump':      0,
-        \ 'next_tool': '<leader>gg',
+        \ 'next_tool': '<leader>g',
         \ }
 <
 If you don't like this way of setting options, you can also set them like
@@ -245,7 +245,7 @@ this:
     let g:grepper.open      = 1
     let g:grepper.switch    = 1
     let g:grepper.jump      = 0
-    let g:grepper.next_tool = '<leader>gg'
+    let g:grepper.next_tool = '<leader>g'
 <
 ==============================================================================
 vim: tw=78
