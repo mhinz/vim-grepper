@@ -37,6 +37,29 @@ _Features:_
 
 TIP: Read `:h grepper` for the whole truth.
 
+== Examples
+
+`:Grepper` takes a number of flags which makes it a very versatile command.
+
+__Example 1:__
+
+```viml
+nnoremap <leader>git :Grepper  -tool git -open -nojump
+nnoremap <leader>ag  :Grepper! -tool ag  -open -switch
+```
+
+These two mappings will fire up the search prompt with the provided configuration.
+
+__Example 2:__
+
+```viml
+command! -nargs=* -complete=file GG Grepper! -tool git -query <args>
+command! -nargs=* -complete=file Ag Grepper! -tool ag -query <args>
+```
+
+Now you can use it like this: `:Ag foo` or `:GG 'foo bar' *.txt`. Mind that
+`<tab>` can be used for file completion, too.
+
 == Installation and Documentation
 
 If you don't have a plugin manager, I suggest having a look at
