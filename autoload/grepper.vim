@@ -266,7 +266,7 @@ function! s:set_settings(prog) abort
   let &grepprg = a:prog.grepprg
   let &makeprg = a:prog.grepprg
 
-  if has_key(a:prog, 'format')
+  if has_key(a:prog, 'grepformat')
     let s:settings.grepformat  = &grepformat
     let s:settings.errorformat = &errorformat
     let &grepformat  = a:prog.grepformat
