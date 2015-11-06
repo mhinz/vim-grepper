@@ -127,6 +127,14 @@ example, you can "gsiw" on "nice_word" to populate the search prompt with
 "nice_word". Next time you hit ".", "gsiw" will be repeated and the search
 prompt populated with the current |word| under the cursor.
 
+Quickfix/location window:~
+
+By default Vim supports <cr> to open the current entry in the last window and
+gf to open the current entry in the current window.
+
+Additionally this plugin defines two mappings s and t to open the current
+entry in a new split or tab respectively.
+
 ==============================================================================
 OPTIONS                                                        *grepper-options*
 

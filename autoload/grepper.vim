@@ -326,6 +326,9 @@ function! s:finish_up() abort
       let w:quickfix_title = s:cmdline
       if xor(s:option('switch'), !s:option('dispatch'))
         call feedkeys("\<c-w>p", 'n')
+      else
+        nnoremap t :execute 'normal! 0'<cr>:tabedit <cr>
+        nnoremap s :execute 'normal! 0'<cr>:aboveleft split <cr>
       endif
     endif
   endif
