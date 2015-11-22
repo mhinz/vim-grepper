@@ -339,6 +339,13 @@ function! s:finish_up() abort
 endfunction
 " }}}
 
+" s:escape_for_grep
+func! s:escape_for_grep(text)
+  " Escape regular expression characters ($, [, ], ^)
+  let text = substitute(a:text, '\v(\[|\]|\$|\^)', '\\\1', 'g')
+  return text
+endfunc
+
 " #operator() {{{1
 function! grepper#operator(type) abort
   let selsave = &selection
@@ -354,8 +361,9 @@ function! grepper#operator(type) abort
   endif
 
   let s:flags = {}
-  call s:start(shellescape(@@), 0)
+  call s:start(shellescape(s:escape_for_grep(@@)), 0)
 
   let &selection = selsave
   let @@ = regsave
 endfunction
+
