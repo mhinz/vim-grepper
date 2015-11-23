@@ -8,7 +8,7 @@ let s:options = {
       \ 'jump':      1,
       \ 'next_tool': '<tab>',
       \ 'tools':     ['git', 'ag', 'pt', 'ack', 'grep', 'findstr'],
-      \ 'git':       { 'grepprg': 'git grep -n',              'grepformat': '%f:%l:%m'    },
+      \ 'git':       { 'grepprg': 'git grep -n',              'grepformat': '%f:%l:%m',   'escape': '\$#[]*' },
       \ 'ag':        { 'grepprg': 'ag --vimgrep',             'grepformat': '%f:%l:%c:%m' },
       \ 'pt':        { 'grepprg': 'pt --nogroup',             'grepformat': '%f:%l:%m'    },
       \ 'ack':       { 'grepprg': 'ack --noheading --column', 'grepformat': '%f:%l:%c:%m' },
@@ -32,6 +32,9 @@ endif
 let s:cmdline = ''
 let s:id      = 0
 let s:slash   = exists('+shellslash') && !&shellslash ? '\' : '/'
+
+let s:magic_string = '$$$mAgIc###'
+let s:magic_length = strlen(s:magic_string)
 
 " s:error() {{{1
 function! s:error(msg)
@@ -152,7 +155,7 @@ endfunction
 " s:prompt() {{{1
 function! s:prompt(query)
   let mapping = maparg(s:options.next_tool, 'c', '', 1)
-  execute 'cnoremap' s:options.next_tool '$$$mAgIc###<cr>'
+  execute 'cnoremap' s:options.next_tool s:magic_string .'<cr>'
   echohl Question
   call inputsave()
 
@@ -166,16 +169,11 @@ function! s:prompt(query)
     echohl NONE
   endtry
 
-  if query =~# '\V$$$mAgIc###\$'
+  if query =~# s:magic_string
     call histdel('input')
-    if has_key(s:flags, 'tools')
-      let s:flags.tools =
-            \ s:flags.tools[1:-1] + [s:flags.tools[0]]
-    else
-      let s:options.tools =
-            \ s:options.tools[1:-1] + [s:options.tools[0]]
-    endif
-    return s:prompt(query[:-12])
+    let query = query[:-12]
+    call s:tool_next()
+    return s:prompt(s:tool_escape(a:query))
   endif
 
   return query
@@ -337,6 +335,29 @@ function! s:finish_up() abort
   echo printf('Found %d matches.', size)
   silent doautocmd <nomodeline> User Grepper
 endfunction
+
+" s:tool_escape() {{{1
+function! s:tool_escape(query)
+  let tool = s:option('deftool')
+
+  if exists('s:original_query')
+    let query = has_key(tool, 'escape')
+          \ ? escape(s:original_query, tool.escape)
+          \ : s:original_query
+    return shellescape(query)
+  else
+    return a:query
+  endif
+endfunction
+
+" s:tool_next() {{{1
+function! s:tool_next()
+  if has_key(s:flags, 'tools')
+    let s:flags.tools = s:flags.tools[1:-1] + [s:flags.tools[0]]
+  else
+    let s:options.tools = s:options.tools[1:-1] + [s:options.tools[0]]
+  endif
+endfunction
 " }}}
 
 " #operator() {{{1
@@ -354,7 +375,8 @@ function! grepper#operator(type) abort
   endif
 
   let s:flags = {}
-  call s:start(shellescape(@@), 0)
+  let s:original_query = @@
+  call s:start(s:tool_escape(s:original_query), 0)
 
   let &selection = selsave
   let @@ = regsave
