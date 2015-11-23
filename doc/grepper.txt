@@ -197,8 +197,9 @@ recognized by |'grepformat'|. Otherwise you can define it yourself:
     let g:grepper = {
         \ 'tools': ['pt'],
         \ 'pt': {
-        \   'grepprg': 'pt --nocolor --nogroup',
+        \   'grepprg':    'pt --nocolor --nogroup',
         \   'grepformat': '%f:%l:%m',
+        \   'escape':     '\+*^$()[]',
         \ }}
 <
 ==============================================================================
