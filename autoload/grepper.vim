@@ -10,10 +10,10 @@ let s:options = {
       \ 'tools':     ['git', 'ag', 'pt', 'ack', 'grep', 'findstr'],
       \ 'git':       { 'grepprg': 'git grep -n',              'grepformat': '%f:%l:%m',    'escape': '\$*%#[]'   },
       \ 'ag':        { 'grepprg': 'ag --vimgrep',             'grepformat': '%f:%l:%c:%m', 'escape': '\^$*+()[]' },
-      \ 'pt':        { 'grepprg': 'pt --nogroup',             'grepformat': '%f:%l:%m'    },
-      \ 'ack':       { 'grepprg': 'ack --noheading --column', 'grepformat': '%f:%l:%c:%m' },
-      \ 'grep':      { 'grepprg': 'grep -Rn $* .',            'grepformat': '%f:%l:%m'    },
-      \ 'findstr':   { 'grepprg': 'findstr -rspnc:"$*" *',    'grepformat': '%f:%l:%m'    },
+      \ 'pt':        { 'grepprg': 'pt --nogroup',             'grepformat': '%f:%l:%m'                           },
+      \ 'ack':       { 'grepprg': 'ack --noheading --column', 'grepformat': '%f:%l:%c:%m'                        },
+      \ 'grep':      { 'grepprg': 'grep -Rn $* .',            'grepformat': '%f:%l:%m',    'escape': '\$*[]'     },
+      \ 'findstr':   { 'grepprg': 'findstr -rspnc:"$*" *',    'grepformat': '%f:%l:%m'                           },
       \ }
 
 " Escape test line:
