@@ -8,16 +8,16 @@ let s:options = {
       \ 'jump':      1,
       \ 'next_tool': '<tab>',
       \ 'tools':     ['git', 'ag', 'pt', 'ack', 'grep', 'findstr'],
-      \ 'git':       { 'grepprg': 'git grep -n',              'grepformat': '%f:%l:%m',    'escape': '\$*%#[]'   },
-      \ 'ag':        { 'grepprg': 'ag --vimgrep',             'grepformat': '%f:%l:%c:%m', 'escape': '\^$*+()[]' },
-      \ 'pt':        { 'grepprg': 'pt --nogroup',             'grepformat': '%f:%l:%m'                           },
-      \ 'ack':       { 'grepprg': 'ack --noheading --column', 'grepformat': '%f:%l:%c:%m', 'escape': '\^$*+()[]' },
-      \ 'grep':      { 'grepprg': 'grep -Rn $* .',            'grepformat': '%f:%l:%m',    'escape': '\$*[]'     },
-      \ 'findstr':   { 'grepprg': 'findstr -rspnc:"$*" *',    'grepformat': '%f:%l:%m'                           },
+      \ 'git':       { 'grepprg': 'git grep -n',              'grepformat': '%f:%l:%m',    'escape': '\$.*%#[]'    },
+      \ 'ag':        { 'grepprg': 'ag --vimgrep',             'grepformat': '%f:%l:%c:%m', 'escape': '\^$.*+?()[]' },
+      \ 'pt':        { 'grepprg': 'pt --nogroup',             'grepformat': '%f:%l:%m'                             },
+      \ 'ack':       { 'grepprg': 'ack --noheading --column', 'grepformat': '%f:%l:%c:%m', 'escape': '\^$.*+?()[]' },
+      \ 'grep':      { 'grepprg': 'grep -Rn $* .',            'grepformat': '%f:%l:%m',    'escape': '\$.*[]'      },
+      \ 'findstr':   { 'grepprg': 'findstr -rspnc:"$*" *',    'grepformat': '%f:%l:%m'                             },
       \ }
 
 " Escape test line:
-" ad\\f 40+  $ # @ ! % ^ & &*()_{}4304\ '  ""  `9$343 %  $ ^ adfadf [ ad )  [  (
+" .. ad\\f 40+  $ # @ ! % ^ & &*()_{}4304\ '  "" ? `9$343 %  $ ^ adfadf [ ad )  [  (
 
 if exists('g:grepper')
   call extend(s:options, g:grepper)
