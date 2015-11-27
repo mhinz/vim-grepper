@@ -8,7 +8,7 @@ let s:options = {
       \ 'jump':      1,
       \ 'next_tool': '<tab>',
       \ 'tools':     ['git', 'ag', 'pt', 'ack', 'grep', 'findstr'],
-      \ 'git':       { 'grepprg': 'git grep -n',              'grepformat': '%f:%l:%m',    'escape': '\$.*%#[]'    },
+      \ 'git':       { 'grepprg': 'git grep -nI',             'grepformat': '%f:%l:%m',    'escape': '\$.*%#[]'    },
       \ 'ag':        { 'grepprg': 'ag --vimgrep',             'grepformat': '%f:%l:%c:%m', 'escape': '\^$.*+?()[]' },
       \ 'pt':        { 'grepprg': 'pt --nogroup',             'grepformat': '%f:%l:%m'                             },
       \ 'ack':       { 'grepprg': 'ack --noheading --column', 'grepformat': '%f:%l:%c:%m', 'escape': '\^$.*+?()[]' },
