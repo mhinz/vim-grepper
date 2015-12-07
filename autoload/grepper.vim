@@ -328,8 +328,8 @@ function! s:finish_up() abort
       if xor(s:option('switch'), !s:option('dispatch'))
         call feedkeys("\<c-w>p", 'n')
       else
-        nnoremap t :execute 'normal! 0'<cr>:tabedit <cr>
-        nnoremap s :execute 'normal! 0'<cr>:aboveleft split <cr>
+        nnoremap <buffer> t :execute 'normal! 0'<cr>:tabedit <cr>
+        nnoremap <buffer> s :execute 'normal! 0'<cr>:aboveleft split <cr>
       endif
     endif
   endif
