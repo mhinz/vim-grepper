@@ -6,6 +6,7 @@ let s:options = {
       \ 'open':      0,
       \ 'switch':    0,
       \ 'jump':      1,
+      \ 'cword':     0,
       \ 'next_tool': '<tab>',
       \ 'tools':     ['git', 'ag', 'pt', 'ack', 'grep', 'findstr'],
       \ 'git':       { 'grepprg': 'git grep -nI',             'grepformat': '%f:%l:%m',    'escape': '\$.*%#[]'    },
@@ -110,6 +111,9 @@ function! grepper#parse_command(bang, args) abort
     elseif flag =~? '\v^-%(no)?quickfix$' | let s:flags.quickfix = flag !~? '^-no'
     elseif flag =~? '\v^-%(no)?open$'     | let s:flags.open     = flag !~? '^-no'
     elseif flag =~? '\v^-%(no)?switch$'   | let s:flags.switch   = flag !~? '^-no'
+    elseif flag =~? '^-cword$'
+      let s:original_query = expand('<cword>')
+      return s:start(s:tool_escape(s:original_query), 1)
     elseif flag =~? '^-query$'
       let i += 1
       if i < len
