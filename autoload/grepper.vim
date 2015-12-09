@@ -156,7 +156,12 @@ function! s:start(query, skip_prompt) abort
     return
   endif
   let query = a:skip_prompt ? a:query : s:prompt(a:query)
-  return empty(query) ? '' : s:run(query)
+  if empty(query)
+    let s:original_query = expand('<cword>')
+    return s:run(s:tool_escape(s:original_query))
+  else
+    return s:run(query)
+  endif
 endfunction
 
 " s:prompt() {{{1

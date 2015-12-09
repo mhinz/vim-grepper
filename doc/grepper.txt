@@ -75,6 +75,8 @@ to another tool, hit <tab>.
 After you inserted a query and hit <cr>, an external process will be kicked
 off and its result will be put into the quickfix list.
 
+If the query is empty, |:<cword>| will be used for searching.
+
 The default behaviour of :Grepper mimics |:grep|, so the quickfix window won't
 be opened and one jumps to the first found match.
 
