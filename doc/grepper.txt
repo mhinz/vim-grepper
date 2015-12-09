@@ -66,7 +66,7 @@ Supported flags:~
     -[no]open             -> open quickfix/location window
     -[no]switch           -> switch to qf/loc window
     -tool <tool>          -> any supported tool
-    -cword                -> use word under cursor as query
+    -cword[!]             -> use word under cursor as query
     -query <query>        -> skip the search prompt
 
 :Grepper opens the search prompt with the default tool. If you want to switch
@@ -107,10 +107,10 @@ commandline already, the search prompt is skipped.
 NOTE: Use <up> and <down> to go through the input history or <c-f> to open it
 in the |cmdwin|.
 >
-    nnoremap <leader>* :Grepper -tool git -cword
+    nnoremap <leader>* :Grepper -tool git -cword!
 <
-Skip the prompt and search for the word under the cursor. Must be the last
-flag.
+Populate the prompt with the word under cursor. If [!] is given, the prompt is
+skipped and the search is started right away. Must be the last flag.
 
 ==============================================================================
 MAPPINGS                                                      *grepper-mappings*

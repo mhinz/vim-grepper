@@ -111,9 +111,9 @@ function! grepper#parse_command(bang, args) abort
     elseif flag =~? '\v^-%(no)?quickfix$' | let s:flags.quickfix = flag !~? '^-no'
     elseif flag =~? '\v^-%(no)?open$'     | let s:flags.open     = flag !~? '^-no'
     elseif flag =~? '\v^-%(no)?switch$'   | let s:flags.switch   = flag !~? '^-no'
-    elseif flag =~? '^-cword$'
+    elseif flag =~? '^-cword!\=$'
       let s:original_query = expand('<cword>')
-      return s:start(s:tool_escape(s:original_query), 1)
+      return s:start(s:tool_escape(s:original_query), flag =~# '!')
     elseif flag =~? '^-query$'
       let i += 1
       if i < len
