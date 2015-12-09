@@ -77,6 +77,8 @@ off and its result will be put into the quickfix list.
 
 If the query is empty, |:<cword>| will be used for searching.
 
+Use |CTRL-C| to close the prompt without searching anything.
+
 The default behaviour of :Grepper mimics |:grep|, so the quickfix window won't
 be opened and one jumps to the first found match.
 

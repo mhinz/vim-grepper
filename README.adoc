@@ -43,14 +43,38 @@ TIP: Read `:h grepper` for the whole truth.
 
 __Example 1:__
 
+Create mappings with `:Grepper` and provide different configurations at the
+same time:
+
 ```viml
-nnoremap <leader>git :Grepper  -tool git -open -nojump
-nnoremap <leader>ag  :Grepper! -tool ag  -open -switch
+nnoremap <leader>git :Grepper  -tool git -open -nojump<cr>
+nnoremap <leader>ag  :Grepper! -tool ag  -open -switch<cr>
+nnoremap <leader>*   :Grepper! -tool ack -cword<cr>
 ```
 
-These two mappings will fire up the search prompt with the provided configuration.
+These first two mappings will fire up the search prompt with the provided
+configuration. The third one will open the prompt prepopulated with the word
+under the cursor.
 
 __Example 2:__
+
+Use the operator to search for text from the current buffer:
+
+```viml
+nmap gs <plug>(GrepperOperator)
+xmap gs <plug>(GrepperOperator)
+```
+
+`gs` in visual mode will simply prepopulate the prompt with the current visual
+selection. You can also use text objects to preopulate the prompt, e.g. `gs$`
+for everything from the current cursor position until the end of the line.
+
+Everytime the prompt gets prepopulated, the query will get escaped according to
+the used grep tool.
+
+__Example 3:__
+
+You can use `:Grepper` to build your own commmands:
 
 ```viml
 command! -nargs=* -complete=file GG Grepper! -tool git -query <args>
