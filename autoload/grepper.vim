@@ -38,7 +38,6 @@ let s:id      = 0
 let s:slash   = exists('+shellslash') && !&shellslash ? '\' : '/'
 
 let s:magic_string = '$$$mAgIc###'
-let s:magic_length = strlen(s:magic_string)
 
 " s:error() {{{1
 function! s:error(msg)
