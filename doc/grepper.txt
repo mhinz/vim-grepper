@@ -57,7 +57,7 @@ COMMANDS                                                      *grepper-:Grepper*
 
 There is only one command:
 >
-    :Grepper
+    :Grepper [flags]
 <
 Supported flags:~
 
@@ -85,14 +85,14 @@ a bang instead:
 <
 Taking all flags into account, this is what :Grepper does by default:
 >
-    :Grepper -quickfix -noopen -noswitch -jump
+    :Grepper -quickfix -noopen -noswitch -jump<cr>
 <
 Of course you don't have to specify this all the time, you can just use
 |grepper-options| to to the same. The cool thing about flags is, that you can
 use multiple mappings with differing configurations:
 >
-    nnoremap <leader>git :Grepper  -tool git -open -nojump
-    nnoremap <leader>ag  :Grepper! -tool ag  -open -switch
+    nnoremap <leader>git :Grepper  -tool git -open -nojump<cr>
+    nnoremap <leader>ag  :Grepper! -tool ag  -open -switch<cr>
 <
 The search prompt supports file completion, which unfortunately can never be as
 good as the built-in file completion of commands. So if you often have to
@@ -107,7 +107,7 @@ commandline already, the search prompt is skipped.
 NOTE: Use <up> and <down> to go through the input history or <c-f> to open it
 in the |cmdwin|.
 >
-    nnoremap <leader>* :Grepper -tool git -cword!
+    nnoremap <leader>* :Grepper -tool git -cword!<cr>
 <
 Populate the prompt with the word under cursor. If [!] is given, the prompt is
 skipped and the search is started right away. Must be the last flag.
@@ -242,6 +242,7 @@ This is a possible configuration..
 
     nnoremap <leader>g :Grepper! -tool git<cr>
     nnoremap <leader>G :Grepper! -tool ag<cr>
+    nnoremap <leader>* :Grepper! -tool ag -cword!<cr>
 
     let g:grepper = {
         \ 'tools':     ['git', 'ag', 'grep'],
