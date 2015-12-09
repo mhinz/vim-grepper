@@ -66,6 +66,7 @@ Supported flags:~
     -[no]open             -> open quickfix/location window
     -[no]switch           -> switch to qf/loc window
     -tool <tool>          -> any supported tool
+    -cword                -> use word under cursor as query
     -query <query>        -> skip the search prompt
 
 :Grepper opens the search prompt with the default tool. If you want to switch
@@ -99,13 +100,17 @@ specify directories, use a mapping like this instead:
 >
     nnoremap <leader>ag :Grepper -tool ag -query<space>
 <
-
 This way the commandline pops up populated with this line already and you can
 use the full power of file completion. And since the query is specified on the
 commandline already, the search prompt is skipped.
 
 NOTE: Use <up> and <down> to go through the input history or <c-f> to open it
 in the |cmdwin|.
+>
+    nnoremap <leader>* :Grepper -tool git -cword
+<
+Skip the prompt and search for the word under the cursor. Must be the last
+flag.
 
 ==============================================================================
 MAPPINGS                                                      *grepper-mappings*
