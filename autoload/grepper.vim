@@ -32,7 +32,9 @@ let s:options = {
 
 if exists('g:grepper')
   for key in keys(g:grepper)
-    if type(s:options[key]) == type({})
+    if !has_key(s:options, key)
+      echomsg printf('grepper: Ignoring unknown key "%s".', key)
+    elseif type(s:options[key]) == type({})
       call extend(s:options[key], g:grepper[key])
     else
       let s:options[key] = g:grepper[key]
