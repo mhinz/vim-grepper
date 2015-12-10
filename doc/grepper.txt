@@ -57,7 +57,7 @@ COMMANDS                                                      *grepper-:Grepper*
 
 There is only one command:
 >
-    :Grepper [flags]
+    :Grepper[!] [flags]
 <
 Supported flags:~
 
