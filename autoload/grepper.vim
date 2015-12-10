@@ -31,7 +31,13 @@ let s:options = {
 " .. ad\\f 40+  $ # @ ! % ^ & &*()_{}4304\ '  "" ? `9$343 %  $ ^ adfadf [ ad )  [  (
 
 if exists('g:grepper')
-  call extend(s:options, g:grepper)
+  for key in keys(g:grepper)
+    if type(s:options[key]) == type({})
+      call extend(s:options[key], g:grepper[key])
+    else
+      let s:options[key] = g:grepper[key]
+    endif
+  endfor
 endif
 
 call filter(s:options.tools, 'executable(v:val)')
