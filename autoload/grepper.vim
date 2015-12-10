@@ -32,7 +32,10 @@ let s:options = {
 
 if exists('g:grepper')
   for key in keys(g:grepper)
-    if type(s:options[key]) == type({})
+    if type(g:grepper[key]) == type({})
+      if !has_key(s:options, key)
+        let s:options[key] = {}
+      endif
       call extend(s:options[key], g:grepper[key])
     else
       let s:options[key] = g:grepper[key]
