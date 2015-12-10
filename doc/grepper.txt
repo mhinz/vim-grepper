@@ -114,7 +114,7 @@ in the |cmdwin|.
     nnoremap <leader>* :Grepper -tool git -cword!<cr>
 <
 Populate the prompt with the word under cursor. If [!] is given, the prompt is
-skipped and the search is started right away. Must be the last flag.
+skipped and the search is started right away.
 
 ==============================================================================
 MAPPINGS                                                      *grepper-mappings*

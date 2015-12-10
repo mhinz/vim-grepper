@@ -128,9 +128,7 @@ function! grepper#parse_command(bang, args) abort
     elseif flag =~? '\v^-%(no)?quickfix$' | let s:flags.quickfix = flag !~? '^-no'
     elseif flag =~? '\v^-%(no)?open$'     | let s:flags.open     = flag !~? '^-no'
     elseif flag =~? '\v^-%(no)?switch$'   | let s:flags.switch   = flag !~? '^-no'
-    elseif flag =~? '^-cword!\=$'
-      let s:original_query = expand('<cword>')
-      return s:start(s:tool_escape(s:original_query), flag =~# '!')
+    elseif flag =~? '^-cword!\=$'         | let s:flags.cword    = flag =~# '!' ? 2 : 1
     elseif flag =~? '^-query$'
       let i += 1
       if i < len
@@ -172,13 +170,22 @@ function! s:start(query, skip_prompt) abort
     call s:error('No grep program found!')
     return
   endif
-  let query = a:skip_prompt ? a:query : s:prompt(a:query)
-  if empty(query)
-    let s:original_query = expand('<cword>')
-    return s:run(s:tool_escape(s:original_query))
+
+  let query = ''
+
+  if get(s:flags, 'cword')
+    let query = s:escape_query(expand('<cword>'))
+    if s:flags.cword == 1
+      let query = s:prompt(query)
+    endif
   else
-    return s:run(query)
+    let query = a:skip_prompt ? a:query : s:prompt(a:query)
+    if empty(query)
+      let query = s:escape_query(expand('<cword>'))
+    endif
   endif
+
+  return s:run(query)
 endfunction
 
 " s:prompt() {{{1
@@ -386,6 +393,12 @@ function! s:tool_next()
   else
     let s:options.tools = s:options.tools[1:-1] + [s:options.tools[0]]
   endif
+endfunction
+
+" s:escape_query() {{{1
+function! s:escape_query(query)
+  let s:original_query = a:query
+  return s:tool_escape(s:original_query)
 endfunction
 " }}}
 
