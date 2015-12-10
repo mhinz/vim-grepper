@@ -213,7 +213,7 @@ function! s:run(query)
   let prog = s:option('deftool')
 
   if stridx(prog.grepprg, '$*') >= 0
-    let [a, b] = split(prog.grepprg, '\V$*')
+    let [a, b] = split(prog.grepprg, '\V$*', 1)
     let s:cmdline = printf('%s%s%s', a, a:query, b)
   else
     let s:cmdline = printf('%s %s', prog.grepprg, a:query)
