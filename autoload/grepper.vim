@@ -115,12 +115,16 @@ function! s:extract_path(string) abort
 endfunction
 " }}}
 
-" #parse_command() {{{1
-function! grepper#parse_command(bang, args) abort
-  let s:flags = { 'jump': !a:bang }
-  let args    = split(a:args, ' ')
-  let len     = len(args)
-  let i       = 0
+" #parse_flags() {{{1
+function! grepper#parse_flags(bang, args) abort
+  let s:flags = {
+        \ 'jump':   !a:bang,
+        \ 'prompt': 1,
+        \ 'query':  ''
+        \ }
+  let args = split(a:args, ' ')
+  let len = len(args)
+  let i = 0
 
   while i < len
     let flag = args[i]
@@ -129,12 +133,18 @@ function! grepper#parse_command(bang, args) abort
     elseif flag =~? '\v^-%(no)?quickfix$' | let s:flags.quickfix = flag !~? '^-no'
     elseif flag =~? '\v^-%(no)?open$'     | let s:flags.open     = flag !~? '^-no'
     elseif flag =~? '\v^-%(no)?switch$'   | let s:flags.switch   = flag !~? '^-no'
-    elseif flag =~? '^-cword!\=$'         | let s:flags.cword    = flag =~# '!' ? 2 : 1
+    elseif flag =~? '^-cword!\=$'
+      let s:flags.cword = 1
+      let s:flags.prompt = flag !~# '!$'
+    elseif flag =~? '^-args$'
+      let s:flags.args = join(args[(i+1):])
+      break
     elseif flag =~? '^-query$'
-      let i += 1
       if i < len
         " Funny Vim bug: [i:] doesn't work. [(i):] and [i :] do.
-        return s:start(join(args[i :]), 1)
+        let s:flags.query = join(args[(i+1):])
+        let s:flags.prompt = 0
+        break
       else
         " No warning message here. This allows for..
         " nnoremap ... :Grepper! -tool ag -query<space>
@@ -156,37 +166,41 @@ function! grepper#parse_command(bang, args) abort
         echomsg 'No such tool: '. tool
       endif
     else
-      echomsg "Don't understand: ". flag
+      echomsg 'Ignore unknown flag: '. flag
     endif
 
     let i += 1
   endwhile
 
-  return s:start('', 0)
+  return s:start()
+endfunction
+
+" s:process_flags() {{{1
+function! s:process_flags()
+  if get(s:flags, 'cword')
+    let s:flags.query = s:escape_query(expand('<cword>'))
+    if s:flags.prompt
+      let s:flags.query = s:prompt(s:flags.query)
+    endif
+  else
+    if s:flags.prompt
+      let s:flags.query = s:prompt(s:flags.query)
+    endif
+    if empty(s:flags.query)
+      let s:flags.query = s:escape_query(expand('<cword>'))
+    endif
+  endif
 endfunction
 
 " s:start() {{{1
-function! s:start(query, skip_prompt) abort
+function! s:start() abort
   if empty(s:options.tools)
-    call s:error('No grep program found!')
+    call s:error('No grep tool found!')
     return
   endif
 
-  let query = ''
-
-  if get(s:flags, 'cword')
-    let query = s:escape_query(expand('<cword>'))
-    if s:flags.cword == 1
-      let query = s:prompt(query)
-    endif
-  else
-    let query = a:skip_prompt ? a:query : s:prompt(a:query)
-    if empty(query)
-      let query = s:escape_query(expand('<cword>'))
-    endif
-  endif
-
-  return s:run(query)
+  call s:process_flags()
+  return s:run()
 endfunction
 
 " s:prompt() {{{1
@@ -217,14 +231,14 @@ function! s:prompt(query)
 endfunction
 
 " s:run() {{{1
-function! s:run(query)
+function! s:run()
   let prog = s:option('deftool')
 
   if stridx(prog.grepprg, '$*') >= 0
     let [a, b] = split(prog.grepprg, '\V$*', 1)
-    let s:cmdline = printf('%s%s%s', a, a:query, b)
+    let s:cmdline = printf('%s%s%s', a, s:flags.query, b)
   else
-    let s:cmdline = printf('%s %s', prog.grepprg, a:query)
+    let s:cmdline = printf('%s %s', prog.grepprg, s:flags.query)
   endif
 
   call s:set_settings(prog)
@@ -259,13 +273,13 @@ function! s:run(query)
       " tmux output (http://stackoverflow.com/a/13608153):
       "   - CSI ? 1h + ESC =
       "   - CSI ? 1l + ESC >
-      execute 'Make' a:query '| cat'
+      execute 'Make' s:flags.query '| cat'
     finally
       call s:restore_settings()
     endtry
   else
     try
-      execute 'silent' (s:option('quickfix') ? 'grep!' : 'lgrep!') a:query
+      execute 'silent' (s:option('quickfix') ? 'grep!' : 'lgrep!') s:flags.query
     finally
       call s:restore_settings()
     endtry
@@ -276,7 +290,7 @@ endfunction
 " s:option() {{{1
 function! s:option(opt) abort
   if a:opt == 'deftool'
-    if has_key(s:flags, 'tools')
+    if exists('s:flags') && has_key(s:flags, 'tools')
       return s:options[s:flags.tools[0]]
     else
       return s:options[s:options.tools[0]]
@@ -405,8 +419,8 @@ endfunction
 
 " #operator() {{{1
 function! grepper#operator(type) abort
-  let selsave = &selection
   let regsave = @@
+  let selsave = &selection
   let &selection = 'inclusive'
 
   if a:type =~? 'v'
@@ -417,10 +431,12 @@ function! grepper#operator(type) abort
     silent execute "normal! `[v`]y"
   endif
 
-  let s:flags = {}
-  let s:original_query = @@
-  call s:start(s:tool_escape(s:original_query), 0)
-
   let &selection = selsave
+  let s:flags = {
+        \ 'prompt': 0,
+        \ 'query': s:escape_query(@@)
+        \ }
   let @@ = regsave
+
+  return s:start()
 endfunction
