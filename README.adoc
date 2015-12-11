@@ -47,7 +47,7 @@ Create mappings with `:Grepper` and provide different configurations at the
 same time:
 
 ```viml
-nnoremap <leader>git :Grepper  -tool git -open -nojump<cr>
+nnoremap <leader>git :Grepper  -tool git -open -noswitch<cr>
 nnoremap <leader>ag  :Grepper! -tool ag  -open -switch<cr>
 nnoremap <leader>*   :Grepper! -tool ack -cword<cr>
 ```
