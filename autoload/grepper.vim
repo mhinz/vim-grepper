@@ -122,7 +122,7 @@ function! grepper#parse_flags(bang, args) abort
         \ 'prompt': 1,
         \ 'query':  ''
         \ }
-  let args = split(a:args, ' ')
+  let args = split(a:args, '\s\+')
   let len = len(args)
   let i = 0
 
