@@ -89,13 +89,13 @@ a bang instead:
 <
 Taking all flags into account, this is what :Grepper does by default:
 >
-    :Grepper -quickfix -noopen -noswitch -jump<cr>
+    :Grepper -quickfix -noopen -noswitch<cr>
 <
 Of course you don't have to specify this all the time, you can just use
 |grepper-options| to to the same. The cool thing about flags is, that you can
 use multiple mappings with differing configurations:
 >
-    nnoremap <leader>git :Grepper  -tool git -open -nojump<cr>
+    nnoremap <leader>git :Grepper  -tool git -open<cr>
     nnoremap <leader>ag  :Grepper! -tool ag  -open -switch<cr>
 <
 The search prompt supports file completion, which unfortunately can never be as
