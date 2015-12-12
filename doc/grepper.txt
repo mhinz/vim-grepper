@@ -69,7 +69,9 @@ Supported flags:~
     -[no]switch           -> switch to qf/loc window
     -tool <tool>          -> any supported tool
     -cword[!]             -> use word under cursor as query
-    -query <query>        -> skip the search prompt
+    -query <query>        -> skip the search prompt (must be the last flag)
+    -grepprg <cmd>        -> use non-default flags for this command
+                             (must be the last flag)
 
 :Grepper opens the search prompt with the default tool. If you want to switch
 to another tool, hit <tab>.
@@ -117,7 +119,11 @@ in the |cmdwin|.
 <
 Populate the prompt with the word under cursor. If [!] is given, the prompt is
 skipped and the search is started right away.
-
+>
+    :Grepper! -tool ag -grepprg ag --vimgrep -G '^.+\.txt'
+<
+You can use -grepprg to overwrite the default arguments. This must be the last
+flag.
 ==============================================================================
 MAPPINGS                                                      *grepper-mappings*
 

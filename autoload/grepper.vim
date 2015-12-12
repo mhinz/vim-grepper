@@ -123,7 +123,7 @@ function! grepper#parse_flags(bang, args) abort
   let s:flags = {
         \ 'jump':   !a:bang,
         \ 'prompt': 1,
-        \ 'query':  ''
+        \ 'query':  '',
         \ }
   let args = split(a:args, '\s\+')
   let len = len(args)
@@ -139,13 +139,24 @@ function! grepper#parse_flags(bang, args) abort
     elseif flag =~? '^-cword!\=$'
       let s:flags.cword = 1
       let s:flags.prompt = flag !~# '!$'
-    elseif flag =~? '^-args$'
-      let s:flags.args = join(args[(i+1):])
+    elseif flag =~? '^-grepprg$'
+      let i += 1
+      if i < len
+        if !exists('tool')
+          let tool = s:options.tools[0]
+        endif
+        let s:flags.tools = [tool]
+        let s:flags[tool] = copy(s:options[tool])
+        let s:flags[tool].grepprg = join(args[i :])
+      else
+        echomsg 'Missing argument for: -grepprg'
+      endif
       break
     elseif flag =~? '^-query$'
+      let i += 1
       if i < len
         " Funny Vim bug: [i:] doesn't work. [(i):] and [i :] do.
-        let s:flags.query = join(args[(i+1):])
+        let s:flags.query = join(args[i :])
         let s:flags.prompt = 0
         break
       else
@@ -303,7 +314,11 @@ endfunction
 function! s:option(opt) abort
   if a:opt == 'deftool'
     if exists('s:flags') && has_key(s:flags, 'tools')
-      return s:options[s:flags.tools[0]]
+      if has_key(s:flags, s:flags.tools[0])
+        return s:flags[s:flags.tools[0]]
+      else
+        return s:options[s:flags.tools[0]]
+      endif
     else
       return s:options[s:options.tools[0]]
     endif
