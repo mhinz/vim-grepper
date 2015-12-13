@@ -433,7 +433,7 @@ function! grepper#operator(type) abort
 
   let &selection = selsave
   let s:flags = {
-        \ 'prompt': 0,
+        \ 'prompt': 1,
         \ 'query': s:escape_query(@@)
         \ }
   let @@ = regsave
