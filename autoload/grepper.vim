@@ -282,7 +282,7 @@ function! s:run()
     endtry
   else
     try
-      execute 'silent' (s:option('quickfix') ? 'grep!' : 'lgrep!') s:flags.query
+      execute 'silent' (s:option('quickfix') ? 'grep!' : 'lgrep!') escape(s:flags.query, '#%')
     finally
       call s:restore_settings()
     endtry
