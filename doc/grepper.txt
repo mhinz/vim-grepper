@@ -25,6 +25,7 @@ CONTENTS                                                      *grepper-contents*
             OPTIONS ................ |grepper-options|
             AUTOCMD ................ |grepper-autocmd|
             COLORS ................. |grepper-colors|
+            FAQ .................... |grepper-faq|
             EXAMPLE ................ |grepper-example|
 
 ==============================================================================
@@ -232,6 +233,25 @@ this:
 >
 For error messages, |hl-ErrorMsg| is used.
 
+==============================================================================
+FAQ                                                                *grepper-faq*
+
+    |grepper-faq-01|  How to git grep from the root directory?
+
+------------------------------------------------------------------------------
+                                                                *grepper-faq-01*
+How to git grep from the root directory?~
+
+Usually git grep considers the current working directory (|:pwd|) and only
+searches that part of the repo. If you always want to search from the root
+directory, consider replacing the default |'grepprg'| for git like this:
+>
+    let g:grepper.git = { 'grepprg': 'git grep -nI $* -- `git rev-parse --show-toplevel`' }
+<
+Alternatively, if you're using a recent enough git version, this works too:
+>
+    let g:grepper.git = { 'grepprg': 'git -C `git rev-parse --show-toplevel` grep -nI' }
+<
 ==============================================================================
 EXAMPLE                                                        *grepper-example*
 
