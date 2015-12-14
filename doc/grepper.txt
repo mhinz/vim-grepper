@@ -238,6 +238,7 @@ For error messages, |hl-ErrorMsg| is used.
 FAQ                                                                *grepper-faq*
 
     |grepper-faq-01|  How to git grep from the root directory?
+    |grepper-faq-02|  How to change the colors of the quickfix window?
 
 ------------------------------------------------------------------------------
                                                                 *grepper-faq-01*
@@ -252,6 +253,29 @@ directory, consider replacing the default |'grepprg'| for git like this:
 Alternatively, if you're using a recent enough git version, this works too:
 >
     let g:grepper.git = { 'grepprg': 'git -C `git rev-parse --show-toplevel` grep -nI' }
+<
+------------------------------------------------------------------------------
+                                                                *grepper-faq-02*
+How to change the colors of the quickfix window?~
+
+The quickfix window uses these highlight groups:
+
+    qfFileName (inherits from Directory highlight group)
+    qfSeparator
+    qfLineNr
+
+E.g. the colors used in grepper.gif come from my colorscheme:
+
+    https://github.com/mhinz/vim-janah
+
+This colorscheme uses these settings:
+>
+    highlight Directory
+      \ ctermfg=216 ctermbg=NONE cterm=NONE guifg=#ffaf87 guibg=NONE gui=NONE
+    highlight qfLineNr
+      \ ctermfg=238 ctermbg=NONE cterm=NONE guifg=#444444 guibg=NONE gui=NONE
+    highlight qfSeparator
+      \ ctermfg=243 ctermbg=NONE cterm=NONE guifg=#767676 guibg=NONE gui=NONE
 <
 ==============================================================================
 EXAMPLE                                                        *grepper-example*
