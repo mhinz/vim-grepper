@@ -43,6 +43,7 @@ Supports by default:~
 
     git grep
     ag
+    sift
     pt
     ack
     grep
@@ -177,7 +178,7 @@ When the quickfix/location window opens, switch to it.
 <
 Automatically jump to the first match.
 >
-    'tools': ['git', 'ag', 'pt', 'ack', 'grep']
+    'tools': ['git', 'ag', 'sift', 'pt', 'ack', 'grep', 'findstr']
 <
 These are the tools that you can choose between (as long as they're
 executable). The order matters. The first element is the default tool.

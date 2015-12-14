@@ -22,7 +22,7 @@ quickfix list.
 
 _Features:_
 
-- supports by default: *git grep*, *ag*, *pt*, *ack*, *grep*, *findstr*
+- supports by default: *git grep*, *ag*, *sift*, *pt*, *ack*, *grep*, *findstr*
 - quick switching between grep tools
 - adding new grep tools or replacing parameters of default ones is easy
 - asynchronous search with Neovim or
