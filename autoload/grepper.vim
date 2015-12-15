@@ -1,5 +1,8 @@
 " vim: tw=80
 
+" Escaping test line:
+" .. ad\\f 40+  $'- # @ = , ! % ^ & &*()_{}/ /4304\ '  "" ? `9$343 %  $ ^ adfadf [ ad )  [  (
+
 let s:options = {
       \ 'dispatch':  0,
       \ 'quickfix':  1,
@@ -14,24 +17,21 @@ let s:options = {
       \                'escape':     '\$.*%#[]' },
       \ 'ag':        { 'grepprg':    'ag --vimgrep',
       \                'grepformat': '%f:%l:%c:%m,%f:%l:%m',
-      \                'escape':     '\^$.*+?()[]' },
-      \ 'sift':      { 'grepprg':    'sift -in --binary-skip $* .',
+      \                'escape':     '\^$.*+?()[]%#' },
+      \ 'sift':      { 'grepprg':    'sift -i -n --binary-skip $* .',
       \                'grepformat': '%f:%l:%m',
-      \                'escape':     '\+*?^$#()[].' },
+      \                'escape':     '\+*?^$%#()[]' },
       \ 'pt':        { 'grepprg':    'pt --nogroup',
       \                'grepformat': '%f:%l:%m' },
       \ 'ack':       { 'grepprg':    'ack --noheading --column',
       \                'grepformat': '%f:%l:%c:%m',
-      \                'escape':     '\^$.*+?()[]' },
+      \                'escape':     '\^$.*+?()[]%#' },
       \ 'grep':      { 'grepprg':    'grep -Rn $* .',
       \                'grepformat': '%f:%l:%m',
-      \                'escape':     '\$.*[]' },
+      \                'escape':     '\$.*[]%#' },
       \ 'findstr':   { 'grepprg':    'findstr -rspnc:"$*" *',
       \                'grepformat': '%f:%l:%m' },
       \ }
-
-" Escape test line:
-" .. ad\\f 40+  $ # @ ! % ^ & &*()_{}4304\ '  "" ? `9$343 %  $ ^ adfadf [ ad )  [  (
 
 if exists('g:grepper')
   for key in keys(g:grepper)
@@ -233,16 +233,29 @@ function! s:prompt(query)
   return query
 endfunction
 
+" s:build_cmdline() {{{1
+function! s:build_cmdline(grepprg) abort
+  if stridx(a:grepprg, '$*') >= 0
+    let [a, b] = split(a:grepprg, '\V$*', 1)
+    let cmdline = printf('%s%s%s', a, s:flags.query, b)
+  else
+    let cmdline = printf('%s %s', a:grepprg, s:flags.query)
+  endif
+  if !has('nvim') && s:option('dispatch')
+    " The 'cat' is currently needed to strip these control sequences from
+    " tmux output (http://stackoverflow.com/a/13608153):
+    "   - CSI ? 1h + ESC =
+    "   - CSI ? 1l + ESC >
+    let cmdline .= ' | cat'
+  endif
+  return cmdline
+endfunction
+
 " s:run() {{{1
 function! s:run()
   let prog = s:option('deftool')
 
-  if stridx(prog.grepprg, '$*') >= 0
-    let [a, b] = split(prog.grepprg, '\V$*', 1)
-    let s:cmdline = printf('%s%s%s', a, s:flags.query, b)
-  else
-    let s:cmdline = printf('%s %s', prog.grepprg, s:flags.query)
-  endif
+  let s:cmdline = s:build_cmdline(prog.grepprg)
 
   call s:set_settings(prog)
 
@@ -251,13 +264,12 @@ function! s:run()
       silent! call jobstop(s:id)
     endif
 
-    let cmd = ['sh', '-c', s:cmdline]
-
     let tempfile = fnameescape(tempname())
     if exists('*mkdir')
       silent! call mkdir(fnamemodify(tempfile, ':h'), 'p', 0600)
     endif
-    let cmd[-1] .= ' >'. tempfile
+
+    let cmd = ['sh', '-c', printf('%s > %s', s:cmdline, tempfile)]
 
     let s:id = jobstart(cmd, {
           \ 'tempfile':  tempfile,
@@ -272,11 +284,8 @@ function! s:run()
       autocmd FileType qf call s:finish_up()
     augroup END
     try
-      " The 'cat' is currently needed to strip these control sequences from
-      " tmux output (http://stackoverflow.com/a/13608153):
-      "   - CSI ? 1h + ESC =
-      "   - CSI ? 1l + ESC >
-      execute 'Make' s:flags.query '| cat'
+      let &makeprg = s:cmdline
+      silent Make
     finally
       call s:restore_settings()
     endtry
