@@ -378,24 +378,31 @@ function! s:finish_up() abort
     execute (qf ? 'cclose' : 'lclose')
     echo 'No matches found.'
   else
+    if s:option('dispatch')
+      call feedkeys("\<c-w>p", 'n')
+    endif
+
+    execute (qf ? 'copen' : 'lopen') (size > 10 ? 10 : size)
+    let w:quickfix_title = s:cmdline
+    nnoremap <buffer> t :execute 'normal! 0'<cr>:tabedit <cr>
+    nnoremap <buffer> s :execute 'normal! 0'<cr>:aboveleft split <cr>
+
     if s:option('jump')
       execute (qf ? 'cfirst' : 'lfirst')
     endif
-
-    if s:option('open')
-      execute (qf ? 'copen' : 'lopen') (size > 10 ? 10 : size)
-      let w:quickfix_title = s:cmdline
-      if xor(s:option('switch'), !s:option('dispatch'))
-        call feedkeys("\<c-w>p", 'n')
-      else
-        nnoremap <buffer> t :execute 'normal! 0'<cr>:tabedit <cr>
-        nnoremap <buffer> s :execute 'normal! 0'<cr>:aboveleft split <cr>
-      endif
+    if !s:option('switch')
+      call feedkeys("\<c-w>p", 'n')
     endif
+    if !s:option('open') && !s:option('dispatch')
+      execute (qf ? 'cclose' : 'lclose')
+    endif
+    if !has('nvim')
+      redraw!
+    endif
+
+    echo printf('Found %d matches.', size)
   endif
 
-  redraw!
-  echo printf('Found %d matches.', size)
   silent doautocmd <nomodeline> User Grepper
 endfunction
 

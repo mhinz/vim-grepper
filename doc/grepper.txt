@@ -169,6 +169,8 @@ Use the quickfix list for the matches or the location list otherwise.
 <
 Do open the the quickfix/location window after the grep tool finished running
 (and there was at least one match).
+
+Hint: If 'dispatch' is used, setting 'open' to 0 will be ignored.
 >
     'switch': 0
 <
