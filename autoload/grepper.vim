@@ -4,7 +4,7 @@
 " .. ad\\f 40+  $'- # @ = , ! % ^ & &*()_{}/ /4304\ '  "" ? `9$343 %  $ ^ adfadf [ ad )  [  (
 
 let s:options = {
-      \ 'dispatch':  !has('nvim') && !!exists(':Make'),
+      \ 'dispatch':  !has('nvim') && exists(':FocusDispatch'),
       \ 'quickfix':  1,
       \ 'open':      0,
       \ 'switch':    0,
