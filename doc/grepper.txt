@@ -147,13 +147,26 @@ prompt populated with the current |word| under the cursor.
 ==============================================================================
 MAPPINGS                                                      *grepper-mappings*
 
+Search prompt:~
+
+    <cr>     start search
+    <tab>    change tool
+    <c-c>    close prompt without searching
+
 Quickfix/location window:~
 
-By default Vim supports <cr> to open the current entry in the last window and
-gf to open the current entry in the current window.
+    <cr>     open in last window
+    o        open in last window
+    O        open in last window      (don't jump)
 
-Additionally this plugin defines two mappings s and t to open the current
-entry in a new split or tab respectively.
+    s        open in split
+    S        open in split            (don't jump)
+
+    v        open in vertical split
+    V        open in vertical split   (don't jump)
+
+    t        open in tabpage
+    T        open in tabpage          (don't jump)
 
 ==============================================================================
 OPTIONS                                                        *grepper-options*

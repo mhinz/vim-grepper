@@ -399,8 +399,15 @@ function! s:finish_up() abort
 
     execute (qf ? 'copen' : 'lopen') (size > 10 ? 10 : size)
     let w:quickfix_title = s:cmdline
-    nnoremap <buffer> t :execute 'normal! 0'<cr>:tabedit <cr>
-    nnoremap <buffer> s :execute 'normal! 0'<cr>:aboveleft split <cr>
+
+    nnoremap <silent><buffer> o <cr>
+    nnoremap <silent><buffer> O <cr><c-w>p
+    nnoremap <silent><buffer> s :call <sid>open_entry('split',   1)<cr>
+    nnoremap <silent><buffer> S :call <sid>open_entry('split',   0)<cr>
+    nnoremap <silent><buffer> v :call <sid>open_entry('vsplit',  1)<cr>
+    nnoremap <silent><buffer> V :call <sid>open_entry('vsplit',  0)<cr>
+    nnoremap <silent><buffer> t :call <sid>open_entry('tabedit', 1)<cr>
+        nmap <silent><buffer> T tgT<c-w>p
 
     if s:option('jump')
       execute (qf ? 'cfirst' : 'lfirst')
@@ -419,6 +426,23 @@ function! s:finish_up() abort
   endif
 
   silent doautocmd <nomodeline> User Grepper
+endfunction
+
+" s:open_entry() {{{1
+function! s:open_entry(cmd, jump)
+  let win = winnr()
+  execute "normal! \<cr>"
+  buffer #
+  execute a:cmd '#'
+  " Window numbers get reordered after creating new windows.
+  if !a:jump
+    for buf in filter(tabpagebuflist(), 'buflisted(v:val)')
+      if getbufvar(buf, '&filetype') == 'qf'
+        execute bufwinnr(buf) 'wincmd w'
+        return
+      endif
+    endfor
+  endif
 endfunction
 
 " s:tool_escape() {{{1
