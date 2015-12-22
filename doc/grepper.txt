@@ -5,7 +5,6 @@
 
   Twitter: https://twitter.com/_mhinz_
   Github:  http://github.com/mhinz
-  IRC:     mhi^ (Freenode)
 >
   If you use any of my plugins, please star them on github. It's a great way
   of getting feedback and gives me the kick to put more time into their
@@ -20,9 +19,12 @@
 CONTENTS                                                      *grepper-contents*
 
             INTRO .................. |grepper-intro|
-            COMMAND ................ |grepper-:Grepper|
+            TOOLS .................. |grepper-tools|
+            COMMANDS ............... |grepper-:Grepper|
+            OPERATOR ............... |grepper-operator|
             MAPPINGS ............... |grepper-mappings|
             OPTIONS ................ |grepper-options|
+            ADD TOOL ............... |grepper-add-tool|
             AUTOCMD ................ |grepper-autocmd|
             COLORS ................. |grepper-colors|
             FAQ .................... |grepper-faq|
@@ -36,96 +38,94 @@ supports most common grep tools, and is easily extendable.
 
 You choose a tool, enter a query, and get your matches into a |quickfix| list.
 
-If you use Neovim, the search will be executed asynchronously. Thus you will
-be able to continue editing while the grep program is still running.
-
-Supports by default:~
-
-    git grep
-    ag
-    sift
-    pt
-    ack
-    grep
-    findstr
+If you use Neovim or vim-dispatch, the search will be executed asynchronously.
+Thus you will be able to continue editing while the grep program is still
+running.
 
 NOTE: Your grep tool and query will be provided to a shell, so feel free to
-use its power. E.g. if your tool is "git grep", your query could be "foo |
-head -n10". Then the quickfix list would only show the first 10 matches. Be
+use its power. E.g. if your tool is "git", your query could be "foo | head
+-n10". Then the quickfix list would only show the first 10 matches. Be
 creative!
+
+==============================================================================
+TOOLS                                                            *grepper-tools*
+
+These tools are supported by default:
+
+    'git'
+    'ag'
+    'sift'
+    'pt'
+    'ack'
+    'grep'
+    'findstr'
 
 ==============================================================================
 COMMANDS                                                      *grepper-:Grepper*
 
 There is only one command:
+
+:Grepper[!] [flags]  Opens the search prompt with the first tool in
+                     |grepper-option-tools|. Switch to another tool with
+                     <tab>.
+
+                     After you inserted a query and hit <cr>, an external
+                     process will be kicked off and its result will be put
+                     into the quickfix list.
+
+                     If the query is empty, |:<cword>| will be used as query.
+
+                     Use |CTRL-C| to close the prompt without searching.
+
+                     The default behaviour of :Grepper mimics |:grep|, so the
+                     quickfix window won't show and one jumps to the first
+                     found match.
+
+                     If [!] is given, don't jump to the first match.
+
+Flags:~
+
+-[no]open            Open the quickfix/location window.
+
+-[no]switch          Switch to quickfix/location window.
+
+-[no]quickfix        Use the quickfix list. If -noquickfix is given, use the
+                     location list instead.
+
+-[no]dispatch        If vim-dispatch is installed, use |dispatch-:Make| for
+                     executing the query.
+
+-tool <tool>         Any supported tool. Either from |grepper-tools| or ones
+                     you added yourself via |grepper-add-tool|.
+
+-grepprg <cmd>       Use this flag to overwrite the default |'grepprg'| which
+                     is set according to the used tool. Also use -tool first,
+                     so the output gets escaped properly.
+
+                     This must be the last flag!~
+
+-query <query>       This way the commandline pops up populated with this line
+                     already and you can use the full power of file
+                     completion. And since the query is specified on the
+                     commandline already, the search prompt is skipped.
+
+                     Use <up> and <down> to go through the input history or
+                     <c-f> to open it in the |cmdwin|.
+
+                     This must be the last flag!~
+
+-cword[!]            Populate the prompt with the word under cursor. If [!] is
+                     given, the prompt is skipped and the search is started
+                     right away.
+
+Examples:~
 >
-    :Grepper[!] [flags]
-<
-Supported flags:~
+    nnoremap <leader>* :Grepper -tool git -open -switch -cword!<cr>
 
-    -[no]dispatch         -> use vim-dispatch
-    -[no]quickfix         -> use quickfix list (or location list)
-    -[no]open             -> open quickfix/location window
-    -[no]switch           -> switch to qf/loc window
-    -tool <tool>          -> any supported tool
-    -cword[!]             -> use word under cursor as query
-    -query <query>        -> skip the search prompt (must be the last flag)
-    -grepprg <cmd>        -> use non-default flags for this command
-                             (must be the last flag)
-
-:Grepper opens the search prompt with the default tool. If you want to switch
-to another tool, hit <tab>.
-
-After you inserted a query and hit <cr>, an external process will be kicked
-off and its result will be put into the quickfix list.
-
-If the query is empty, |:<cword>| will be used for searching.
-
-Use |CTRL-C| to close the prompt without searching anything.
-
-The default behaviour of :Grepper mimics |:grep|, so the quickfix window won't
-be opened and one jumps to the first found match.
-
-If you don't want to jump to the first match, again mimicking |:grep|, append
-a bang instead:
->
-    :Grepper!
-<
-Taking all flags into account, this is what :Grepper does by default:
->
-    :Grepper -quickfix -noopen -noswitch<cr>
-<
-Of course you don't have to specify this all the time, you can just use
-|grepper-options| to to the same. The cool thing about flags is, that you can
-use multiple mappings with differing configurations:
->
-    nnoremap <leader>git :Grepper  -tool git -open<cr>
-    nnoremap <leader>ag  :Grepper! -tool ag  -open -switch<cr>
-<
-The search prompt supports file completion, which unfortunately can never be as
-good as the built-in file completion of commands. So if you often have to
-specify directories, use a mapping like this instead:
->
-    nnoremap <leader>ag :Grepper -tool ag -query<space>
-<
-This way the commandline pops up populated with this line already and you can
-use the full power of file completion. And since the query is specified on the
-commandline already, the search prompt is skipped.
-
-NOTE: Use <up> and <down> to go through the input history or <c-f> to open it
-in the |cmdwin|.
->
-    nnoremap <leader>* :Grepper -tool git -cword!<cr>
-<
-Populate the prompt with the word under cursor. If [!] is given, the prompt is
-skipped and the search is started right away.
->
     :Grepper! -tool ag -grepprg ag --vimgrep -G '^.+\.txt'
 <
-You can use -grepprg to overwrite the default arguments. This must be the last
-flag.
 ==============================================================================
-MAPPINGS                                                      *grepper-mappings*
+OPERATOR                                                      *grepper-operator*
 
 There are no pre-defined mappings, but one operator that should be used:
 >
@@ -143,6 +143,9 @@ If you have vim-repeat installed, you can repeat the operator action. For
 example, you can "gsiw" on "nice_word" to populate the search prompt with
 "nice_word". Next time you hit ".", "gsiw" will be repeated and the search
 prompt populated with the current |word| under the cursor.
+
+==============================================================================
+MAPPINGS                                                      *grepper-mappings*
 
 Quickfix/location window:~
 
@@ -189,7 +192,8 @@ Automatically jump to the first match.
     'tools': ['git', 'ag', 'sift', 'pt', 'ack', 'grep', 'findstr']
 <
 These are the tools that you can choose between (as long as they're
-executable). The order matters. The first element is the default tool.
+executable). The order matters. The first element is the default tool and will
+be used if no tool was specified.
 
 NOTE: Because of a name clash, some systems use "ack-grep" instead of "ack".
 If you include "ack" here, "ack-grep" will be found, too.
@@ -205,7 +209,8 @@ prompt in the first place, e.g.:
     let g:grepper = {}
     let g:grepper.next_tool = '<leader>g'
 <
-------------------------------------------------------------------------------
+==============================================================================
+ADD TOOL                                                      *grepper-add-tool*
 
 If you don't like the default arguments to a grep tool or you want to add a
 new one, just replace/add a key to g:grepper!
@@ -256,11 +261,13 @@ Usually git grep considers the current working directory (|:pwd|) and only
 searches that part of the repo. If you always want to search from the root
 directory, consider replacing the default |'grepprg'| for git like this:
 >
-    let g:grepper.git = { 'grepprg': 'git grep -nI $* -- `git rev-parse --show-toplevel`' }
+    let g:grepper.git =
+      \ { 'grepprg': 'git grep -nI $* -- `git rev-parse --show-toplevel`' }
 <
 Alternatively, if you're using a recent enough git version, this works too:
 >
-    let g:grepper.git = { 'grepprg': 'git -C `git rev-parse --show-toplevel` grep -nI' }
+    let g:grepper.git =
+      \ { 'grepprg': 'git -C `git rev-parse --show-toplevel` grep -nI' }
 <
 ------------------------------------------------------------------------------
                                                                 *grepper-faq-02*
