@@ -1,15 +1,19 @@
-== vim-grepper
+![vim-grepper](https://raw.githubusercontent.com/mhinz/vim-grepper/master/pictures/grepper-logo.png)
 
-image:https://github.com/mhinz/vim-grepper/blob/master/grepper.gif[vim-grepper]
+[![Join the chat at https://gitter.im/mhinz/mhinz](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/mhinz/mhinz?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![LICENSE](https://img.shields.io/badge/license-MIT-lightgrey.svg)](https://raw.githubusercontent.com/mhinz/vim-grepper/master/LICENSE)
 
-_If you use any of my plugins, please star them on github. It's a great way of
-getting feedback and gives me the kick to put more time into their development.
-If you encounter any bugs or have feature requests, just open an issue report
-on Github._
+---
 
-_Follow me:_ link:https://twitter.com/\_mhinz_[Twitter]
+- [Intro](#intro)
+- [Installation & Documentation](#installation-and-documentation)
+- [Examples](#examples)
+- [Demo](#demo)
+- [Author and Feedback](#author-and-feedback)
 
-== Intro
+---
+
+## Intro
 
 This plugin is a convenience wrapper around `'grepprg'` and `'grepformat'`,
 supports most common grep tools, and is easily extendable. It exposes a single
@@ -18,26 +22,37 @@ command: `:Grepper`.
 You choose a grep tool, enter a search term, and get your matches into a
 quickfix list.
 
-'''
-
 _Features:_
 
-- supports by default: *git grep*, *ag*, *sift*, *pt*, *ack*, *grep*, *findstr*
+- supports by default: **git**, **ag**, **sift**, **pt**, **ack**, **grep**,
+  **findstr**
 - quick switching between grep tools
 - adding new grep tools or replacing parameters of default ones is easy
 - asynchronous search with Neovim or
-  link:https://github.com/tpope/vim-dispatch[vim-dispatch]
+  [vim-dispatch](https://github.com/tpope/vim-dispatch)
 - operator for selecting search queries by motion
 - operator action is repeatable if
-  link:https://github.com/tpope/vim-repeat[vim-repeat] is installed
+  [vim-repeat](https://github.com/tpope/vim-repeat) is installed
 - `:Grepper` takes flags that overrule options (thus you can use different
   mappings for different configurations)
 - emits an User event when a search finishes, for further customization
 - support for proper statusline plugins
 
-TIP: Read `:h grepper` for the whole truth.
+## Installation and Documentation
 
-== Examples
+Use your favorite plugin manager.
+
+Using [vim-plug](https://github.com/junegunn/vim-plug):
+
+    Plug 'mhinz/vim-grepper'
+    Plug 'tpope/vim-dispatch'  " optional
+    Plug 'tpope/vim-repeat'    " optional
+
+For the whole truth:
+
+    :h grepper
+
+## Examples
 
 `:Grepper` takes a number of flags which makes it a very versatile command.
 
@@ -84,18 +99,18 @@ command! -nargs=* -complete=file Ag Grepper! -tool ag -query <args>
 Now you can use it like this: `:Ag foo` or `:GG 'foo bar' *.txt`. Mind that
 `<tab>` can be used for file completion, too.
 
-== Installation and Documentation
+## Demo
 
-If you don't have a plugin manager, I suggest having a look at
-link:https://github.com/junegunn/vim-plug.git[vim-plug]. Installation is a
-breeze afterwards:
+![vim-grepper](https://github.com/mhinz/vim-grepper/blob/master/pictures/grepper-demo.gif)
 
-    Plug 'mhinz/vim-grepper'
-    Plug 'tpope/vim-dispatch'  " optional
-    Plug 'tpope/vim-repeat'    " optional
+## Author and Feedback
 
-Restart Vim or `:source $MYVIMRC`, then do `:PlugInstall`.
+If you like my plugins, please star them on Github. It's a great way of getting
+feedback. Same goes for issues reports or feature requests.
 
-== License
+Contact:
+[Mail](mailto:mh.codebro@gmail.com) |
+[Twitter](https://twitter.com/_mhinz_) |
+[Gitter](https://gitter.im/mhinz/mhinz)
 
-MIT license. Copyright (c) 2015 Marco Hinz.
+_Get your Vim on!_
