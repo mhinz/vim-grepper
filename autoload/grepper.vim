@@ -71,7 +71,8 @@ endfunction
 
 " s:on_stderr() {{{1
 function! s:on_stderr(id, data) abort
-  call s:error('STDERR: '. join(a:data))
+  call jobstop(a:id)
+  let self.errmsg = join(a:data)
 endfunction
 
 " s:on_exit() {{{1
@@ -84,7 +85,7 @@ function! s:on_exit() abort
 
   let s:id = 0
   call s:restore_settings()
-  return s:finish_up()
+  return s:finish_up(self.errmsg)
 endfunction
 " }}}
 
@@ -288,7 +289,8 @@ function! s:run()
           \ 'tabpage':   tabpagenr(),
           \ 'window':    winnr(),
           \ 'on_stderr': function('s:on_stderr'),
-          \ 'on_exit':   function('s:on_exit') })
+          \ 'on_exit':   function('s:on_exit'),
+          \ 'errmsg':    '' })
     return
   elseif s:option('dispatch')
     augroup grepper
@@ -381,7 +383,7 @@ function! s:restore_mapping(mapping)
 endfunction
 
 " s:finish_up() {{{1
-function! s:finish_up() abort
+function! s:finish_up(...) abort
   augroup grepper
     autocmd!
   augroup END
@@ -389,7 +391,9 @@ function! s:finish_up() abort
   let qf = s:option('quickfix')
   let size = len(qf ? getqflist() : getloclist(0))
 
-  if size == 0
+  if a:0 && !empty(a:1)
+    call s:error(a:1)
+  elseif size == 0
     execute (qf ? 'cclose' : 'lclose')
     echo 'No matches found.'
   else
