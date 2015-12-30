@@ -226,10 +226,7 @@ prompt in the first place, e.g.:
 ADD TOOL                                                      *grepper-add-tool*
 
 If you don't like the default arguments to a grep tool or you want to add a
-new one, just replace/add a key to g:grepper!
-
-In the best case, the output of the tool uses a format that is already
-recognized by |'grepformat'|. Otherwise you can define it yourself:
+new one, just add/replace the key to g:grepper:
 >
     let g:grepper = {
         \ 'tools': ['pt'],
@@ -239,6 +236,26 @@ recognized by |'grepformat'|. Otherwise you can define it yourself:
         \   'escape':     '\+*^$()[]',
         \ }}
 <
+grepprg:~
+
+    The tool has be executable, but it doesn't have to be in $PATH. This works
+    just as well:
+>
+    'grepprg': '~/bin/greppy -a -b --c'
+<
+    In cases where the arguments don't come last, use $* as a placeholder:
+>
+    'grepprg': 'grep -Rn $* .'
+<
+grepformat:~
+
+    This is optional. If the output of 'grepprg' uses a format that is not
+    already recognized by the default |'grepformat'|, define it yourself here.
+
+escape:~
+
+    This is optional. All these characters will be escaped in the query.
+
 ==============================================================================
 AUTOCMD                                                        *grepper-autocmd*
 
