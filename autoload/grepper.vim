@@ -46,7 +46,13 @@ if exists('g:grepper')
   endfor
 endif
 
-call filter(s:options.tools, 'executable(v:val)')
+for tool in s:options.tools
+  if !has_key(s:options, tool)
+        \ || !has_key(s:options[tool], 'grepprg')
+        \ || !executable(matchstr(s:options[tool].grepprg, '^[^ ]*'))
+    call remove(s:options.tools, index(s:options.tools, tool))
+  endif
+endfor
 
 let ack     = index(s:options.tools, 'ack')
 let ackgrep = index(s:options.tools, 'ack-grep')
