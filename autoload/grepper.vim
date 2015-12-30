@@ -49,7 +49,7 @@ endif
 for tool in s:options.tools
   if !has_key(s:options, tool)
         \ || !has_key(s:options[tool], 'grepprg')
-        \ || !executable(matchstr(s:options[tool].grepprg, '^[^ ]*'))
+        \ || !executable(expand(matchstr(s:options[tool].grepprg, '^[^ ]*')))
     call remove(s:options.tools, index(s:options.tools, tool))
   endif
 endfor
