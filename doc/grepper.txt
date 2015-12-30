@@ -150,7 +150,8 @@ MAPPINGS                                                      *grepper-mappings*
 Search prompt:~
 
     <cr>     start search
-    <tab>    change tool
+    <tab>    next tool                (change via g:grepper.next_tool)
+    <esc>    close prompt without searching
     <c-c>    close prompt without searching
 
 Quickfix/location window:~

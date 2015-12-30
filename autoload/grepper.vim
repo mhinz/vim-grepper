@@ -72,7 +72,9 @@ let s:cmdline = ''
 let s:id      = 0
 let s:slash   = exists('+shellslash') && !&shellslash ? '\' : '/'
 
-let s:magic_string = '$$$mAgIc###'
+let s:magic = {
+      \ 'next': '$$$next###',
+      \ 'esc':  '$$$esc###' }
 
 " s:error() {{{1
 function! s:error(msg)
@@ -228,13 +230,20 @@ function! s:start() abort
   endif
 
   call s:process_flags()
+
+  if s:flags.query =~# s:magic.esc
+    redraw!
+    return
+  endif
+
   return s:run()
 endfunction
 
 " s:prompt() {{{1
 function! s:prompt(query)
   let mapping = maparg(s:options.next_tool, 'c', '', 1)
-  execute 'cnoremap' s:options.next_tool s:magic_string .'<cr>'
+  execute 'cnoremap' s:options.next_tool s:magic.next .'<cr>'
+  execute 'cnoremap <esc>' s:magic.esc .'<cr>'
   echohl Question
   call inputsave()
 
@@ -244,13 +253,13 @@ function! s:prompt(query)
   finally
     execute 'cunmap' s:options.next_tool
     call inputrestore()
+    cunmap <esc>
     call s:restore_mapping(mapping)
     echohl NONE
   endtry
 
-  if query =~# s:magic_string
+  if query =~# s:magic.next
     call histdel('input')
-    let query = query[:-12]
     call s:tool_next()
     return s:prompt(s:tool_escape(a:query))
   endif
