@@ -54,9 +54,16 @@ for tool in s:options.tools
   endif
 endfor
 
+" Special case: ag (-vimgrep isn't available in versions < 0.25)
+if index(s:options.tools, 'ag') != -1
+      \ && !exists('g:grepper.ag.grepprg')
+      \ && split(system('ag --version'))[2] =~ '^\v\d+\.%([01]|2[0-4])'
+  let s:options.ag.grepprg = 'ag --column --nogroup --noheading'
+endif
+
+" Special case: ack (different distros use different names for ack)
 let ack     = index(s:options.tools, 'ack')
 let ackgrep = index(s:options.tools, 'ack-grep')
-
 if (ack >= 0) && (ackgrep >= 0)
   call remove(s:options.tools, ackgrep)
 endif
