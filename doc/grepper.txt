@@ -127,7 +127,7 @@ Examples:~
 ==============================================================================
 OPERATOR                                                      *grepper-operator*
 
-There are no pre-defined mappings, but one operator that should be used:
+There is no default mapping for the operator, but you can set it like this:
 >
     nmap gs  <plug>(GrepperOperator)
     xmap gs  <plug>(GrepperOperator)
@@ -172,56 +172,48 @@ Quickfix/location window:~
 ==============================================================================
 OPTIONS                                                        *grepper-options*
 
-Opposed to most other plugins, there aren't several global variables, but only
-one global |Dictionary|: g:grepper. All keys of this dictionary are plugin
-options. The shown values are also the default values.
+This plugin uses a single |Dictionary| for all configuration: g:grepper. If you
+are unsure how to use a dictionary, have a look at |grepper-example|.
 
-NOTE: If you're unsure how to use a dictionary, have a look at
-|grepper-example|.
->
-    'dispatch': 0
-<
-Can be used to start an async search with Vim. It uses |dispatch-:Make| from
-vim-dispatch.
->
-    'quickfix': 1
-<
-Use the quickfix list for the matches or the location list otherwise.
->
-    'open': 0
-<
-Do open the the quickfix/location window after the grep tool finished running
-(and there was at least one match).
+quickfix     Use the quickfix list for the matches or the location list
+             otherwise. Defaults to 1.
 
-Hint: If 'dispatch' is used, setting 'open' to 0 will be ignored.
->
-    'switch': 0
-<
-When the quickfix/location window opens, switch to it.
->
-    'jump': 1
-<
-Automatically jump to the first match.
->
-    'tools': ['git', 'ag', 'sift', 'pt', 'ack', 'grep', 'findstr']
-<
-These are the tools that you can choose between (as long as they're
-executable). The order matters. The first element is the default tool and will
-be used if no tool was specified.
+open         Open the the quickfix/location window after the grep tool
+             finished running (and there was at least one match).
+             Defaults to 0.
 
-NOTE: Because of a name clash, some systems use "ack-grep" instead of "ack".
-If you include "ack" here, "ack-grep" will be found, too.
->
-    'next_tool': '<tab>'
-<
-These keys will be used during the search prompt to switch to the next tool.
+switch       When the quickfix/location window opens, switch to it.
+             Defaults to 0.
 
-NOTE: This could also be the same keys as the ones that opened the search
-prompt in the first place, e.g.:
+jump         Automatically jump to the first match. Defaults to 1.
+
+             NOTE: :Grepper overrides this behaviour. Use :Grepper! instead.
+
+dispatch     Can be used to start an async search with Vim. It uses
+             |dispatch-:Make| from vim-dispatch. Defaults to 0 if vim-dispatch
+             is not available or Neovim is used, otherwise 1.
+
+tools        These are the tools that you can choose between. The order
+             matters. The first element is the default tool and will be used
+             if no tool was specified.
+
+             NOTE: Because of a name clash, some systems use "ack-grep"
+             instead of "ack". If you include "ack" here, "ack-grep" will be
+             found, too.
+
+             Defaults to:
 >
-    nnoremap <leader>g :Grepper!<cr>
-    let g:grepper = {}
-    let g:grepper.next_tool = '<leader>g'
+                 ['git', 'ag', 'sift', 'pt', 'ack', 'grep', 'findstr']
+<
+next_tool    These keys will be used at the prompt for switching to the next
+             tool. Defaults to <tab>.
+
+             NOTE: This could also be the same keys as the ones that opened
+             the search prompt in the first place, e.g.:
+>
+                 nnoremap <leader>g :Grepper!<cr>
+                 let g:grepper = {}
+                 let g:grepper.next_tool = '<leader>g'
 <
 ==============================================================================
 ADD TOOL                                                      *grepper-add-tool*
