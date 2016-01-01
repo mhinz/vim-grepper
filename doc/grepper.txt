@@ -13,7 +13,7 @@
   If you encounter any bugs or have feature requests, just open an issue
   report on Github.
 
-  Thank you for flying mhi^ airlines. Get the Vim on!
+  Get your Vim on!
 <
 ==============================================================================
 CONTENTS                                                      *grepper-contents*
@@ -42,11 +42,6 @@ If you use Neovim or vim-dispatch, the search will be executed asynchronously.
 Thus you will be able to continue editing while the grep program is still
 running.
 
-NOTE: Your grep tool and query will be provided to a shell, so feel free to
-use its power. E.g. if your tool is "git", your query could be "foo | head
--n10". Then the quickfix list would only show the first 10 matches. Be
-creative!
-
 ==============================================================================
 TOOLS                                                            *grepper-tools*
 
@@ -66,16 +61,13 @@ COMMANDS                                                      *grepper-:Grepper*
 There is only one command:
 
 :Grepper[!] [flags]  Opens the search prompt with the first tool in
-                     |grepper-option-tools|. Switch to another tool with
-                     <tab>.
+                     |grepper-option-tools|.
 
-                     After you inserted a query and hit <cr>, an external
-                     process will be kicked off and its result will be put
-                     into the quickfix list.
+                     After you inserted a query, an external process will be
+                     kicked off and its result will be put into the quickfix
+                     list.
 
                      If the query is empty, |:<cword>| will be used as query.
-
-                     Use |CTRL-C| to close the prompt without searching.
 
                      The default behaviour of :Grepper mimics |:grep|, so the
                      quickfix window won't show and one jumps to the first
@@ -173,7 +165,8 @@ Quickfix/location window:~
 OPTIONS                                                        *grepper-options*
 
 This plugin uses a single |Dictionary| for all configuration: g:grepper. If you
-are unsure how to use a dictionary, have a look at |grepper-example|.
+are unsure how to use a dictionary, have a look at |grepper-example|. The
+supported keys are:
 
 quickfix     Use the quickfix list for the matches or the location list
              otherwise. Defaults to 1.
