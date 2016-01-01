@@ -1,7 +1,7 @@
 " vim: tw=80
 
 " Escaping test line:
-" .. ad\\f 40+  $'- # @ = , ! % ^ & &*()_{}/ /4304\ '  "" ? `9$343 %  $ ^ adfadf [ ad )  [  (
+" ..ad\\f40+$'-# @=,!%^&&*()_{}/ /4304\'""?`9$343%$ ^adfadf[ad)[(
 
 let s:options = {
       \ 'dispatch':  !has('nvim') && exists(':FocusDispatch'),
