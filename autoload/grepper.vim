@@ -426,14 +426,15 @@ function! s:finish_up(...) abort
     execute (qf ? 'copen' : 'lopen') (size > 10 ? 10 : size)
     let w:quickfix_title = s:cmdline
 
-    nnoremap <silent><buffer> o <cr>
-    nnoremap <silent><buffer> O <cr><c-w>p
-    nnoremap <silent><buffer> s :call <sid>open_entry('split',   1)<cr>
-    nnoremap <silent><buffer> S :call <sid>open_entry('split',   0)<cr>
-    nnoremap <silent><buffer> v :call <sid>open_entry('vsplit',  1)<cr>
-    nnoremap <silent><buffer> V :call <sid>open_entry('vsplit',  0)<cr>
-    nnoremap <silent><buffer> t <c-w>gF
-        nmap <silent><buffer> T tgT
+    nnoremap <silent><buffer> <cr> <cr>zv
+    nnoremap <silent><buffer> o    <cr>zv
+    nnoremap <silent><buffer> O    <cr>zv<c-w>p
+    nnoremap <silent><buffer> s    :call <sid>open_entry('split',   1)<cr>
+    nnoremap <silent><buffer> S    :call <sid>open_entry('split',   0)<cr>
+    nnoremap <silent><buffer> v    :call <sid>open_entry('vsplit',  1)<cr>
+    nnoremap <silent><buffer> V    :call <sid>open_entry('vsplit',  0)<cr>
+    nnoremap <silent><buffer> t    <c-w>gFzv
+        nmap <silent><buffer> T    tgT
 
     if s:option('jump')
       execute (qf ? 'cfirst' : 'lfirst')
@@ -471,6 +472,7 @@ function! s:open_entry(cmd, jump)
       execute "normal! ``"
     end
   endif
+  normal! zv
   " Window numbers get reordered after creating new windows.
   if !a:jump
     for buf in filter(tabpagebuflist(), 'buflisted(v:val)')
