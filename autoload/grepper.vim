@@ -459,30 +459,35 @@ endfunction
 function! s:open_entry(cmd, jump)
   let swb = &switchbuf
   let &switchbuf = ''
-  if winnr('$') == 1
-    execute "normal! \<cr>"
-  else
-    execute "normal! \<cr>"
-    if bufexists('#')
-      buffer #
-      execute a:cmd '#'
+  try
+    if winnr('$') == 1
+      execute "normal! \<cr>"
     else
-      execute "normal! ``"
-      execute a:cmd
-      execute "normal! ``"
-    end
-  endif
-  normal! zv
-  " Window numbers get reordered after creating new windows.
-  if !a:jump
-    for buf in filter(tabpagebuflist(), 'buflisted(v:val)')
-      if getbufvar(buf, '&filetype') == 'qf'
-        execute bufwinnr(buf) 'wincmd w'
-        return
-      endif
-    endfor
-  endif
-  let &switchbuf = swb
+      execute "normal! \<cr>"
+      if bufexists('#')
+        buffer #
+        execute a:cmd '#'
+      else
+        execute "normal! ``"
+        execute a:cmd
+        execute "normal! ``"
+      end
+    endif
+    normal! zv
+  catch /E36/
+    call s:error('E36: Not enough room')
+  finally
+    " Window numbers get reordered after creating new windows.
+    if !a:jump
+      for buf in filter(tabpagebuflist(), 'buflisted(v:val)')
+        if getbufvar(buf, '&filetype') == 'qf'
+          execute bufwinnr(buf) 'wincmd w'
+          return
+        endif
+      endfor
+    endif
+    let &switchbuf = swb
+  endtry
 endfunction
 
 " s:tool_escape() {{{1
