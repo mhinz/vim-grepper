@@ -432,8 +432,8 @@ function! s:finish_up(...) abort
     nnoremap <silent><buffer> S :call <sid>open_entry('split',   0)<cr>
     nnoremap <silent><buffer> v :call <sid>open_entry('vsplit',  1)<cr>
     nnoremap <silent><buffer> V :call <sid>open_entry('vsplit',  0)<cr>
-    nnoremap <silent><buffer> t :call <sid>open_entry('tabedit', 1)<cr>
-        nmap <silent><buffer> T tgT<c-w>p
+    nnoremap <silent><buffer> t <c-w>gF
+        nmap <silent><buffer> T tgT
 
     if s:option('jump')
       execute (qf ? 'cfirst' : 'lfirst')
@@ -456,10 +456,21 @@ endfunction
 
 " s:open_entry() {{{1
 function! s:open_entry(cmd, jump)
-  let win = winnr()
-  execute "normal! \<cr>"
-  buffer #
-  execute a:cmd '#'
+  let swb = &switchbuf
+  let &switchbuf = ''
+  if winnr('$') == 1
+    execute "normal! \<cr>"
+  else
+    execute "normal! \<cr>"
+    if bufexists('#')
+      buffer #
+      execute a:cmd '#'
+    else
+      execute "normal! ``"
+      execute a:cmd
+      execute "normal! ``"
+    end
+  endif
   " Window numbers get reordered after creating new windows.
   if !a:jump
     for buf in filter(tabpagebuflist(), 'buflisted(v:val)')
@@ -469,6 +480,7 @@ function! s:open_entry(cmd, jump)
       endif
     endfor
   endif
+  let &switchbuf = swb
 endfunction
 
 " s:tool_escape() {{{1
