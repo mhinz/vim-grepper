@@ -261,7 +261,9 @@ function! s:prompt(query)
   if query =~# s:magic.next
     call histdel('input')
     call s:tool_next()
-    return s:prompt(s:tool_escape(a:query))
+    return s:prompt(exists('s:original_query')
+          \ ? s:tool_escape(a:query)
+          \ : query[:-len(s:magic.next)-1])
   endif
 
   return query
