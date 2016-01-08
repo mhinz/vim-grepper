@@ -421,8 +421,11 @@ function! s:finish_up(...) abort
     execute (qf ? 'cclose' : 'lclose')
     echo 'No matches found.'
   else
-    if s:option('dispatch')
-      call feedkeys("\<c-w>p", 'n')
+    if s:option('jump')
+      execute (qf ? 'cfirst' : 'lfirst')
+      if s:option('dispatch')
+        doautocmd BufRead
+      endif
     endif
 
     execute (qf ? 'copen' : 'lopen') (size > 10 ? 10 : size)
@@ -436,19 +439,21 @@ function! s:finish_up(...) abort
     nnoremap <silent><buffer> v    :call <sid>open_entry('vsplit',  1)<cr>
     nnoremap <silent><buffer> V    :call <sid>open_entry('vsplit',  0)<cr>
     nnoremap <silent><buffer> t    <c-w>gFzv
-        nmap <silent><buffer> T    tgT
+    nmap     <silent><buffer> T    tgT
 
-    if s:option('jump')
-      execute (qf ? 'cfirst' : 'lfirst')
-    endif
-    if !s:option('switch')
-      call feedkeys("\<c-w>p", 'n')
-    endif
-    if !s:option('open') && !s:option('dispatch')
-      execute (qf ? 'cclose' : 'lclose')
-    endif
-    if !has('nvim')
-      redraw!
+    if s:option('dispatch')
+      if s:option('switch')
+        call feedkeys("\<c-w>p", 'n')
+      endif
+    else
+      if !s:option('open')
+        execute (qf ? 'cclose' : 'lclose')
+      elseif !s:option('switch')
+        call feedkeys("\<c-w>p", 'n')
+      endif
+      if !has('nvim')
+        redraw!
+      endif
     endif
 
     echo printf('Found %d matches.', size)
