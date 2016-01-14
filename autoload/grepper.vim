@@ -86,7 +86,7 @@ endfunction
 
 " s:on_stderr() {{{1
 function! s:on_stderr(id, data) abort
-  call jobstop(a:id)
+  silent! call jobstop(a:id)
   let self.errmsg = join(a:data)
 endfunction
 
