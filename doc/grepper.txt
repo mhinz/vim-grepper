@@ -60,7 +60,7 @@ COMMANDS                                                      *grepper-:Grepper*
 
 There is only one command:
 
-:Grepper[!] [flags]  Opens the search prompt with the first tool in
+:Grepper [flags]     Opens the search prompt with the first tool in
                      |grepper-option-tools|.
 
                      After you inserted a query, an external process will be
@@ -69,13 +69,9 @@ There is only one command:
 
                      If the query is empty, |:<cword>| will be used as query.
 
-                     The default behaviour of :Grepper mimics |:grep|, so the
-                     quickfix window won't show and one jumps to the first
-                     found match.
-
-                     If [!] is given, don't jump to the first match.
-
 Flags:~
+
+-[no]jump            Jump to first match.
 
 -[no]open            Open the quickfix/location window.
 
@@ -114,7 +110,7 @@ Examples:~
 >
     nnoremap <leader>* :Grepper -tool git -open -switch -cword!<cr>
 
-    :Grepper! -tool ag -grepprg ag --vimgrep -G '^.+\.txt'
+    :Grepper -tool ag -grepprg ag --vimgrep -G '^.+\.txt'
 <
 ==============================================================================
 OPERATOR                                                      *grepper-operator*
@@ -173,14 +169,12 @@ quickfix     Use the quickfix list for the matches or the location list
 
 open         Open the the quickfix/location window after the grep tool
              finished running (and there was at least one match).
-             Defaults to 0.
+             Defaults to 1.
 
 switch       When the quickfix/location window opens, switch to it.
-             Defaults to 0.
+             Defaults to 1.
 
-jump         Automatically jump to the first match. Defaults to 1.
-
-             NOTE: :Grepper overrides this behaviour. Use :Grepper! instead.
+jump         Automatically jump to the first match. Defaults to 0.
 
 dispatch     Can be used to start an async search with Vim. It uses
              |dispatch-:Make| from vim-dispatch. Defaults to 0 if vim-dispatch
@@ -204,9 +198,8 @@ next_tool    These keys will be used at the prompt for switching to the next
              NOTE: This could also be the same keys as the ones that opened
              the search prompt in the first place, e.g.:
 >
-                 nnoremap <leader>g :Grepper!<cr>
-                 let g:grepper = {}
-                 let g:grepper.next_tool = '<leader>g'
+                 nnoremap <leader>g :Grepper<cr>
+                 let g:grepper = { 'next_tool': '<leader>g' }
 <
 ==============================================================================
 ADD TOOL                                                      *grepper-add-tool*
@@ -320,15 +313,14 @@ This is a possible configuration..
     nmap gs <plug>(GrepperOperator)
     xmap gs <plug>(GrepperOperator)
 
-    nnoremap <leader>g :Grepper! -tool git<cr>
-    nnoremap <leader>G :Grepper! -tool ag<cr>
-    nnoremap <leader>* :Grepper! -tool ag -cword!<cr>
+    nnoremap <leader>g :Grepper -tool git<cr>
+    nnoremap <leader>G :Grepper -tool ag<cr>
+    nnoremap <leader>* :Grepper -tool ag -cword!<cr>
 
     let g:grepper = {
         \ 'tools':     ['git', 'ag', 'grep'],
-        \ 'open':      1,
-        \ 'switch':    1,
-        \ 'jump':      0,
+        \ 'open':      0,
+        \ 'jump':      1,
         \ 'next_tool': '<leader>g',
         \ }
 <
@@ -337,9 +329,8 @@ this:
 >
     let g:grepper           = {}
     let g:grepper.tools     = ['git', 'ag', 'grep']
-    let g:grepper.open      = 1
-    let g:grepper.switch    = 1
-    let g:grepper.jump      = 0
+    let g:grepper.open      = 0
+    let g:grepper.jump      = 1
     let g:grepper.next_tool = '<leader>g'
 <
 ==============================================================================

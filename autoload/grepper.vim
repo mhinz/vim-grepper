@@ -6,9 +6,9 @@
 let s:options = {
       \ 'dispatch':  !has('nvim') && exists(':FocusDispatch'),
       \ 'quickfix':  1,
-      \ 'open':      0,
-      \ 'switch':    0,
-      \ 'jump':      1,
+      \ 'open':      1,
+      \ 'switch':    1,
+      \ 'jump':      0,
       \ 'cword':     0,
       \ 'next_tool': '<tab>',
       \ 'tools':     ['git', 'ag', 'sift', 'pt', 'ack', 'grep', 'findstr'],
@@ -135,12 +135,8 @@ endfunction
 " }}}
 
 " #parse_flags() {{{1
-function! grepper#parse_flags(bang, args) abort
-  let s:flags = {
-        \ 'jump':   !a:bang,
-        \ 'prompt': 1,
-        \ 'query':  '',
-        \ }
+function! grepper#parse_flags(args) abort
+  let s:flags = { 'prompt': 1, 'query':  '' }
   let args = split(a:args, '\s\+')
   let len = len(args)
   let i = 0
@@ -152,6 +148,7 @@ function! grepper#parse_flags(bang, args) abort
     elseif flag =~? '\v^-%(no)?quickfix$' | let s:flags.quickfix = flag !~? '^-no'
     elseif flag =~? '\v^-%(no)?open$'     | let s:flags.open     = flag !~? '^-no'
     elseif flag =~? '\v^-%(no)?switch$'   | let s:flags.switch   = flag !~? '^-no'
+    elseif flag =~? '\v^-%(no)?jump$'     | let s:flags.jump     = flag !~? '^-no'
     elseif flag =~? '^-cword!\=$'
       let s:flags.cword = 1
       let s:flags.prompt = flag !~# '!$'

@@ -45,8 +45,12 @@ Use your favorite plugin manager.
 Using [vim-plug](https://github.com/junegunn/vim-plug):
 
     Plug 'mhinz/vim-grepper'
-    Plug 'tpope/vim-dispatch'  " optional
-    Plug 'tpope/vim-repeat'    " optional
+
+    " Optional: used for asynchronous searching on Vim
+    Plug 'tpope/vim-dispatch'
+
+    " Optional: used for repeating operator actions via "."
+    Plug 'tpope/vim-repeat'
 
 For the whole truth:
 
@@ -54,50 +58,83 @@ For the whole truth:
 
 ## Examples
 
-`:Grepper` takes a number of flags which makes it a very versatile command.
+We only need one command, since `:Grepper` can be configured on-the-fly using
+flags.
+
+__Example 0:__
+
+Just using `:Grepper` will use the default options. It opens a prompt and you
+can use `<tab>` to switch to another tool. When matches are found, the quickfix
+window opens and the cursor jumps there. If the query is empty, the word under
+the cursor is used as query.
+
+The quickfix window defines mappings for opening matches in new windows or tabs,
+with and without jumping to it.
+
+If you're used to the default behaviour of `:grep`, not opening the quickfix
+window and jumping to the first match, you can change the default options:
+
+```viml
+" Mimic :grep and make ag the default tool.
+let g:grepper = {
+    \ 'tools': ['ag', 'git', 'grep'],
+    \ 'open':  0,
+    \ 'jump':  1,
+    \ }
+```
+
+Related help:
+
+```
+:h grepper-mappings`
+:h grepper-options`
+```
 
 __Example 1:__
 
-Create mappings with `:Grepper` and provide different configurations at the
-same time:
+Create mappings for `:Grepper` with different configurations:
 
 ```viml
-nnoremap <leader>git :Grepper  -tool git -open -noswitch<cr>
-nnoremap <leader>ag  :Grepper! -tool ag  -open -switch<cr>
-nnoremap <leader>*   :Grepper! -tool ack -cword<cr>
+nnoremap <leader>git :Grepper -tool git -noswitch<cr>
+nnoremap <leader>ag  :Grepper -tool ag  -grepprg ag --vimgrep -G '^.+\.txt'<cr>
+nnoremap <leader>*   :Grepper -tool ack -cword<cr>
 ```
 
-These first two mappings will fire up the search prompt with the provided
-configuration. The third one will open the prompt prepopulated with the word
-under the cursor.
+All three mappings open a prompt. The first two are empty, the last one
+populated with the word under the cursor.
+
+Related help: `:h :Grepper`
 
 __Example 2:__
 
-Use the operator to search for text from the current buffer:
+Build you own commands:
+
+```viml
+command! -nargs=* -complete=file GG Grepper -tool git -query <args>
+command! -nargs=* -complete=file Ag Grepper -tool ag  -query <args>
+```
+
+Now you can use them like this: `:Ag foo` or `:GG 'foo bar' *.txt`. Mind that
+`<tab>` can be used for file completion, too.
+
+__Example 3:__
+
+Use can use grepper on motions or in visual mode by mapping the operator:
 
 ```viml
 nmap gs <plug>(GrepperOperator)
 xmap gs <plug>(GrepperOperator)
 ```
 
-`gs` in visual mode will simply prepopulate the prompt with the current visual
-selection. You can also use text objects to preopulate the prompt, e.g. `gs$`
-for everything from the current cursor position until the end of the line.
+Afterwards `gs` in visual mode will simply prepopulate the prompt with the
+current visual selection.
 
-Everytime the prompt gets prepopulated, the query will get escaped according to
-the used grep tool.
+You can also use motions to prepopulate the prompt, e.g. `gs$` or `gsiw`.
 
-__Example 3:__
+The prompt gets prepopulated and the query will get escaped according to the
+used grep tool.
 
-You can use `:Grepper` to build your own commmands:
-
-```viml
-command! -nargs=* -complete=file GG Grepper! -tool git -query <args>
-command! -nargs=* -complete=file Ag Grepper! -tool ag -query <args>
-```
-
-Now you can use it like this: `:Ag foo` or `:GG 'foo bar' *.txt`. Mind that
-`<tab>` can be used for file completion, too.
+Related help: `:h grepper-operator`
 
 ## Demo
 
