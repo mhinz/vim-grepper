@@ -429,7 +429,7 @@ function! s:finish_up(...) abort
       endif
     endif
 
-    execute 'botright' (qf ? 'copen' : 'lopen') (size > 10 ? 10 : size)
+    execute (qf ? 'botright copen' : 'lopen') (size > 10 ? 10 : size)
     let w:quickfix_title = s:cmdline
 
     nnoremap <silent><buffer> <cr> <cr>zv
