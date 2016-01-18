@@ -270,18 +270,10 @@ endfunction
 function! s:build_cmdline(grepprg) abort
   if stridx(a:grepprg, '$*') >= 0
     let [a, b] = split(a:grepprg, '\V$*', 1)
-    let cmdline = printf('%s%s%s', a, s:flags.query, b)
+    return printf('%s%s%s', a, s:flags.query, b)
   else
-    let cmdline = printf('%s %s', a:grepprg, s:flags.query)
+    return printf('%s %s', a:grepprg, s:flags.query)
   endif
-  if !has('nvim') && s:option('dispatch')
-    " The 'cat' is currently needed to strip these control sequences from
-    " tmux output (http://stackoverflow.com/a/13608153):
-    "   - CSI ? 1h + ESC =
-    "   - CSI ? 1l + ESC >
-    let cmdline .= ' | cat'
-  endif
-  return cmdline
 endfunction
 
 " s:run() {{{1
