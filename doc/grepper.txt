@@ -178,8 +178,7 @@ switch       When the quickfix/location window opens, switch to it.
 jump         Automatically jump to the first match. Defaults to 0.
 
 dispatch     Can be used to start an async search with Vim. It uses
-             |dispatch-:Make| from vim-dispatch. Defaults to 0 if vim-dispatch
-             is not available or Neovim is used, otherwise 1.
+             |dispatch-:Make| from vim-dispatch. Defaults to 0.
 
 tools        These are the tools that you can choose between. The order
              matters. The first element is the default tool and will be used

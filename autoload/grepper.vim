@@ -4,7 +4,7 @@
 " ..ad\\f40+$':-# @=,!;%^&&*()_{}/ /4304\'""?`9$343%$ ^adfadf[ad)[(
 
 let s:options = {
-      \ 'dispatch':  !has('nvim') && exists(':FocusDispatch'),
+      \ 'dispatch':  0,
       \ 'quickfix':  1,
       \ 'open':      1,
       \ 'switch':    1,
@@ -199,15 +199,20 @@ function! grepper#parse_flags(args) abort
     let i += 1
   endwhile
 
-  if s:option('dispatch')
-    let s:flags.quickfix = 1
-  endif
-
   return s:start()
 endfunction
 
 " s:process_flags() {{{1
 function! s:process_flags()
+  " check for vim-dispatch
+  if has('nvim') || !exists(':FocusDispatch')
+    let s:flags.dispatch = 0
+  endif
+  " vim-dispatch always uses the quickfix window
+  if s:option('dispatch')
+    let s:flags.quickfix = 1
+  endif
+
   if get(s:flags, 'cword')
     let s:flags.query = s:escape_query(expand('<cword>'))
     if s:flags.prompt
