@@ -78,7 +78,8 @@ Flags:~
 -[no]switch          Switch to quickfix/location window.
 
 -[no]quickfix        Use the quickfix list. If -noquickfix is given, use the
-                     location list instead.
+                     location list instead. When using -dispatch, the quickfix
+                     window will be forced.
 
 -[no]dispatch        If vim-dispatch is installed, use |dispatch-:Make| for
                      executing the query.

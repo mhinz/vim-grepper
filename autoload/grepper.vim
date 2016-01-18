@@ -199,6 +199,10 @@ function! grepper#parse_flags(args) abort
     let i += 1
   endwhile
 
+  if s:option('dispatch')
+    let s:flags.quickfix = 1
+  endif
+
   return s:start()
 endfunction
 
