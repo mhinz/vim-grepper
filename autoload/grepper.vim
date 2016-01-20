@@ -226,6 +226,8 @@ function! s:process_flags()
       let s:flags.query = s:escape_query(expand('<cword>'))
     endif
   endif
+
+  silent! unlet s:original_query
 endfunction
 
 " s:start() {{{1
