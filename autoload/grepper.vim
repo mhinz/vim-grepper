@@ -467,15 +467,10 @@ function! s:open_entry(cmd, jump)
     if winnr('$') == 1
       execute "normal! \<cr>"
     else
+      wincmd p
+      execute 'rightbelow' a:cmd
+      let win = s:jump_to_qf_win()
       execute "normal! \<cr>"
-      if bufexists('#')
-        buffer #
-        execute a:cmd '#'
-      else
-        execute "normal! ``"
-        execute a:cmd
-        execute "normal! ``"
-      end
     endif
     normal! zv
   catch /E36/
@@ -483,15 +478,26 @@ function! s:open_entry(cmd, jump)
   finally
     " Window numbers get reordered after creating new windows.
     if !a:jump
-      for buf in filter(tabpagebuflist(), 'buflisted(v:val)')
-        if getbufvar(buf, '&filetype') == 'qf'
-          execute bufwinnr(buf) 'wincmd w'
-          return
-        endif
-      endfor
+      if exists('win') && win >= 0
+        execute win 'wincmd w'
+      else
+        call s:jump_to_qf_win()
+      endif
     endif
     let &switchbuf = swb
   endtry
+endfunction
+
+" s:jump_to_qf_win() {{{1
+function! s:jump_to_qf_win() abort
+  for buf in filter(tabpagebuflist(), 'buflisted(v:val)')
+    if getbufvar(buf, '&filetype') == 'qf'
+      let win = bufwinnr(buf)
+      execute win 'wincmd w'
+      return win
+    endif
+  endfor
+  return 0
 endfunction
 
 " s:escape_query() {{{1
