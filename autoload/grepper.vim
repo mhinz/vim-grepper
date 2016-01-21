@@ -220,7 +220,6 @@ function! s:process_flags(flags)
     if a:flags.prompt
       call s:prompt(a:flags)
     endif
-    echomsg 'Q: '. a:flags.query
     if empty(a:flags.query)
       let a:flags.query = s:escape_query(a:flags, expand('<cword>'))
     endif
