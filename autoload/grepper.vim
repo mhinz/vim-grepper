@@ -461,6 +461,9 @@ function! s:finish_up(...) abort
     endif
 
     echo printf('Found %d matches.', size)
+    echohl Comment
+    echon ' oO=open sS=split vV=vsplit tT=tab'
+    echohl NONE
   endif
 
   silent doautocmd <nomodeline> User Grepper
