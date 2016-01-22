@@ -47,13 +47,13 @@ TOOLS                                                            *grepper-tools*
 
 These tools are supported by default:
 
-    'git'
     'ag'
-    'sift'
-    'pt'
     'ack'
     'grep'
     'findstr'
+    'sift'
+    'pt'
+    'git'
 
 ==============================================================================
 COMMANDS                                                      *grepper-:Grepper*
@@ -190,7 +190,7 @@ tools        These are the tools that you can choose between. The order
 
              Defaults to:
 >
-                 ['git', 'ag', 'sift', 'pt', 'ack', 'grep', 'findstr']
+                 ['ag', 'ack', 'grep', 'findstr', 'sift', 'pt', 'git']
 <
 next_tool    These keys will be used at the prompt for switching to the next
              tool. Defaults to <tab>.

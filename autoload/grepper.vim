@@ -11,7 +11,7 @@ let s:options = {
       \ 'jump':      0,
       \ 'cword':     0,
       \ 'next_tool': '<tab>',
-      \ 'tools':     ['git', 'ag', 'sift', 'pt', 'ack', 'grep', 'findstr'],
+      \ 'tools':     ['ag', 'ack', 'grep', 'findstr', 'sift', 'pt', 'git'],
       \ 'git':       { 'grepprg':    'git grep -nI',
       \                'grepformat': '%f:%l:%m',
       \                'escape':     '\$.*%#[]' },

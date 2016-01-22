@@ -5,6 +5,12 @@ won't list single bugfixes or improved documentation.)
 
 ## [Unreleased]
 
+### Changed
+
+- The default order of the tools is this now: `['ag', 'ack', 'grep', 'findstr',
+  'sift', 'pt', 'git']`. This was done because not everyone is a git nut like
+  me.
+
 ## [1.1] - 2016-01-18
 
 50 commits.
