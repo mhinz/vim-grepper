@@ -424,6 +424,7 @@ function! s:finish_up(flags, ...) abort
 
     execute (qf ? 'botright copen' : 'lopen') (size > 10 ? 10 : size)
     let w:quickfix_title = s:cmdline
+    setlocal nowrap
 
     nnoremap <silent><buffer> <cr> <cr>zv
     nnoremap <silent><buffer> o    <cr>zv
