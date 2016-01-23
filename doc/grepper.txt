@@ -92,7 +92,8 @@ Flags:~
 
 -grepprg <cmd>       Use this flag to overwrite the default |'grepprg'| which
                      is set according to the used tool. Also use -tool first,
-                     so the output gets escaped properly.
+                     so the output gets escaped properly. See |grepper-add-tool|
+                     for examples.
 
                      This must be the last flag!~
 
@@ -229,6 +230,11 @@ grepprg:~
     In cases where the arguments don't come last, use $* as a placeholder:
 >
     'grepprg': 'grep -Rn $* .'
+<
+    If you want to use the tool on all currently opened files (instead of the
+    current directory), use $+ as a placeholder:
+>
+    'grepprg': 'ag --vimgrep $* $+'
 <
 grepformat:~
 

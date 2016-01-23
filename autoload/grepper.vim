@@ -275,12 +275,20 @@ endfunction
 
 " s:build_cmdline() {{{1
 function! s:build_cmdline(flags, grepprg) abort
-  if stridx(a:grepprg, '$*') >= 0
-    let [a, b] = split(a:grepprg, '\V$*', 1)
-    return printf('%s%s%s', a, a:flags.query, b)
-  else
-    return printf('%s %s', a:grepprg, a:flags.query)
+  let grepprg = a:grepprg
+  if stridx(grepprg, '$+') >= 0
+    let buffers = filter(map(filter(range(1, bufnr('$')), 'bufloaded(v:val)'),
+          \ 'bufname(v:val)'), 'filereadable(v:val)')
+    let [a, b] = split(grepprg, '\V$+', 1)
+    let grepprg = printf('%s%s%s', a, join(buffers), b)
   endif
+  if stridx(grepprg, '$*') >= 0
+    let [a, b] = split(grepprg, '\V$*', 1)
+    let grepprg = printf('%s%s%s', a, a:flags.query, b)
+  else
+    let grepprg = printf('%s %s', grepprg, a:flags.query)
+  endif
+  return grepprg
 endfunction
 
 " s:run() {{{1
