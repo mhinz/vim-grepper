@@ -10,6 +10,7 @@ let s:options = {
       \ 'switch':    1,
       \ 'jump':      0,
       \ 'cword':     0,
+      \ 'prompt':    1,
       \ 'next_tool': '<tab>',
       \ 'tools':     ['ag', 'ack', 'grep', 'findstr', 'sift', 'pt', 'git'],
       \ 'git':       { 'grepprg':    'git grep -nI',
@@ -134,7 +135,7 @@ endfunction
 
 " #parse_flags() {{{1
 function! grepper#parse_flags(args) abort
-  let flags = extend({ 'prompt': 1, 'query': ''}, s:options)
+  let flags = extend({ 'query': ''}, s:options)
   let args = split(a:args, '\s\+')
   let len = len(args)
   let i = 0
@@ -147,6 +148,7 @@ function! grepper#parse_flags(args) abort
     elseif flag =~? '\v^-%(no)?open$'     | let flags.open     = flag !~? '^-no'
     elseif flag =~? '\v^-%(no)?switch$'   | let flags.switch   = flag !~? '^-no'
     elseif flag =~? '\v^-%(no)?jump$'     | let flags.jump     = flag !~? '^-no'
+    elseif flag =~? '\v^-%(no)?prompt$'   | let flags.prompt   = flag !~? '^-no'
     elseif flag =~? '^-cword!\=$'
       let flags.cword = 1
       let flags.prompt = flag !~# '!$'
@@ -213,16 +215,16 @@ function! s:process_flags(flags)
 
   if a:flags.cword
     let a:flags.query = s:escape_query(a:flags, expand('<cword>'))
-    if a:flags.prompt
-      call s:prompt(a:flags)
-    endif
-  else
-    if a:flags.prompt
-      call s:prompt(a:flags)
-    endif
-    if empty(a:flags.query)
-      let a:flags.query = s:escape_query(a:flags, expand('<cword>'))
-    endif
+  endif
+
+  if !a:flags.prompt
+    return
+  endif
+
+  call s:prompt(a:flags)
+
+  if empty(a:flags.query)
+    let a:flags.query = s:escape_query(a:flags, expand('<cword>'))
   endif
 endfunction
 
@@ -529,7 +531,6 @@ function! grepper#operator(type) abort
 
   let &selection = selsave
   let flags = deepcopy(s:options)
-  let flags.prompt = 1
   let flags.query_orig = @@
   let flags.query = s:escape_query(flags, @@)
   let @@ = regsave

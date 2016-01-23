@@ -84,6 +84,9 @@ Flags:~
 -[no]dispatch        If vim-dispatch is installed, use |dispatch-:Make| for
                      executing the query.
 
+-[no]prompt          To prompt or not to prompt! Common uses are together with
+                     -cword or -grepprg in a command.
+
 -tool <tool>         Any supported tool. Either from |grepper-tools| or ones
                      you added yourself via |grepper-add-tool|.
 
@@ -179,6 +182,8 @@ jump         Automatically jump to the first match. Defaults to 0.
 
 dispatch     Can be used to start an async search with Vim. It uses
              |dispatch-:Make| from vim-dispatch. Defaults to 0.
+
+prompt       To prompt or not to prompt! Defaults to 1.
 
 tools        These are the tools that you can choose between. The order
              matters. The first element is the default tool and will be used
