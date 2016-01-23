@@ -5,6 +5,11 @@ won't list single bugfixes or improved documentation.)
 
 ## [Unreleased]
 
+## [1.2] - 2016-01-23
+
+This is mainly a bugfix release and the last release before 2.0 that will bring
+quite some changes.
+
 ### Changed
 
 - The default order of the tools is this now: `['ag', 'ack', 'grep', 'findstr',
@@ -43,6 +48,7 @@ won't list single bugfixes or improved documentation.)
 ## [1.0] - 2015-12-09
 First release!
 
-[Unreleased]: https://github.com/mhinz/vim-grepper/compare/v1.1...HEAD
+[Unreleased]: https://github.com/mhinz/vim-grepper/compare/v1.2...HEAD
+[1.1]: https://github.com/mhinz/vim-grepper/compare/v1.1...v1.2
 [1.1]: https://github.com/mhinz/vim-grepper/compare/v1.0...v1.1
 [1.0]: https://github.com/mhinz/vim-grepper/compare/8b9234f...v1.0
