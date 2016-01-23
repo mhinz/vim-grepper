@@ -149,9 +149,7 @@ function! grepper#parse_flags(args) abort
     elseif flag =~? '\v^-%(no)?switch$'   | let flags.switch   = flag !~? '^-no'
     elseif flag =~? '\v^-%(no)?jump$'     | let flags.jump     = flag !~? '^-no'
     elseif flag =~? '\v^-%(no)?prompt$'   | let flags.prompt   = flag !~? '^-no'
-    elseif flag =~? '^-cword!\=$'
-      let flags.cword = 1
-      let flags.prompt = flag !~# '!$'
+    elseif flag =~? '^-cword$'            | let flags.cword    = 1
     elseif flag =~? '^-grepprg$'
       let i += 1
       if i < len

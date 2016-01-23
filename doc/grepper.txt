@@ -106,13 +106,12 @@ Flags:~
 
                      This must be the last flag!~
 
--cword[!]            Populate the prompt with the word under cursor. If [!] is
-                     given, the prompt is skipped and the search is started
-                     right away.
+-cword               Populate the prompt with the word under cursor. Useful
+                     when paired with -noprompt.
 
 Examples:~
 >
-    nnoremap <leader>* :Grepper -tool git -open -switch -cword!<cr>
+    nnoremap <leader>* :Grepper -tool git -open -switch -cword -noprompt<cr>
 
     :Grepper -tool ag -grepprg ag --vimgrep -G '^.+\.txt'
 <
@@ -320,7 +319,7 @@ This is a possible configuration..
 
     nnoremap <leader>g :Grepper -tool git<cr>
     nnoremap <leader>G :Grepper -tool ag<cr>
-    nnoremap <leader>* :Grepper -tool ag -cword!<cr>
+    nnoremap <leader>* :Grepper -tool ag -cword -noprompt<cr>
 
     let g:grepper = {
         \ 'tools':     ['git', 'ag', 'grep'],

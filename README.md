@@ -94,7 +94,7 @@ Create mappings for `:Grepper` with different configurations:
 ```viml
 nnoremap <leader>git :Grepper -tool git -noswitch<cr>
 nnoremap <leader>ag  :Grepper -tool ag  -grepprg ag --vimgrep -G '^.+\.txt'<cr>
-nnoremap <leader>*   :Grepper -tool ack -cword<cr>
+nnoremap <leader>*   :Grepper -tool ack -cword -noprompt<cr>
 ```
 
 All three mappings open a prompt. The first two are empty, the last one
