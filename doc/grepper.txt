@@ -38,9 +38,8 @@ supports most common grep tools, and is easily extendable.
 
 You choose a tool, enter a query, and get your matches into a |quickfix| list.
 
-If you use Neovim or vim-dispatch, the search will be executed asynchronously.
-Thus you will be able to continue editing while the grep program is still
-running.
+If you use Neovim, the search will be executed asynchronously. Thus you will
+be able to continue editing while the grep program is still running.
 
 ==============================================================================
 TOOLS                                                            *grepper-tools*
@@ -78,11 +77,7 @@ Flags:~
 -[no]switch          Switch to quickfix/location window.
 
 -[no]quickfix        Use the quickfix list. If -noquickfix is given, use the
-                     location list instead. When using -dispatch, the quickfix
-                     window will be forced.
-
--[no]dispatch        If vim-dispatch is installed, use |dispatch-:Make| for
-                     executing the query.
+                     location list instead.
 
 -[no]prompt          To prompt or not to prompt! Common uses are together with
                      -cword or -grepprg in a command.
@@ -179,9 +174,6 @@ switch       When the quickfix/location window opens, switch to it.
              Defaults to 1.
 
 jump         Automatically jump to the first match. Defaults to 0.
-
-dispatch     Can be used to start an async search with Vim. It uses
-             |dispatch-:Make| from vim-dispatch. Defaults to 0.
 
 prompt       To prompt or not to prompt! Defaults to 1.
 

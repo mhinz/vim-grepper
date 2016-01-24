@@ -4,7 +4,6 @@
 " ..ad\\f40+$':-# @=,!;%^&&*()_{}/ /4304\'""?`9$343%$ ^adfadf[ad)[(
 
 let s:options = {
-      \ 'dispatch':  0,
       \ 'quickfix':  1,
       \ 'open':      1,
       \ 'switch':    1,
@@ -143,8 +142,7 @@ function! grepper#parse_flags(args) abort
   while i < len
     let flag = args[i]
 
-    if     flag =~? '\v^-%(no)?dispatch$' | let flags.dispatch = flag !~? '^-no'
-    elseif flag =~? '\v^-%(no)?quickfix$' | let flags.quickfix = flag !~? '^-no'
+    if     flag =~? '\v^-%(no)?quickfix$' | let flags.quickfix = flag !~? '^-no'
     elseif flag =~? '\v^-%(no)?open$'     | let flags.open     = flag !~? '^-no'
     elseif flag =~? '\v^-%(no)?switch$'   | let flags.switch   = flag !~? '^-no'
     elseif flag =~? '\v^-%(no)?jump$'     | let flags.jump     = flag !~? '^-no'
@@ -202,15 +200,6 @@ endfunction
 
 " s:process_flags() {{{1
 function! s:process_flags(flags)
-  " check for vim-dispatch
-  if has('nvim') || !exists(':FocusDispatch')
-    let a:flags.dispatch = 0
-  endif
-  " vim-dispatch always uses the quickfix window
-  if a:flags.dispatch
-    let a:flags.quickfix = 1
-  endif
-
   if a:flags.cword
     let a:flags.query = s:escape_query(a:flags, expand('<cword>'))
   endif
@@ -324,17 +313,6 @@ function! s:run(flags)
           \ 'on_exit':   function('s:on_exit'),
           \ 'errmsg':    '' })
     return
-  elseif a:flags.dispatch
-    " Just a hack since autocmds can't access local variables.
-    let s:flags = deepcopy(a:flags)
-    augroup grepper
-      autocmd FileType qf call s:finish_up(s:flags)
-    augroup END
-    try
-      silent Make
-    finally
-      call s:restore_settings()
-    endtry
   else
     try
       execute 'silent' (a:flags.quickfix ? 'grep!' : 'lgrep!')
@@ -355,7 +333,7 @@ function! s:store_settings(flags) abort
   let s:settings = {}
   let prog = s:get_current_tool(a:flags)
 
-  if !has('nvim') || !a:flags.dispatch
+  if !has('nvim')
     let s:settings.t_ti = &t_ti
     let s:settings.t_te = &t_te
     set t_ti= t_te=
@@ -410,10 +388,6 @@ function! s:finish_up(flags, ...) abort
     autocmd!
   augroup END
 
-  if exists('s:flags')
-    unlet s:flags
-  endif
-
   let qf = a:flags.quickfix
   let size = len(qf ? getqflist() : getloclist(0))
 
@@ -425,9 +399,6 @@ function! s:finish_up(flags, ...) abort
   else
     if a:flags.jump
       execute (qf ? 'cfirst' : 'lfirst')
-      if a:flags.dispatch
-        doautocmd BufRead
-      endif
     endif
 
     execute (qf ? 'botright copen' : 'lopen') (size > 10 ? 10 : size)
@@ -444,19 +415,14 @@ function! s:finish_up(flags, ...) abort
     nnoremap <silent><buffer> t    <c-w>gFzv
     nmap     <silent><buffer> T    tgT
 
-    if a:flags.dispatch
-      if a:flags.switch
-        call feedkeys("\<c-w>p", 'n')
-      endif
-    else
-      if !a:flags.open
-        execute (qf ? 'cclose' : 'lclose')
-      elseif !a:flags.switch
-        call feedkeys("\<c-w>p", 'n')
-      endif
-      if !has('nvim')
-        redraw!
-      endif
+    if !a:flags.open
+      execute (qf ? 'cclose' : 'lclose')
+    elseif !a:flags.switch
+      call feedkeys("\<c-w>p", 'n')
+    endif
+
+    if !has('nvim')
+      redraw!
     endif
 
     echo printf('Found %d matches.', size)

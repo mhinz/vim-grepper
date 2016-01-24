@@ -25,8 +25,7 @@ _Features:_
   **findstr**
 - quick switching between grep tools
 - adding new grep tools or replacing parameters of default ones is easy
-- asynchronous search with Neovim or
-  [vim-dispatch](https://github.com/tpope/vim-dispatch)
+- asynchronous search with Neovim
 - operator for selecting search queries by motion
 - operator action is repeatable if
   [vim-repeat](https://github.com/tpope/vim-repeat) is installed
@@ -42,9 +41,6 @@ Use your favorite plugin manager.
 Using [vim-plug](https://github.com/junegunn/vim-plug):
 
     Plug 'mhinz/vim-grepper'
-
-    " Optional: used for asynchronous searching on Vim
-    Plug 'tpope/vim-dispatch'
 
     " Optional: used for repeating operator actions via "."
     Plug 'tpope/vim-repeat'
