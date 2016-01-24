@@ -236,6 +236,11 @@ grepprg:~
 >
     'grepprg': 'ag --vimgrep $* $+'
 <
+    If you want to use the tool only on the current file, use $. as a
+    placeholder:
+>
+    'grepprg': 'ag --vimgrep $* $.'
+<
 grepformat:~
 
     This is optional. If the output of 'grepprg' uses a format that is not

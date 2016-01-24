@@ -274,29 +274,29 @@ function! s:prompt(flags)
 endfunction
 
 " s:build_cmdline() {{{1
-function! s:build_cmdline(flags, grepprg) abort
-  let grepprg = a:grepprg
+function! s:build_cmdline(flags) abort
+  let grepprg = s:get_current_tool(a:flags).grepprg
+  let grepprg = substitute(grepprg, '\V$.', bufname(''), '')
+
   if stridx(grepprg, '$+') >= 0
     let buffers = filter(map(filter(range(1, bufnr('$')), 'bufloaded(v:val)'),
           \ 'bufname(v:val)'), 'filereadable(v:val)')
-    let [a, b] = split(grepprg, '\V$+', 1)
-    let grepprg = printf('%s%s%s', a, join(buffers), b)
+    let grepprg = substitute(grepprg, '\V$+', join(buffers), '')
   endif
+
   if stridx(grepprg, '$*') >= 0
-    let [a, b] = split(grepprg, '\V$*', 1)
-    let grepprg = printf('%s%s%s', a, a:flags.query, b)
+    let grepprg = substitute(grepprg, '\V$*', a:flags.query, '')
   else
-    let grepprg = printf('%s %s', grepprg, a:flags.query)
+    let grepprg .= ' ' . a:flags.query
   endif
+
   return grepprg
 endfunction
 
 " s:run() {{{1
 function! s:run(flags)
-  let prog = s:get_current_tool(a:flags)
-  let s:cmdline = s:build_cmdline(a:flags, prog.grepprg)
-
-  call s:store_settings(a:flags, prog)
+  let s:cmdline = s:build_cmdline(a:flags)
+  call s:store_settings(a:flags)
 
   if has('nvim')
     if s:id
@@ -326,19 +326,18 @@ function! s:run(flags)
     return
   elseif a:flags.dispatch
     " Just a hack since autocmds can't access local variables.
-    let g:grepper_flags = deepcopy(a:flags)
+    let s:flags = deepcopy(a:flags)
     augroup grepper
-      autocmd FileType qf call s:finish_up(g:grepper_flags)
+      autocmd FileType qf call s:finish_up(s:flags)
     augroup END
     try
-      let &makeprg = s:cmdline
       silent Make
     finally
       call s:restore_settings()
     endtry
   else
     try
-      execute 'silent' (a:flags.quickfix ? 'grep!' : 'lgrep!') escape(a:flags.query, '#%')
+      execute 'silent' (a:flags.quickfix ? 'grep!' : 'lgrep!')
     finally
       call s:restore_settings()
     endtry
@@ -352,8 +351,9 @@ function! s:get_current_tool(flags) abort
 endfunction
 
 " s:store_settings() {{{1
-function! s:store_settings(flags, prog) abort
+function! s:store_settings(flags) abort
   let s:settings = {}
+  let prog = s:get_current_tool(a:flags)
 
   if !has('nvim') || !a:flags.dispatch
     let s:settings.t_ti = &t_ti
@@ -363,14 +363,14 @@ function! s:store_settings(flags, prog) abort
 
   let s:settings.grepprg = &grepprg
   let s:settings.makeprg = &makeprg
-  let &grepprg = a:prog.grepprg
-  let &makeprg = a:prog.grepprg
+  let &grepprg = s:cmdline
+  let &makeprg = s:cmdline
 
-  if has_key(a:prog, 'grepformat')
+  if has_key(prog, 'grepformat')
     let s:settings.grepformat  = &grepformat
     let s:settings.errorformat = &errorformat
-    let &grepformat  = a:prog.grepformat
-    let &errorformat = a:prog.grepformat
+    let &grepformat  = prog.grepformat
+    let &errorformat = prog.grepformat
   endif
 endfunction
 
@@ -410,8 +410,8 @@ function! s:finish_up(flags, ...) abort
     autocmd!
   augroup END
 
-  if exists('g:grepper_flags')
-    unlet g:grepper_flags
+  if exists('s:flags')
+    unlet s:flags
   endif
 
   let qf = a:flags.quickfix
