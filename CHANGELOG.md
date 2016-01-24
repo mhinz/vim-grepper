@@ -5,6 +5,23 @@ won't list single bugfixes or improved documentation.)
 
 ## [Unreleased]
 
+### Added
+
+- `-noprompt` flag. Especially useful together with `-grepprg` or `-cword`.
+- `$+` placeholder for `-grepprg`. Gets replaced by all opened files.
+- `$.` placeholder for `-grepprg`. Gets replaced by the current buffer name.
+
+### Changed
+
+- Use `'nowrap'` in quickfix window.
+
+### Removed
+
+- `-cword!`. Was inconsistent syntax in the first place and can now be replaced
+  with `-cword -noprompt`.
+- Support for vim-dispatch. See this
+  [commit](https://github.com/mhinz/vim-grepper/commit/c345137c336c531209a6082a6fcd5c2722d45773).
+
 ## [1.2] - 2016-01-23
 
 This is mainly a bugfix release and the last release before 2.0 that will bring
@@ -49,6 +66,6 @@ quite some changes.
 First release!
 
 [Unreleased]: https://github.com/mhinz/vim-grepper/compare/v1.2...HEAD
-[1.1]: https://github.com/mhinz/vim-grepper/compare/v1.1...v1.2
+[1.2]: https://github.com/mhinz/vim-grepper/compare/v1.1...v1.2
 [1.1]: https://github.com/mhinz/vim-grepper/compare/v1.0...v1.1
 [1.0]: https://github.com/mhinz/vim-grepper/compare/8b9234f...v1.0
