@@ -316,6 +316,7 @@ function! s:run(flags)
   else
     try
       execute 'silent' (a:flags.quickfix ? 'grep!' : 'lgrep!')
+      redraw!
     finally
       call s:restore_settings()
     endtry
@@ -389,14 +390,18 @@ function! s:finish_up(flags, ...) abort
 
   if a:0 && !empty(a:1)
     call s:error(a:1)
+    return
   elseif size == 0
     execute (qf ? 'cclose' : 'lclose')
     echo 'No matches found.'
-  else
-    if a:flags.jump
-      execute (qf ? 'cfirst' : 'lfirst')
-    endif
+    return
+  endif
 
+  if a:flags.jump
+    execute (qf ? 'cfirst' : 'lfirst')
+  endif
+
+  if a:flags.open
     execute (qf ? 'botright copen' : 'lopen') (size > 10 ? 10 : size)
     let w:quickfix_title = s:cmdline
     setlocal nowrap
@@ -404,24 +409,20 @@ function! s:finish_up(flags, ...) abort
     nnoremap <silent><buffer> <cr> <cr>zv
     nnoremap <silent><buffer> o    <cr>zv
     nnoremap <silent><buffer> O    <cr>zv<c-w>p
-    nnoremap <silent><buffer> s    :call <sid>open_entry('split',   1)<cr>
-    nnoremap <silent><buffer> S    :call <sid>open_entry('split',   0)<cr>
-    nnoremap <silent><buffer> v    :call <sid>open_entry('vsplit',  1)<cr>
-    nnoremap <silent><buffer> V    :call <sid>open_entry('vsplit',  0)<cr>
+    nnoremap <silent><buffer> s    :call <sid>open_entry('split',  1)<cr>
+    nnoremap <silent><buffer> S    :call <sid>open_entry('split',  0)<cr>
+    nnoremap <silent><buffer> v    :call <sid>open_entry('vsplit', 1)<cr>
+    nnoremap <silent><buffer> V    :call <sid>open_entry('vsplit', 0)<cr>
     nnoremap <silent><buffer> t    <c-w>gFzv
     nmap     <silent><buffer> T    tgT
 
-    if !a:flags.open
-      execute (qf ? 'cclose' : 'lclose')
-    elseif !a:flags.switch
+    if !a:flags.switch
       call feedkeys("\<c-w>p", 'n')
     endif
+  endif
 
-    if !has('nvim')
-      redraw!
-    endif
-
-    echo printf('Found %d matches.', size)
+  echo printf('Found %d matches.', size)
+  if a:flags.open && a:flags.switch
     echohl Comment
     echon ' oO=open sS=split vV=vsplit tT=tab'
     echohl NONE
