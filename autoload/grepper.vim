@@ -384,10 +384,6 @@ endfunction
 
 " s:finish_up() {{{1
 function! s:finish_up(flags, ...) abort
-  augroup grepper
-    autocmd!
-  augroup END
-
   let qf = a:flags.quickfix
   let size = len(qf ? getqflist() : getloclist(0))
 
