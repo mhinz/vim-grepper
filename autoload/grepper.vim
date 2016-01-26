@@ -84,8 +84,7 @@ endfunction
 
 " s:on_stderr() {{{1
 function! s:on_stderr(id, data) abort
-  silent! call jobstop(a:id)
-  let self.errmsg = join(a:data)
+  call s:error('STDERR: '. join(a:data))
 endfunction
 
 " s:on_exit() {{{1
@@ -98,7 +97,7 @@ function! s:on_exit() abort
 
   let s:id = 0
   call s:restore_settings()
-  return s:finish_up(self.flags, self.errmsg)
+  return s:finish_up(self.flags)
 endfunction
 " }}}
 
@@ -310,8 +309,7 @@ function! s:run(flags)
           \ 'tabpage':   tabpagenr(),
           \ 'window':    winnr(),
           \ 'on_stderr': function('s:on_stderr'),
-          \ 'on_exit':   function('s:on_exit'),
-          \ 'errmsg':    '' })
+          \ 'on_exit':   function('s:on_exit')})
     return
   else
     try
@@ -384,14 +382,11 @@ function! s:restore_mapping(mapping)
 endfunction
 
 " s:finish_up() {{{1
-function! s:finish_up(flags, ...) abort
+function! s:finish_up(flags) abort
   let qf = a:flags.quickfix
   let size = len(qf ? getqflist() : getloclist(0))
 
-  if a:0 && !empty(a:1)
-    call s:error(a:1)
-    return
-  elseif size == 0
+  if size == 0
     execute (qf ? 'cclose' : 'lclose')
     echo 'No matches found.'
     return
