@@ -1,0 +1,33 @@
+After:
+  %bdelete
+  enew!
+
+Execute (:Grepper -tool ag -query foo):
+  Grepper -tool ag -query foo include/
+  Assert len(getqflist()) == 1
+  Log len(getqflist())
+  Assert winnr('$') == 2
+  Log winnr('$')
+  Assert w:quickfix_title == 'ag --vimgrep foo include/'
+  Log w:quickfix_title
+  Assert getline('.')[:6] == 'include'
+  Log getline('.')[:6]
+
+" Vader bug? This seems to switch the window anyways.
+" Execute (:Grepper -tool ag -noswitch -query foo):
+"   Grepper -tool ag -noswitch -query foo include/
+"   Assert len(getqflist()) == 1
+"   Assert winnr('$') == 2
+"   Log getline('.')
+
+Execute (:Grepper -tool ag -noopen -query foo):
+  Grepper -tool ag -noopen -query foo include/
+  Assert len(getqflist()) == 1
+  Assert winnr('$') == 1
+  Assert line2byte('$') == -1
+
+Execute (:Grepper -tool ag -noopen -jump -query foo):
+  Grepper -tool ag -noopen -jump -query foo include/
+  Assert len(getqflist()) == 1
+  Assert winnr('$') == 1
+  Assert getline('.') == 'Foo: This is just a random'

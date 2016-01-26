@@ -1,0 +1,9 @@
+language: vim
+
+before_script:
+    - sudo apt-get -qq update
+    - sudo apt-get install -y vim-gtk
+    - sudo apt-get install -y silversearcher-ag
+
+script:
+    - test/run
