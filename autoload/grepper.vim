@@ -18,7 +18,7 @@ let s:options = {
       \ 'ag':        { 'grepprg':    'ag --vimgrep',
       \                'grepformat': '%f:%l:%c:%m,%f:%l:%m',
       \                'escape':     '\^$.*+?()[]%#' },
-      \ 'sift':      { 'grepprg':    'sift -i -n --binary-skip $* .',
+      \ 'sift':      { 'grepprg':    'sift -n --binary-skip $* .',
       \                'grepformat': '%f:%l:%m',
       \                'escape':     '\+*?^$%#()[]' },
       \ 'pt':        { 'grepprg':    'pt --nogroup',
@@ -55,10 +55,10 @@ for tool in s:options.tools
 endfor
 
 " Special case: ag (-vimgrep isn't available in versions < 0.25)
-if index(s:options.tools, 'ag') != -1
+if index(s:options.tools, 'ag') >= 0
       \ && !exists('g:grepper.ag.grepprg')
       \ && split(system('ag --version'))[2] =~ '^\v\d+\.%([01]|2[0-4])'
-  let s:options.ag.grepprg = 'ag --column --nogroup --noheading'
+  let s:options.ag.grepprg = 'ag --column --nogroup'
 endif
 
 " Special case: ack (different distros use different names for ack)
