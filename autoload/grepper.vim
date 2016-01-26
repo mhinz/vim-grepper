@@ -398,7 +398,7 @@ function! s:finish_up(flags, ...) abort
   endif
 
   if a:flags.jump
-    execute (qf ? 'cfirst' : 'lfirst')
+    execute 'silent' (qf ? 'cfirst' : 'lfirst')
   endif
 
   if a:flags.open
