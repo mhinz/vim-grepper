@@ -1,17 +1,9 @@
-sudo: false
-
-os:
-  - linux
-  - osx
-
-addons:
-  apt:
-    packages:
-      - vim-gtk
-      - silversearcher-ag
+language: vim
 
 before_script:
-  - if [[ "$TRAVIS_OS_NAME" == osx ]]; then brew update && brew install vim; fi
+    - sudo apt-get -qq update
+    - sudo apt-get install -y vim-gtk
+    - sudo apt-get install -y silversearcher-ag
 
 script:
-  - test/run
+    - test/run
