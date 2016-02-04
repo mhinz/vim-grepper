@@ -17,4 +17,4 @@ else
 fi
 
 echo '(Be patient.. testing can take a while.)'
-vim -Nnu vimrc -i NONE +'Vader! vader.vader'
+vim -Nnu vimrc -i NONE +'Vader! feature/*.vader'

@@ -1,4 +1,0 @@
-Execute (:Grepper command available):
-  Assert 2 == exists(':Grepper')
-
-Include (:Grepper flags): feature/flags.vader
