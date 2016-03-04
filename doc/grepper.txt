@@ -166,9 +166,8 @@ supported keys are:
 quickfix     Use the quickfix list for the matches or the location list
              otherwise. Defaults to 1.
 
-open         Open the the quickfix/location window after the grep tool
-             finished running (and there was at least one match).
-             Defaults to 1.
+open         Open the quickfix/location window after the grep tool finished
+             running (and there was at least one match). Defaults to 1.
 
 switch       When the quickfix/location window opens, switch to it.
              Defaults to 1.
