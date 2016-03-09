@@ -37,6 +37,19 @@ _Features:_
 - emits an User event when a search finishes, for further customization
 - support for proper statusline plugins
 
+_Friendly reminder:_
+
+Don't use plugins just because they provide "Neovim support". Depending on their
+range of duty, they might "improve" the wrong end of a task.
+
+E.g. [vim-gitgutter](https://github.com/airblade/vim-gitgutter) might have async
+Neovim support for getting the output of `git diff`, but that one returns almost
+instantly anyway. The real bottleneck here is processing that output and setting
+the signs using VimL, which still happens synchronously. So, use the plugin
+because of its git integration, not because of hyped async support.
+
+Neovim is not a panacea (yet).
+
 ## Installation and Documentation
 
 Use your favorite plugin manager.
