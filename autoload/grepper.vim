@@ -204,6 +204,7 @@ function! s:process_flags(flags)
   endif
 
   if !a:flags.prompt
+    call histadd('input', a:flags.query)
     return
   endif
 
@@ -211,6 +212,7 @@ function! s:process_flags(flags)
 
   if empty(a:flags.query)
     let a:flags.query = s:escape_query(a:flags, expand('<cword>'))
+    call histadd('input', a:flags.query)
   endif
 endfunction
 

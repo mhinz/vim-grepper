@@ -7,6 +7,7 @@ won't list single bugfixes or improved documentation.)
 
 ### Added
 
+- When using `-cword`, add the query to the input history.
 - `-noprompt` flag. Especially useful together with `-grepprg` or `-cword`.
 - `$+` placeholder for `-grepprg`. Gets replaced by all opened files.
 - `$.` placeholder for `-grepprg`. Gets replaced by the current buffer name.
