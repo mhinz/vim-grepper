@@ -275,7 +275,7 @@ function! s:build_cmdline(flags) abort
   endif
 
   if stridx(grepprg, '$*') >= 0
-    let grepprg = substitute(grepprg, '\V$*', a:flags.query, '')
+    let grepprg = substitute(grepprg, '\V$*', escape(a:flags.query, '\&'), 'g')
   else
     let grepprg .= ' ' . a:flags.query
   endif
