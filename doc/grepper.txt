@@ -70,6 +70,8 @@ There is only one command:
 
 Flags:~
 
+-[no]highlight       Highlight found matches.
+
 -[no]jump            Jump to first match.
 
 -[no]open            Open the quickfix/location window.
@@ -162,6 +164,8 @@ OPTIONS                                                        *grepper-options*
 This plugin uses a single |Dictionary| for all configuration: g:grepper. If you
 are unsure how to use a dictionary, have a look at |grepper-example|. The
 supported keys are:
+
+highlight    Highlight found matches. Defaults to 0.
 
 quickfix     Use the quickfix list for the matches or the location list
              otherwise. Defaults to 1.

@@ -10,6 +10,7 @@ let s:options = {
       \ 'jump':      0,
       \ 'cword':     0,
       \ 'prompt':    1,
+      \ 'highlight': 0,
       \ 'next_tool': '<tab>',
       \ 'tools':     ['ag', 'ack', 'grep', 'findstr', 'sift', 'pt', 'git'],
       \ 'git':       { 'grepprg':    'git grep -nI',
@@ -133,7 +134,7 @@ endfunction
 
 " #parse_flags() {{{1
 function! grepper#parse_flags(args) abort
-  let flags = extend({ 'query': ''}, s:options)
+  let flags = extend({ 'query': '' }, s:options)
   let args = split(a:args, '\s\+')
   let len = len(args)
   let i = 0
@@ -141,12 +142,13 @@ function! grepper#parse_flags(args) abort
   while i < len
     let flag = args[i]
 
-    if     flag =~? '\v^-%(no)?quickfix$' | let flags.quickfix = flag !~? '^-no'
-    elseif flag =~? '\v^-%(no)?open$'     | let flags.open     = flag !~? '^-no'
-    elseif flag =~? '\v^-%(no)?switch$'   | let flags.switch   = flag !~? '^-no'
-    elseif flag =~? '\v^-%(no)?jump$'     | let flags.jump     = flag !~? '^-no'
-    elseif flag =~? '\v^-%(no)?prompt$'   | let flags.prompt   = flag !~? '^-no'
-    elseif flag =~? '^-cword$'            | let flags.cword    = 1
+    if     flag =~? '\v^-%(no)?quickfix$'  | let flags.quickfix  = flag !~? '^-no'
+    elseif flag =~? '\v^-%(no)?open$'      | let flags.open      = flag !~? '^-no'
+    elseif flag =~? '\v^-%(no)?switch$'    | let flags.switch    = flag !~? '^-no'
+    elseif flag =~? '\v^-%(no)?jump$'      | let flags.jump      = flag !~? '^-no'
+    elseif flag =~? '\v^-%(no)?prompt$'    | let flags.prompt    = flag !~? '^-no'
+    elseif flag =~? '\v^-%(no)?highlight$' | let flags.highlight = flag !~? '^-no'
+    elseif flag =~? '^-cword$'             | let flags.cword     = 1
     elseif flag =~? '^-grepprg$'
       let i += 1
       if i < len
@@ -203,17 +205,35 @@ function! s:process_flags(flags)
     let a:flags.query = s:escape_query(a:flags, expand('<cword>'))
   endif
 
-  if !a:flags.prompt
-    call histadd('input', a:flags.query)
-    return
+  if a:flags.prompt
+    call s:prompt(a:flags)
   endif
-
-  call s:prompt(a:flags)
 
   if empty(a:flags.query)
     let a:flags.query = s:escape_query(a:flags, expand('<cword>'))
-    call histadd('input', a:flags.query)
   endif
+
+  if a:flags.highlight
+    call s:highlight_query(a:flags)
+  endif
+
+  call histadd('input', a:flags.query)
+endfunction
+
+function! s:highlight_query(flags)
+  " Change Vim's '\'' to ' so it can be understood by /.
+  let vim_query = substitute(a:flags.query, "'\\\\''", "'", 'g')
+
+  " Remove surrounding quotes that denote a string.
+  let start = vim_query[0]
+  let end = vim_query[-1:-1]
+  if start == end && start =~ "\['\"]"
+    let vim_query = vim_query[1:-2]
+  endif
+
+  let @/ = vim_query
+  call histadd('search', vim_query)
+  call feedkeys(":set hls\<bar>echo\<cr>", 'n')
 endfunction
 
 " s:start() {{{1
