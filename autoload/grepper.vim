@@ -236,6 +236,9 @@ function! s:highlight_query(flags)
     let vim_query = s:unescape_query(a:flags, vim_query)
     let vim_query = escape(vim_query, '\')
     let vim_query = '\V'. vim_query
+  else
+    " \bfoo\b -> \<foo\> Assume only one pair.
+    let vim_query = substitute(vim_query, '\v\\b(.{-})\\b', '\\<\1\\>', '')
   endif
 
   let @/ = vim_query
