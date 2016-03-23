@@ -209,6 +209,8 @@ function! s:process_flags(flags)
     call s:prompt(a:flags)
     if empty(a:flags.query)
       let a:flags.query = s:escape_query(a:flags, expand('<cword>'))
+    elseif a:flags.query =~# s:magic.esc
+      return
     endif
   endif
 
@@ -293,12 +295,14 @@ function! s:prompt(flags)
   endtry
 
   if a:flags.query =~# s:magic.next
-    call histdel('input')
+    call histdel('input', -1)
     call s:next_tool(a:flags)
     let a:flags.query = has_key(a:flags, 'query_orig')
           \ ? s:escape_query(a:flags, a:flags.query_orig)
           \ : a:flags.query[:-len(s:magic.next)-1]
     return s:prompt(a:flags)
+  elseif a:flags.query =~# s:magic.esc
+    call histdel('input', -1)
   endif
 endfunction
 
