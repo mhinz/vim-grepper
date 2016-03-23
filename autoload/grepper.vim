@@ -207,10 +207,9 @@ function! s:process_flags(flags)
 
   if a:flags.prompt
     call s:prompt(a:flags)
-  endif
-
-  if empty(a:flags.query)
-    let a:flags.query = s:escape_query(a:flags, expand('<cword>'))
+    if empty(a:flags.query)
+      let a:flags.query = s:escape_query(a:flags, expand('<cword>'))
+    endif
   endif
 
   if a:flags.highlight
