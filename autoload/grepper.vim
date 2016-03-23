@@ -134,7 +134,7 @@ endfunction
 
 " #parse_flags() {{{1
 function! grepper#parse_flags(args) abort
-  let flags = extend({ 'query': '' }, s:options)
+  let flags = extend({ 'query': '', 'query_escaped': 0 }, s:options)
   let args = split(a:args, '\s\+')
   let len = len(args)
   let i = 0
@@ -220,6 +220,7 @@ function! s:process_flags(flags)
   call histadd('input', a:flags.query)
 endfunction
 
+" s:highlight_query() {{{1
 function! s:highlight_query(flags)
   " Change Vim's '\'' to ' so it can be understood by /.
   let vim_query = substitute(a:flags.query, "'\\\\''", "'", 'g')
@@ -231,9 +232,25 @@ function! s:highlight_query(flags)
     let vim_query = vim_query[1:-2]
   endif
 
+  if a:flags.query_escaped
+    let vim_query = s:unescape_query(a:flags, vim_query)
+    let vim_query = escape(vim_query, '\')
+    let vim_query = '\V'. vim_query
+  endif
+
   let @/ = vim_query
   call histadd('search', vim_query)
   call feedkeys(":set hls\<bar>echo\<cr>", 'n')
+endfunction
+
+" s:unescape_query() {{{1
+function! s:unescape_query(flags, query)
+  let tool = s:get_current_tool(a:flags)
+  let q = a:query
+  for c in reverse(split(tool.escape, '\zs'))
+    let q = substitute(q, '\V\\'.c, c, 'g')
+  endfor
+  return q
 endfunction
 
 " s:start() {{{1
@@ -493,6 +510,7 @@ endfunction
 " s:escape_query() {{{1
 function! s:escape_query(flags, query)
   let tool = s:get_current_tool(a:flags)
+  let a:flags.query_escaped = 1
   return shellescape(has_key(tool, 'escape')
         \ ? escape(a:query, tool.escape)
         \ : a:query)
@@ -520,6 +538,7 @@ function! grepper#operator(type) abort
   let &selection = selsave
   let flags = deepcopy(s:options)
   let flags.query_orig = @@
+  let flags.query_escaped = 0
   let flags.query = s:escape_query(flags, @@)
   let @@ = regsave
 
