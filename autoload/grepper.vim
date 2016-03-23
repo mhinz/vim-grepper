@@ -18,7 +18,7 @@ let s:options = {
       \ 'ag':        { 'grepprg':    'ag --vimgrep',
       \                'grepformat': '%f:%l:%c:%m,%f:%l:%m',
       \                'escape':     '\^$.*+?()[]%#' },
-      \ 'sift':      { 'grepprg':    'sift -n --binary-skip $* .',
+      \ 'sift':      { 'grepprg':    'sift -n --binary-skip',
       \                'grepformat': '%f:%l:%m',
       \                'escape':     '\+*?^$%#()[]' },
       \ 'pt':        { 'grepprg':    'pt --nogroup',
