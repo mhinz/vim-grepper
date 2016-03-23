@@ -305,6 +305,7 @@ function! s:run(flags)
     let cmd = ['sh', '-c', printf('%s > %s', s:cmdline, tempfile)]
 
     let s:id = jobstart(cmd, {
+          \ 'pty':       1,
           \ 'flags':     a:flags,
           \ 'tempfile':  tempfile,
           \ 'cmd':       s:cmdline,
