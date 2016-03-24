@@ -240,6 +240,11 @@ function! s:highlight_query(flags)
   else
     " \bfoo\b -> \<foo\> Assume only one pair.
     let vim_query = substitute(vim_query, '\v\\b(.{-})\\b', '\\<\1\\>', '')
+    " *? -> \{-}
+    let vim_query = substitute(vim_query, '*\\\=?', '\\{-}', 'g')
+    " +? -> \{-1,}
+    let vim_query = substitute(vim_query, '\\\=+\\\=?', '\\{-1,}', 'g')
+    let vim_query = escape(vim_query, '+')
   endif
 
   let @/ = vim_query
