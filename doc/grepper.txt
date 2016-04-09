@@ -60,7 +60,7 @@ COMMANDS                                                      *grepper-:Grepper*
 There is only one command:
 
 :Grepper [flags]     Opens the search prompt with the first tool in
-                     |grepper-option-tools|.
+                     |grepper-options-tools|.
 
                      After you inserted a query, an external process will be
                      kicked off and its result will be put into the quickfix
@@ -180,6 +180,7 @@ jump         Automatically jump to the first match. Defaults to 0.
 
 prompt       To prompt or not to prompt! Defaults to 1.
 
+                                                         *grepper-options-tools*
 tools        These are the tools that you can choose between. The order
              matters. The first element is the default tool and will be used
              if no tool was specified.
