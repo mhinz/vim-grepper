@@ -79,7 +79,7 @@ Flags:~
 -[no]switch          Switch to quickfix/location window.
 
 -[no]quickfix        Use the quickfix list. If -noquickfix is given, use the
-                     location list instead.
+                     location list instead. `-[no]qf` is an alias.
 
 -[no]prompt          To prompt or not to prompt! Common uses are together with
                      -cword or -grepprg in a command.

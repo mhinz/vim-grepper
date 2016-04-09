@@ -142,13 +142,13 @@ function! grepper#parse_flags(args) abort
   while i < len
     let flag = args[i]
 
-    if     flag =~? '\v^-%(no)?quickfix$'  | let flags.quickfix  = flag !~? '^-no'
-    elseif flag =~? '\v^-%(no)?open$'      | let flags.open      = flag !~? '^-no'
-    elseif flag =~? '\v^-%(no)?switch$'    | let flags.switch    = flag !~? '^-no'
-    elseif flag =~? '\v^-%(no)?jump$'      | let flags.jump      = flag !~? '^-no'
-    elseif flag =~? '\v^-%(no)?prompt$'    | let flags.prompt    = flag !~? '^-no'
-    elseif flag =~? '\v^-%(no)?highlight$' | let flags.highlight = flag !~? '^-no'
-    elseif flag =~? '^-cword$'             | let flags.cword     = 1
+    if     flag =~? '\v^-%(no)?(quickfix|qf)$' | let flags.quickfix  = flag !~? '^-no'
+    elseif flag =~? '\v^-%(no)?open$'          | let flags.open      = flag !~? '^-no'
+    elseif flag =~? '\v^-%(no)?switch$'        | let flags.switch    = flag !~? '^-no'
+    elseif flag =~? '\v^-%(no)?jump$'          | let flags.jump      = flag !~? '^-no'
+    elseif flag =~? '\v^-%(no)?prompt$'        | let flags.prompt    = flag !~? '^-no'
+    elseif flag =~? '\v^-%(no)?highlight$'     | let flags.highlight = flag !~? '^-no'
+    elseif flag =~? '^-cword$'                 | let flags.cword     = 1
     elseif flag =~? '^-grepprg$'
       let i += 1
       if i < len
