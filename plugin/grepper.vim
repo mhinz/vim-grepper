@@ -23,3 +23,8 @@ for [cmd, tool] in cmds
           \ 'Grepper -noprompt -tool' tool '-query <args>'
   endif
 endfor
+
+augroup grepper
+  au!
+  autocmd FileType qf call grepper#on_qf()
+augroup END

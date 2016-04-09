@@ -437,6 +437,16 @@ function! s:finish_up(flags) abort
   let qf = a:flags.quickfix
   let size = len(qf ? getqflist() : getloclist(0))
 
+  let title = s:cmdline . ' [grepper]'
+  try
+    if qf
+      call setqflist(getqflist(), 'r', title)
+    else
+      call setloclist(0, getloclist(0), 'r', title)
+    endif
+  catch /E118/
+  endtry
+
   if size == 0
     execute (qf ? 'cclose' : 'lclose')
     echo 'No matches found.'
@@ -449,18 +459,10 @@ function! s:finish_up(flags) abort
 
   if a:flags.open
     execute (qf ? 'botright copen' : 'lopen') (size > 10 ? 10 : size)
-    let w:quickfix_title = s:cmdline
-    setlocal nowrap
-
-    nnoremap <silent><buffer> <cr> <cr>zv
-    nnoremap <silent><buffer> o    <cr>zv
-    nnoremap <silent><buffer> O    <cr>zv<c-w>p
-    nnoremap <silent><buffer> s    :call <sid>open_entry('split',  1)<cr>
-    nnoremap <silent><buffer> S    :call <sid>open_entry('split',  0)<cr>
-    nnoremap <silent><buffer> v    :call <sid>open_entry('vsplit', 1)<cr>
-    nnoremap <silent><buffer> V    :call <sid>open_entry('vsplit', 0)<cr>
-    nnoremap <silent><buffer> t    <c-w>gFzv
-    nmap     <silent><buffer> T    tgT
+    if get(w:, 'quickfix_title', '') != title
+      let w:quickfix_title = title
+      call grepper#on_qf(1)
+    endif
 
     if !a:flags.switch
       call feedkeys("\<c-w>p", 'n')
@@ -475,6 +477,26 @@ function! s:finish_up(flags) abort
   endif
 
   silent doautocmd <nomodeline> User Grepper
+endfunction
+
+
+function! grepper#on_qf(...)
+  let force = a:0 ? a:1 : 0
+  if !force && get(w:, 'quickfix_title', '') !~# '\m \[grepper\]$'
+    return
+  endif
+
+  setlocal nowrap
+
+  nnoremap <silent><buffer> <cr> <cr>zv
+  nnoremap <silent><buffer> o    <cr>zv
+  nnoremap <silent><buffer> O    <cr>zv<c-w>p
+  nnoremap <silent><buffer> s    :call <sid>open_entry('split',  1)<cr>
+  nnoremap <silent><buffer> S    :call <sid>open_entry('split',  0)<cr>
+  nnoremap <silent><buffer> v    :call <sid>open_entry('vsplit', 1)<cr>
+  nnoremap <silent><buffer> V    :call <sid>open_entry('vsplit', 0)<cr>
+  nnoremap <silent><buffer> t    <c-w>gFzv
+  nmap     <silent><buffer> T    tgT
 endfunction
 
 " s:open_entry() {{{1
