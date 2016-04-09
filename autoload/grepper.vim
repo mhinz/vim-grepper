@@ -435,7 +435,17 @@ endfunction
 " s:finish_up() {{{1
 function! s:finish_up(flags) abort
   let qf = a:flags.quickfix
-  let size = len(qf ? getqflist() : getloclist(0))
+  let qlist = getqflist()
+  let llist = getloclist(0)
+  let size = len(qf ? qlist : llist)
+
+  if has('nvim')
+    if qf
+      call setqflist(qlist, 'r', s:cmdline)
+    else
+      call setloclist(0, llist, 'r', s:cmdline)
+    endif
+  endif
 
   if size == 0
     execute (qf ? 'cclose' : 'lclose')
