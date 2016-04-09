@@ -6,7 +6,7 @@ Execute (:Grepper -noprompt -tool ag -grepprg ag --column --nogroup -s Foo inclu
   Grepper -noprompt -tool ag -grepprg ag --column --nogroup -s Foo include
   AssertEqual len(getqflist()), 1
   AssertEqual winnr('$'), 2
-  AssertEqual w:quickfix_title, 'ag --column --nogroup -s Foo include '
+  AssertEqual w:quickfix_title, 'ag --column --nogroup -s Foo include  [grepper]'
   AssertEqual getline('.')[:6], 'include'
 
 Execute (:Grepper -noprompt -noswitch -tool ag -grepprg ag --column --nogroup -s Foo include):
