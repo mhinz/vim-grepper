@@ -481,6 +481,8 @@ endfunction
 function! s:open_entry(cmd, jump)
   let swb = &switchbuf
   let &switchbuf = ''
+  " Set a mark to find this window again in s:jump_to_qf_win.
+  let w:grepper_qf_win = 1
   try
     if winnr('$') == 1
       execute "normal! \<cr>"
@@ -508,11 +510,11 @@ endfunction
 
 " s:jump_to_qf_win() {{{1
 function! s:jump_to_qf_win() abort
-  for buf in filter(tabpagebuflist(), 'buflisted(v:val)')
-    if getbufvar(buf, '&filetype') == 'qf'
-      let win = bufwinnr(buf)
-      execute win 'wincmd w'
-      return win
+  for w in range(1, winnr('$'))
+    if getwinvar(w, 'grepper_qf_win', 0)
+      execute w 'wincmd w'
+      unlet w:grepper_qf_win
+      return w
     endif
   endfor
   return 0
