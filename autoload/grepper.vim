@@ -454,7 +454,6 @@ function! s:finish_up(flags) abort
 
     nnoremap <silent><buffer> <cr> <cr>zv
     nnoremap <silent><buffer> o    <cr>zv
-    nnoremap <silent><buffer> O    <cr>zv<c-w>p
     nnoremap <silent><buffer> O    :let grwin=winnr()<cr><cr>zv:exec grwin 'wincmd p'<bar>unlet grwin<cr>
     nnoremap <silent><buffer> s    :call <sid>open_entry('split',  1)<cr>
     nnoremap <silent><buffer> S    :call <sid>open_entry('split',  0)<cr>
