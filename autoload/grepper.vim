@@ -462,72 +462,13 @@ function! s:finish_up(flags) abort
     let w:quickfix_title = s:cmdline
     setlocal nowrap
 
-    nnoremap <silent><buffer> <cr> <cr>zv
-    nnoremap <silent><buffer> o    <cr>zv
-    nnoremap <silent><buffer> O    :let grwin=winnr()<cr><cr>zv:exec grwin 'wincmd p'<bar>unlet grwin<cr>
-    nnoremap <silent><buffer> s    :call <sid>open_entry('split',  1)<cr>
-    nnoremap <silent><buffer> S    :call <sid>open_entry('split',  0)<cr>
-    nnoremap <silent><buffer> v    :call <sid>open_entry('vsplit', 1)<cr>
-    nnoremap <silent><buffer> V    :call <sid>open_entry('vsplit', 0)<cr>
-    nnoremap <silent><buffer> t    <c-w>gFzv
-    nmap     <silent><buffer> T    tgT
-
     if !a:flags.switch
       call feedkeys("\<c-w>p", 'n')
     endif
   endif
 
   echo printf('Found %d matches.', size)
-  if a:flags.open && a:flags.switch
-    echohl Comment
-    echon ' oO=open sS=split vV=vsplit tT=tab'
-    echohl NONE
-  endif
-
   silent doautocmd <nomodeline> User Grepper
-endfunction
-
-" s:open_entry() {{{1
-function! s:open_entry(cmd, jump)
-  let swb = &switchbuf
-  let &switchbuf = ''
-  " Set a mark to find this window again in s:jump_to_qf_win.
-  let w:grepper_qf_win = 1
-  try
-    if winnr('$') == 1
-      execute "normal! \<cr>"
-    else
-      wincmd p
-      execute 'rightbelow' a:cmd
-      let win = s:jump_to_qf_win()
-      execute "normal! \<cr>"
-    endif
-    normal! zv
-  catch /E36/
-    call s:error('E36: Not enough room')
-  finally
-    " Window numbers get reordered after creating new windows.
-    if !a:jump
-      if exists('win') && win >= 0
-        execute win 'wincmd w'
-      else
-        call s:jump_to_qf_win()
-      endif
-    endif
-    let &switchbuf = swb
-  endtry
-endfunction
-
-" s:jump_to_qf_win() {{{1
-function! s:jump_to_qf_win() abort
-  for win in range(1, winnr('$'))
-    if getwinvar(win, 'grepper_qf_win', 0)
-      execute win 'wincmd w'
-      unlet w:grepper_qf_win
-      return win
-    endif
-  endfor
-  return 0
 endfunction
 
 " s:escape_query() {{{1
