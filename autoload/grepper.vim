@@ -468,7 +468,7 @@ function! s:finish_up(flags) abort
   endif
 
   echo printf('Found %d matches.', size)
-  silent doautocmd <nomodeline> User Grepper
+  silent! doautocmd <nomodeline> User Grepper
 endfunction
 
 " s:escape_query() {{{1
