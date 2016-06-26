@@ -72,8 +72,7 @@ endif
 let s:cmdline = ''
 let s:id      = 0
 let s:slash   = exists('+shellslash') && !&shellslash ? '\' : '/'
-
-let s:magic = { 'next': '$$$next###', 'esc': '$$$esc###' }
+let s:magic   = { 'next': '$$$next###', 'esc': '$$$esc###' }
 
 " s:error() {{{1
 function! s:error(msg)
@@ -82,13 +81,24 @@ function! s:error(msg)
   echohl NONE
 endfunction
 " }}}
+
+" s:on_stdout() {{{1
+function! s:on_stdout(job_id, data) abort
+  let self.stdoutbuf += a:data
+endfunction
+
+" s:on_stderr() {{{1
+function! s:on_stderr(id, data) abort
+  call s:error('STDERR: '. join(a:data))
+endfunction
+
 " s:on_exit() {{{1
-function! s:on_exit() abort
+function! s:on_exit(job_id, data) abort
   execute 'tabnext' self.tabpage
   execute self.window .'wincmd w'
 
-  execute (self.flags.quickfix ? 'cgetfile' : 'lgetfile') self.tempfile
-  call delete(self.tempfile)
+  execute (self.flags.quickfix ? 'cgetexpr' : 'lgetexpr') .
+        \ ' split(join(self.stdoutbuf, ""), "\r")'
 
   let s:id = 0
   return s:finish_up(self.flags)
@@ -334,25 +344,20 @@ function! s:run(flags)
       silent! call jobstop(s:id)
     endif
 
-    let tempfile = fnameescape(tempname())
-    try
-      call mkdir(fnamemodify(tempfile, ':h'), 'p', 0600)
-    catch /E739/
-      call s:error(v:exception)
-      call s:restore_errorformat()
-      return
-    endtry
-
-    let cmd = ['sh', '-c', printf('%s > %s', s:cmdline, tempfile)]
+    " Use 'cat' for stripping escape sequences.
+    let cmd = ['sh', '-c', printf('%s | cat -', s:cmdline)]
 
     let s:id = jobstart(cmd, {
           \ 'pty':       1,
-          \ 'flags':     a:flags,
-          \ 'tempfile':  tempfile,
+          \ 'on_stdout': function('s:on_stdout'),
+          \ 'on_stderr': function('s:on_stderr'),
+          \ 'on_exit':   function('s:on_exit'),
           \ 'cmd':       s:cmdline,
-          \ 'tabpage':   tabpagenr(),
+          \ 'flags':     a:flags,
           \ 'window':    winnr(),
-          \ 'on_exit':   function('s:on_exit')})
+          \ 'tabpage':   tabpagenr(),
+          \ 'stdoutbuf': [],
+          \ })
   else
     execute 'silent' (a:flags.quickfix ? 'cgetexpr' : 'lgetexpr') 'system(s:cmdline)'
     call s:finish_up(a:flags)
