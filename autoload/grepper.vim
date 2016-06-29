@@ -70,7 +70,6 @@ if (ack >= 0) && (ackgrep >= 0)
 endif
 
 let s:cmdline = ''
-let s:id      = 0
 let s:slash   = exists('+shellslash') && !&shellslash ? '\' : '/'
 let s:magic   = { 'next': '$$$next###', 'esc': '$$$esc###' }
 
@@ -101,7 +100,7 @@ function! s:on_exit(id_or_channel) dict abort
         \ has('nvim') ? ' split(join(self.stdoutbuf, ""), "\r")'
         \             : ' self.stdoutbuf'
 
-  let s:id = 0
+  unlet s:id
   return s:finish_up(self.flags)
 endfunction
 " }}}
@@ -353,7 +352,7 @@ function! s:run(flags)
   call s:store_errorformat(a:flags)
 
   if has('nvim')
-    if s:id
+    if exists('s:id')
       silent! call jobstop(s:id)
     endif
     let s:id = jobstart(cmd, extend(options, {
@@ -362,7 +361,7 @@ function! s:run(flags)
           \ 'on_exit':   function('s:on_exit'),
           \ }))
   elseif v:version > 704 || v:version == 704 && has('patch1967')
-    if s:id
+    if exists('s:id')
       silent! call job_stop(s:id)
     endif
     let s:id = job_start(cmd, {
