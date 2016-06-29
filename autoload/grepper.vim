@@ -92,11 +92,6 @@ function! s:on_stdout_vim(job_id, data) dict abort
   let self.stdoutbuf += [a:data]
 endfunction
 
-" s:on_stderr() {{{1
-function! s:on_stderr(id, data) dict abort
-  call s:error('STDERR: '. join(a:data))
-endfunction
-
 " s:on_exit() {{{1
 function! s:on_exit(id_or_channel) dict abort
   execute 'tabnext' self.tabpage
@@ -364,13 +359,12 @@ function! s:run(flags)
     let s:id = jobstart(cmd, extend(options, {
           \ 'pty':       1,
           \ 'on_stdout': function('s:on_stdout_nvim'),
-          \ 'on_stderr': function('s:on_stderr'),
           \ 'on_exit':   function('s:on_exit'),
           \ }))
   elseif v:version > 704 || v:version == 704 && has('patch1967')
     let s:id = job_start(cmd, {
-          \ 'out_cb':  function('s:on_stdout_vim', options),
-          \ 'err_cb':  function('s:on_stderr', options),
+          \ 'err_io':   'out',
+          \ 'out_cb':   function('s:on_stdout_vim', options),
           \ 'close_cb': function('s:on_exit', options),
           \ })
   else
