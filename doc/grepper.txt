@@ -38,8 +38,8 @@ supports most common grep tools, and is easily extendable.
 
 You choose a tool, enter a query, and get your matches into a |quickfix| list.
 
-If you use Neovim, the search will be executed asynchronously. Thus you will
-be able to continue editing while the grep program is still running.
+Searches (Neovim and Vim 7.4.1967+) will be executed asynchronously. Thus you
+will be able to continue editing while the grep program is still running.
 
 ==============================================================================
 TOOLS                                                            *grepper-tools*

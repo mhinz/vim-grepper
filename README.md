@@ -42,7 +42,7 @@ and our beloved BSD/GNU grep) out-of-the-box and it is easy to add new ones.
 
 - For fast and simple navigation, all found matches are either put in the
   quickfix or location list.
-- [Asynchronous search with Neovim](#friendly-reminder).
+- [Asynchronous search with Vim and Neovim](#friendly-reminder).
 - The operator action is repeatable if
   [vim-repeat](https://github.com/tpope/vim-repeat) is installed.
 - Emits an User event when a search finishes, for further customization.
