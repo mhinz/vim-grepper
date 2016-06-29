@@ -379,9 +379,6 @@ function! s:store_settings(flags) abort
   let s:settings = {}
   let prog = s:get_current_tool(a:flags)
 
-  let s:settings.grepprg = &grepprg
-  let &grepprg = s:cmdline
-
   if has_key(prog, 'grepformat')
     let s:settings.grepformat  = &grepformat
     let s:settings.errorformat = &errorformat
@@ -392,8 +389,6 @@ endfunction
 
 " s:restore_settings() {{{1
 function! s:restore_settings() abort
-    let &grepprg = s:settings.grepprg
-
     if has_key(s:settings, 'grepformat')
       let &grepformat  = s:settings.grepformat
       let &errorformat = s:settings.errorformat
