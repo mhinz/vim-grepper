@@ -362,6 +362,9 @@ function! s:run(flags)
           \ 'on_exit':   function('s:on_exit'),
           \ }))
   elseif v:version > 704 || v:version == 704 && has('patch1967')
+    if s:id
+      silent! call job_stop(s:id)
+    endif
     let s:id = job_start(cmd, {
           \ 'err_io':   'out',
           \ 'out_cb':   function('s:on_stdout_vim', options),
