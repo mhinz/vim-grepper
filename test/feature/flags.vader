@@ -1,6 +1,7 @@
 Before:
   enew!
   only!
+  let w:testing = 1
 
 Execute (:Grepper -noprompt -tool ag -grepprg ag --column --nogroup -s Foo include):
   Grepper -noprompt -tool ag -grepprg ag --column --nogroup -s Foo include
