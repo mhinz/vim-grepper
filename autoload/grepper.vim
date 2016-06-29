@@ -98,7 +98,7 @@ function! s:on_stderr(id, data) dict abort
 endfunction
 
 " s:on_exit() {{{1
-function! s:on_exit(job_id, data) dict abort
+function! s:on_exit(id_or_channel) dict abort
   execute 'tabnext' self.tabpage
   execute self.window .'wincmd w'
 
@@ -367,11 +367,11 @@ function! s:run(flags)
           \ 'on_stderr': function('s:on_stderr'),
           \ 'on_exit':   function('s:on_exit'),
           \ }))
-  elseif 0 && (v:version > 703 || v:version == 703 && has('patch1967'))
+  elseif v:version > 704 || v:version == 704 && has('patch1967')
     let s:id = job_start(cmd, {
           \ 'out_cb':  function('s:on_stdout_vim', options),
           \ 'err_cb':  function('s:on_stderr', options),
-          \ 'exit_cb': function('s:on_exit', options),
+          \ 'close_cb': function('s:on_exit', options),
           \ })
   else
     execute 'silent' (a:flags.quickfix ? 'cgetexpr' : 'lgetexpr') 'system(s:cmdline)'
