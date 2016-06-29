@@ -447,7 +447,14 @@ function! s:finish_up(flags) abort
   endif
 
   echo printf('Found %d matches.', size)
-  silent doautocmd <nomodeline> User Grepper
+  
+  if exists('#User#Grepper')
+    if v:version > 703 || v:version == 703 && has('patch442')
+      doautocmd <nomodeline> User Grepper
+    else
+      doautocmd User Grepper
+    endif
+  endif
 endfunction
 
 " s:escape_query() {{{1
