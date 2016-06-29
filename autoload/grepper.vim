@@ -97,7 +97,7 @@ function! s:on_exit() abort
   call delete(self.tempfile)
 
   let s:id = 0
-  call s:restore_settings()
+  call s:restore_errorformat()
   return s:finish_up(self.flags)
 endfunction
 " }}}
@@ -334,7 +334,7 @@ endfunction
 " s:run() {{{1
 function! s:run(flags)
   let s:cmdline = s:build_cmdline(a:flags)
-  call s:store_settings(a:flags)
+  call s:store_errorformat(a:flags)
 
   if has('nvim')
     if s:id
@@ -346,7 +346,7 @@ function! s:run(flags)
       call mkdir(fnamemodify(tempfile, ':h'), 'p', 0600)
     catch /E739/
       call s:error(v:exception)
-      call s:restore_settings()
+      call s:restore_errorformat()
       return
     endtry
 
@@ -364,7 +364,7 @@ function! s:run(flags)
     return
   else
     execute 'silent' (a:flags.quickfix ? 'cgetexpr' : 'lgetexpr') 'system(s:cmdline)'
-    call s:restore_settings()
+    call s:restore_errorformat()
     call s:finish_up(a:flags)
   endif
 endfunction
@@ -374,25 +374,16 @@ function! s:get_current_tool(flags) abort
   return a:flags[a:flags.tools[0]]
 endfunction
 
-" s:store_settings() {{{1
-function! s:store_settings(flags) abort
-  let s:settings = {}
+" s:store_errorformat() {{{1
+function! s:store_errorformat(flags) abort
   let prog = s:get_current_tool(a:flags)
-
-  if has_key(prog, 'grepformat')
-    let s:settings.grepformat  = &grepformat
-    let s:settings.errorformat = &errorformat
-    let &grepformat  = prog.grepformat
-    let &errorformat = prog.grepformat
-  endif
+  let s:errorformat = has_key(prog, 'grepformat') ? prog.grepformat : &errorformat
+  let &errorformat = s:errorformat
 endfunction
 
-" s:restore_settings() {{{1
-function! s:restore_settings() abort
-    if has_key(s:settings, 'grepformat')
-      let &grepformat  = s:settings.grepformat
-      let &errorformat = s:settings.errorformat
-    endif
+" s:restore_errorformat() {{{1
+function! s:restore_errorformat() abort
+  let &errorformat = s:errorformat
 endfunction
 
 " s:restore_mapping() {{{1
