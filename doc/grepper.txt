@@ -245,7 +245,6 @@ this:
 >
     autocmd User Grepper <execute any normal commands here>
 <
-NOTE: This requires at least Vim 7.3.438 for |<nomodeline>|.
 NOTE: If you intend to use |:echo| or a similar command, also use |:unsilent|
 before it.
 
