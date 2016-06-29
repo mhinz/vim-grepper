@@ -345,7 +345,7 @@ function! s:run(flags)
     try
       call mkdir(fnamemodify(tempfile, ':h'), 'p', 0600)
     catch /E739/
-      call s:error(v:exeption)
+      call s:error(v:exception)
       call s:restore_settings()
       return
     endtry
