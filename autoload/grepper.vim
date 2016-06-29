@@ -82,12 +82,6 @@ function! s:error(msg)
   echohl NONE
 endfunction
 " }}}
-
-" s:on_stderr() {{{1
-function! s:on_stderr(id, data) abort
-  call s:error('STDERR: '. join(a:data))
-endfunction
-
 " s:on_exit() {{{1
 function! s:on_exit() abort
   execute 'tabnext' self.tabpage
@@ -358,7 +352,6 @@ function! s:run(flags)
           \ 'cmd':       s:cmdline,
           \ 'tabpage':   tabpagenr(),
           \ 'window':    winnr(),
-          \ 'on_stderr': function('s:on_stderr'),
           \ 'on_exit':   function('s:on_exit')})
   else
     execute 'silent' (a:flags.quickfix ? 'cgetexpr' : 'lgetexpr') 'system(s:cmdline)'
