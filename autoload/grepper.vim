@@ -361,7 +361,6 @@ function! s:run(flags)
           \ 'window':    winnr(),
           \ 'on_stderr': function('s:on_stderr'),
           \ 'on_exit':   function('s:on_exit')})
-    return
   else
     execute 'silent' (a:flags.quickfix ? 'cgetexpr' : 'lgetexpr') 'system(s:cmdline)'
     call s:restore_errorformat()
