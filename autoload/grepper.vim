@@ -82,23 +82,29 @@ function! s:error(msg)
 endfunction
 " }}}
 
-" s:on_stdout() {{{1
-function! s:on_stdout(job_id, data) abort
+" s:on_stdout_nvim() {{{1
+function! s:on_stdout_nvim(job_id, data) dict abort
   let self.stdoutbuf += a:data
 endfunction
 
+" s:on_stdout_vim() {{{1
+function! s:on_stdout_vim(job_id, data) dict abort
+  let self.stdoutbuf += [a:data]
+endfunction
+
 " s:on_stderr() {{{1
-function! s:on_stderr(id, data) abort
+function! s:on_stderr(id, data) dict abort
   call s:error('STDERR: '. join(a:data))
 endfunction
 
 " s:on_exit() {{{1
-function! s:on_exit(job_id, data) abort
+function! s:on_exit(job_id, data) dict abort
   execute 'tabnext' self.tabpage
   execute self.window .'wincmd w'
 
-  execute (self.flags.quickfix ? 'cgetexpr' : 'lgetexpr') .
-        \ ' split(join(self.stdoutbuf, ""), "\r")'
+  execute (self.flags.quickfix ? 'cgetexpr' : 'lgetexpr')
+        \ has('nvim') ? ' split(join(self.stdoutbuf, ""), "\r")'
+        \             : ' self.stdoutbuf'
 
   let s:id = 0
   return s:finish_up(self.flags)
@@ -337,26 +343,35 @@ endfunction
 " s:run() {{{1
 function! s:run(flags)
   let s:cmdline = s:build_cmdline(a:flags)
+
+  " 'cmd' and 'options' are only used for async execution.
+  " Use 'cat' for stripping escape sequences.
+  let cmd = ['sh', '-c', printf('%s | cat -', s:cmdline)]
+  let options = {
+        \ 'cmd':       s:cmdline,
+        \ 'flags':     a:flags,
+        \ 'window':    winnr(),
+        \ 'tabpage':   tabpagenr(),
+        \ 'stdoutbuf': [],
+        \ }
+
   call s:store_errorformat(a:flags)
 
   if has('nvim')
     if s:id
       silent! call jobstop(s:id)
     endif
-
-    " Use 'cat' for stripping escape sequences.
-    let cmd = ['sh', '-c', printf('%s | cat -', s:cmdline)]
-
-    let s:id = jobstart(cmd, {
+    let s:id = jobstart(cmd, extend(options, {
           \ 'pty':       1,
-          \ 'on_stdout': function('s:on_stdout'),
+          \ 'on_stdout': function('s:on_stdout_nvim'),
           \ 'on_stderr': function('s:on_stderr'),
           \ 'on_exit':   function('s:on_exit'),
-          \ 'cmd':       s:cmdline,
-          \ 'flags':     a:flags,
-          \ 'window':    winnr(),
-          \ 'tabpage':   tabpagenr(),
-          \ 'stdoutbuf': [],
+          \ }))
+  elseif 0 && (v:version > 703 || v:version == 703 && has('patch1967'))
+    let s:id = job_start(cmd, {
+          \ 'out_cb':  function('s:on_stdout_vim', options),
+          \ 'err_cb':  function('s:on_stderr', options),
+          \ 'exit_cb': function('s:on_exit', options),
           \ })
   else
     execute 'silent' (a:flags.quickfix ? 'cgetexpr' : 'lgetexpr') 'system(s:cmdline)'
