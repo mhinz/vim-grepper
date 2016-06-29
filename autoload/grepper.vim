@@ -71,6 +71,7 @@ endif
 
 let s:cmdline = ''
 let s:id      = 0
+let s:stdout  = []
 let s:slash   = exists('+shellslash') && !&shellslash ? '\' : '/'
 
 let s:magic = { 'next': '$$$next###', 'esc': '$$$esc###' }
@@ -88,15 +89,22 @@ function! s:on_stderr(id, data) abort
   call s:error('STDERR: '. join(a:data))
 endfunction
 
+" s:on_stdout() {{{1
+function! s:on_stdout(job_id, data) abort
+  let s:stdout += a:data
+endfunction
+" }}}
+
 " s:on_exit() {{{1
-function! s:on_exit() abort
+function! s:on_exit(job_id, data) abort
   execute 'tabnext' self.tabpage
   execute self.window .'wincmd w'
 
-  execute (self.flags.quickfix ? 'cgetfile' : 'lgetfile') self.tempfile
-  call delete(self.tempfile)
+  execute (self.flags.quickfix ? 'cgetexpr' : 'lgetexpr')
+        \ . ' split(join(s:stdout, ""), "\r")'
 
   let s:id = 0
+  let s:stdout = []
   call s:restore_settings()
   return s:finish_up(self.flags)
 endfunction
@@ -350,7 +358,7 @@ function! s:run(flags)
       return
     endtry
 
-    let cmd = ['sh', '-c', printf('%s > %s', s:cmdline, tempfile)]
+    let cmd = ['sh', '-c', s:cmdline]
 
     let s:id = jobstart(cmd, {
           \ 'pty':       1,
@@ -359,6 +367,7 @@ function! s:run(flags)
           \ 'cmd':       s:cmdline,
           \ 'tabpage':   tabpagenr(),
           \ 'window':    winnr(),
+          \ 'on_stdout': function('s:on_stdout'),
           \ 'on_stderr': function('s:on_stderr'),
           \ 'on_exit':   function('s:on_exit')})
     return
