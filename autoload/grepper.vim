@@ -97,7 +97,6 @@ function! s:on_exit() abort
   call delete(self.tempfile)
 
   let s:id = 0
-  call s:restore_errorformat()
   return s:finish_up(self.flags)
 endfunction
 " }}}
@@ -363,7 +362,6 @@ function! s:run(flags)
           \ 'on_exit':   function('s:on_exit')})
   else
     execute 'silent' (a:flags.quickfix ? 'cgetexpr' : 'lgetexpr') 'system(s:cmdline)'
-    call s:restore_errorformat()
     call s:finish_up(a:flags)
   endif
 endfunction
@@ -405,6 +403,8 @@ function! s:finish_up(flags) abort
   let qlist = getqflist()
   let llist = getloclist(0)
   let size = len(qf ? qlist : llist)
+
+  call s:restore_errorformat()
 
   if has('nvim')
     if qf
