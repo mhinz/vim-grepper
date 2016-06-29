@@ -363,12 +363,8 @@ function! s:run(flags)
           \ 'on_exit':   function('s:on_exit')})
     return
   else
-    try
-      execute 'silent' (a:flags.quickfix ? 'grep!' : 'lgrep!')
-      redraw!
-    finally
-      call s:restore_settings()
-    endtry
+    execute 'silent' (a:flags.quickfix ? 'cgetexpr' : 'lgetexpr') 'system(s:cmdline)'
+    call s:restore_settings()
     call s:finish_up(a:flags)
   endif
 endfunction
@@ -382,12 +378,6 @@ endfunction
 function! s:store_settings(flags) abort
   let s:settings = {}
   let prog = s:get_current_tool(a:flags)
-
-  if !has('nvim')
-    let s:settings.t_ti = &t_ti
-    let s:settings.t_te = &t_te
-    set t_ti= t_te=
-  endif
 
   let s:settings.grepprg = &grepprg
   let s:settings.makeprg = &makeprg
@@ -410,11 +400,6 @@ function! s:restore_settings() abort
     if has_key(s:settings, 'grepformat')
       let &grepformat  = s:settings.grepformat
       let &errorformat = s:settings.errorformat
-    endif
-
-    if has_key(s:settings, 't_ti')
-      let &t_ti = s:settings.t_ti
-      let &t_te = s:settings.t_te
     endif
 endfunction
 
@@ -446,6 +431,8 @@ function! s:finish_up(flags) abort
       call setloclist(0, llist, 'r', s:cmdline)
     endif
   endif
+
+  redraw
 
   if size == 0
     execute (qf ? 'cclose' : 'lclose')
