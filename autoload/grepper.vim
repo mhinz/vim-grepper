@@ -105,8 +105,20 @@ function! s:on_exit(id_or_channel) dict abort
 endfunction
 " }}}
 
+" #complete() {{{1
+function! grepper#complete(lead, _line, _pos) abort
+  if a:lead =~ '^-'
+    let flags = ['-cword', '-grepprg', '-highlight', '-jump', '-open', '-prompt',
+          \ '-query', '-quickfix', '-switch', '-tool', '-nohighlight', '-nojump',
+          \ '-noopen', '-noprompt', '-noquickfix', '-noswitch']
+    return filter(map(flags, 'v:val." "'), 'v:val[:strlen(a:lead)-1] ==# a:lead')
+  else
+    return grepper#complete_files(a:lead, 0, 0)
+  endif
+endfunction
+
 " #complete_files() {{{1
-function! grepper#complete_files(lead, line, _)
+function! grepper#complete_files(lead, _line, _pos)
   let [head, path] = s:extract_path(a:lead)
   " handle relative paths
   if empty(path) || (path =~ '\s$')
