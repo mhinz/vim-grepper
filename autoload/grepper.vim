@@ -106,12 +106,15 @@ endfunction
 " }}}
 
 " #complete() {{{1
-function! grepper#complete(lead, _line, _pos) abort
+function! grepper#complete(lead, line, _pos) abort
   if a:lead =~ '^-'
     let flags = ['-cword', '-grepprg', '-highlight', '-jump', '-open', '-prompt',
           \ '-query', '-quickfix', '-switch', '-tool', '-nohighlight', '-nojump',
           \ '-noopen', '-noprompt', '-noquickfix', '-noswitch']
     return filter(map(flags, 'v:val." "'), 'v:val[:strlen(a:lead)-1] ==# a:lead')
+  elseif a:line =~# '-tool \w*$'
+    return filter(map(sort(copy(s:options.tools)), 'v:val." "'),
+          \ 'empty(a:lead) || v:val[:strlen(a:lead)-1] ==# a:lead')
   else
     return grepper#complete_files(a:lead, 0, 0)
   endif
