@@ -355,7 +355,12 @@ function! s:run(flags)
 
   " 'cmd' and 'options' are only used for async execution.
   " Use 'cat' for stripping escape sequences.
-  let cmd = ['sh', '-c', printf('%s | cat -', s:cmdline)]
+  if has('win32') && &shell =~ 'cmd'
+    let cmd = s:cmdline
+  else
+    let cmd = ['sh', '-c', s:cmdline .' | cat -']
+  endif
+
   let options = {
         \ 'cmd':       s:cmdline,
         \ 'flags':     a:flags,
