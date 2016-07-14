@@ -358,7 +358,7 @@ function! s:run(flags)
   if has('win32') && &shell =~ 'cmd'
     let cmd = s:cmdline
   else
-    let cmd = ['sh', '-c', s:cmdline .' | cat -']
+    let cmd = ['sh', '-c', s:cmdline]
   endif
 
   let options = {
@@ -376,7 +376,6 @@ function! s:run(flags)
       silent! call jobstop(s:id)
     endif
     let s:id = jobstart(cmd, extend(options, {
-          \ 'pty':       1,
           \ 'on_stdout': function('s:on_stdout_nvim'),
           \ 'on_exit':   function('s:on_exit'),
           \ }))
