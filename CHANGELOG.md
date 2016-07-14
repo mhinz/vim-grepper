@@ -23,6 +23,12 @@ won't list single bugfixes or improved documentation.)
 - Support for vim-dispatch. See this
   [commit](https://github.com/mhinz/vim-grepper/commit/c345137c336c531209a6082a6fcd5c2722d45773).
 
+- Sift was removed as default tool, because it either needs `grepprg = 'sift $*
+  .' (which makes restricting the search to a subdirectory quite hard) or an
+  allocated PTY (which means fighting with all kinds of escape sequences). If
+  you're a Go nut, use
+  [pt](https://github.com/monochromegane/the_platinum_searcher) instead.
+
 ## [1.2] - 2016-01-23
 
 This is mainly a bugfix release and the last release before 2.0 that will bring
@@ -39,6 +45,7 @@ quite some changes.
 50 commits.
 
 ### Added
+
 - `CHANGELOG.md` according to [keepachangelog.com](http://keepachangelog.com)
 - Support for [sift](https://sift-tool.org)
 - `<esc>` can be used to cancel the prompt now (in addition to `<c-c>`)
@@ -53,6 +60,7 @@ quite some changes.
   lists are opened just below their accompanying windows instead.
 
 ### Changed
+
 - Option "open" enabled by default
 - Option "switch" enabled by default
 - Option "jump" disabled by default
@@ -64,6 +72,7 @@ quite some changes.
   only when the operator was used)
 
 ## [1.0] - 2015-12-09
+
 First release!
 
 [Unreleased]: https://github.com/mhinz/vim-grepper/compare/v1.2...HEAD

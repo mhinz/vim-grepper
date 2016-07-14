@@ -14,7 +14,6 @@ let cmds = [
       \ ['GG',      'git'    ],
       \ ['Grep',    'grep'   ],
       \ ['Pt',      'pt'     ],
-      \ ['Sift',    'sift'   ],
       \ ]
 
 for [cmd, tool] in cmds
