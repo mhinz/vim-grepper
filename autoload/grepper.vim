@@ -93,9 +93,11 @@ function! s:on_exit(id_or_channel) dict abort
   execute 'tabnext' self.tabpage
   execute self.window .'wincmd w'
 
-  execute (self.flags.quickfix ? 'cgetexpr' : 'lgetexpr')
-        \ has('nvim') ? ' split(join(self.stdoutbuf, ""), "\r")'
-        \             : ' self.stdoutbuf'
+  if has('nvim')
+    call filter(self.stdoutbuf, '!empty(v:val)')
+  endif
+
+  execute (self.flags.quickfix ? 'cgetexpr' : 'lgetexpr') 'self.stdoutbuf'
 
   unlet s:id
   return s:finish_up(self.flags)
