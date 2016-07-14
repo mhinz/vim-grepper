@@ -443,10 +443,9 @@ function! s:finish_up(flags) abort
     endif
   endif
 
-  redraw
-
   if size == 0
     execute (qf ? 'cclose' : 'lclose')
+    redraw
     echo 'No matches found.'
     return
   endif
@@ -465,6 +464,7 @@ function! s:finish_up(flags) abort
     endif
   endif
 
+  redraw
   echo printf('Found %d matches.', size)
   
   if exists('#User#Grepper')
