@@ -120,7 +120,7 @@ Related help: `:h :Grepper`
 
 #### Example 2
 
-Build you own commands:
+Build your own commands:
 
 ```vim
 command! -nargs=* -complete=file GG Grepper -tool git -query <args>
