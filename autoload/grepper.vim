@@ -31,6 +31,8 @@ let s:options = {
       \                'grepformat': '%f:%l:%m' },
       \ }
 
+let s:has_doau_modeline = v:version > 703 || v:version == 703 && has('patch442')
+
 if exists('g:grepper')
   for key in keys(g:grepper)
     if type(g:grepper[key]) == type({})
@@ -472,11 +474,7 @@ function! s:finish_up(flags) abort
   echo printf('Found %d matches.', size)
   
   if exists('#User#Grepper')
-    if v:version > 703 || v:version == 703 && has('patch442')
-      doautocmd <nomodeline> User Grepper
-    else
-      doautocmd User Grepper
-    endif
+    execute 'doautocmd' (s:has_doau_modeline ? '<nomodeline>' : '') 'User Grepper'
   endif
 endfunction
 
