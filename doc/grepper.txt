@@ -244,9 +244,6 @@ this:
 >
     autocmd User Grepper <execute any normal commands here>
 <
-NOTE: If you intend to use |:echo| or a similar command, also use |:unsilent|
-before it.
-
 ==============================================================================
 COLORS                                                          *grepper-colors*
 
