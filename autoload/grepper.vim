@@ -409,8 +409,8 @@ endfunction
 " s:store_errorformat() {{{1
 function! s:store_errorformat(flags) abort
   let prog = s:get_current_tool(a:flags)
-  let s:errorformat = has_key(prog, 'grepformat') ? prog.grepformat : &errorformat
-  let &errorformat = s:errorformat
+  let s:errorformat = &errorformat
+  let &errorformat = has_key(prog, 'grepformat') ? prog.grepformat : &errorformat
 endfunction
 
 " s:restore_errorformat() {{{1
