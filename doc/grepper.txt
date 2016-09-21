@@ -275,11 +275,6 @@ directory, consider replacing the default |'grepprg'| for git like this:
     let g:grepper.git =
       \ { 'grepprg': 'git grep -nI $* -- `git rev-parse --show-toplevel`' }
 <
-Alternatively, if you're using a recent enough git version, this works too:
->
-    let g:grepper.git =
-      \ { 'grepprg': 'git -C `git rev-parse --show-toplevel` grep -nI' }
-<
 ------------------------------------------------------------------------------
                                                                 *grepper-faq-02*
 How to change the colors of the quickfix window?~
