@@ -50,6 +50,7 @@ These tools are supported by default:
     'ack'
     'grep'
     'findstr'
+    'rg'
     'pt'
     'git'
 
@@ -182,7 +183,7 @@ tools        These are the tools that you can choose between. The order
 
              Defaults to:
 >
-                 ['ag', 'ack', 'grep', 'findstr', 'pt', 'git']
+                 ['ag', 'ack', 'grep', 'findstr', 'rg', 'pt', 'git']
 <
 next_tool    These keys will be used at the prompt for switching to the next
              tool. Defaults to <tab>.

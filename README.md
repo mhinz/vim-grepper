@@ -19,6 +19,7 @@ This plugin makes searching in files easier then ever!
 It supports many common grep tools
 ([ag](https://github.com/ggreer/the_silver_searcher),
 [ack](http://beyondgrep.com), [git grep](https://git-scm.com/docs/git-grep),
+[ripgrep](https://github.com/BurntSushi/ripgrep),
 [pt](https://github.com/monochromegane/the_platinum_searcher),
 [findstr](https://www.microsoft.com/resources/documentation/windows/xp/all/proddocs/en-us/findstr.mspx)
 and our beloved BSD/GNU grep) out-of-the-box and it is easy to add new ones.

@@ -13,6 +13,7 @@ let cmds = [
       \ ['Findstr', 'findstr'],
       \ ['GG',      'git'    ],
       \ ['Grep',    'grep'   ],
+      \ ['Rg',      'rg'     ],
       \ ['Pt',      'pt'     ],
       \ ]
 
