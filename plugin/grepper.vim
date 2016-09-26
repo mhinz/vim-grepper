@@ -8,13 +8,13 @@ if hasmapto('<plug>(GrepperOperator)')
 endif
 
 let cmds = [
-      \ ['Ack',     'ack'    ],
-      \ ['Ag',      'ag'     ],
-      \ ['Findstr', 'findstr'],
-      \ ['GG',      'git'    ],
-      \ ['Grep',    'grep'   ],
-      \ ['Rg',      'rg'     ],
-      \ ['Pt',      'pt'     ],
+      \ ['GrepperAck',     'ack'    ],
+      \ ['GrepperAg',      'ag'     ],
+      \ ['GrepperFindstr', 'findstr'],
+      \ ['GrepperGit',     'git'    ],
+      \ ['GrepperGrep',    'grep'   ],
+      \ ['GrepperRg',      'rg'     ],
+      \ ['GrepperPt',      'pt'     ],
       \ ]
 
 for [cmd, tool] in cmds
