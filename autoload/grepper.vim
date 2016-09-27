@@ -109,7 +109,7 @@ function! s:on_exit(id_or_channel) dict abort
 
   execute (self.flags.quickfix ? 'cgetexpr' : 'lgetexpr') 'self.stdoutbuf'
 
-  unlet s:id
+  silent! unlet s:id
   return s:finish_up(self.flags)
 endfunction
 " }}}
