@@ -19,7 +19,7 @@ let cmds = [
 
 for [cmd, tool] in cmds
   if exists(':'.cmd) != 2
-    execute 'command! -nargs=* -complete=file' cmd
+    execute 'command! -nargs=+ -complete=file' cmd
           \ 'Grepper -noprompt -tool' tool '-query <args>'
   endif
 endfor
