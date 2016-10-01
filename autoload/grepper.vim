@@ -15,21 +15,21 @@ let s:options = {
       \ 'tools':     ['ag', 'ack', 'grep', 'findstr', 'rg', 'pt', 'git'],
       \ 'git':       { 'grepprg':    'git grep -nI',
       \                'grepformat': '%f:%l:%m',
-      \                'escape':     '\$.*%#[]' },
+      \                'escape':     '\^$.*[]' },
       \ 'ag':        { 'grepprg':    'ag --vimgrep',
       \                'grepformat': '%f:%l:%c:%m,%f:%l:%m',
-      \                'escape':     '\^$.*+?()[]%#' },
+      \                'escape':     '\^$.*+?()[]{}|' },
       \ 'rg':        { 'grepprg':    'rg --no-heading --vimgrep -i',
       \                'grepformat': '%f:%l:%c:%m',
-      \                'escape':     '\^$.*+?()[]{}#' },
+      \                'escape':     '\^$.*+?()[]{}|' },
       \ 'pt':        { 'grepprg':    'pt --nogroup',
       \                'grepformat': '%f:%l:%m' },
       \ 'ack':       { 'grepprg':    'ack --noheading --column',
       \                'grepformat': '%f:%l:%c:%m',
-      \                'escape':     '\^$.*+?()[]%#' },
+      \                'escape':     '\^$.*+?()[]{}|' },
       \ 'grep':      { 'grepprg':    'grep -Rn $* .',
       \                'grepformat': '%f:%l:%m',
-      \                'escape':     '\$.*[]%#' },
+      \                'escape':     '\^$.*[]' },
       \ 'findstr':   { 'grepprg':    'findstr -rspnc:"$*" *',
       \                'grepformat': '%f:%l:%m' },
       \ }
@@ -159,16 +159,27 @@ function! s:extract_path(string) abort
 endfunction
 " }}}
 
+" s:lstrip() {{{1
+function! s:lstrip(string) abort
+  return substitute(a:string, '^\s\+', '', '')
+endfunction
+" }}}
+
+" s:split_one() {{{1
+function! s:split_one(string) abort
+  let stripped = s:lstrip(a:string)
+  let first_word = substitute(stripped, '\v^(\S+).*', '\1', '')
+  let rest = substitute(stripped, '\v^\S+\s*(.*)', '\1', '')
+  return [first_word, rest]
+endfunction
+" }}}
+
 " #parse_flags() {{{1
 function! grepper#parse_flags(args) abort
   let flags = extend({ 'query': '', 'query_escaped': 0 }, s:options)
-  let args = split(a:args, '\s\+')
-  let len = len(args)
-  let i = 0
+  let [flag, args] = s:split_one(a:args)
 
-  while i < len
-    let flag = args[i]
-
+  while flag != ''
     if     flag =~? '\v^-%(no)?(quickfix|qf)$' | let flags.quickfix  = flag !~? '^-no'
     elseif flag =~? '\v^-%(no)?open$'          | let flags.open      = flag !~? '^-no'
     elseif flag =~? '\v^-%(no)?switch$'        | let flags.switch    = flag !~? '^-no'
@@ -177,23 +188,20 @@ function! grepper#parse_flags(args) abort
     elseif flag =~? '\v^-%(no)?highlight$'     | let flags.highlight = flag !~? '^-no'
     elseif flag =~? '^-cword$'                 | let flags.cword     = 1
     elseif flag =~? '^-grepprg$'
-      let i += 1
-      if i < len
+      if args != ''
         if !exists('tool')
           let tool = s:options.tools[0]
         endif
         let flags.tools = [tool]
         let flags[tool] = copy(s:options[tool])
-        let flags[tool].grepprg = join(args[i :])
+        let flags[tool].grepprg = args
       else
         echomsg 'Missing argument for: -grepprg'
       endif
       break
     elseif flag =~? '^-query$'
-      let i += 1
-      if i < len
-        " Funny Vim bug: [i:] doesn't work. [(i):] and [i :] do.
-        let flags.query = join(args[i :])
+      if args != ''
+        let flags.query = args
         let flags.prompt = 0
         break
       else
@@ -203,10 +211,8 @@ function! grepper#parse_flags(args) abort
         break
       endif
     elseif flag =~? '^-tool$'
-      let i += 1
-      if i < len
-        let tool = args[i]
-      else
+      let [tool, args] = s:split_one(args)
+      if tool == ''
         echomsg 'Missing argument for: -tool'
         break
       endif
@@ -220,7 +226,7 @@ function! grepper#parse_flags(args) abort
       echomsg 'Ignore unknown flag: '. flag
     endif
 
-    let i += 1
+    let [flag, args] = s:split_one(args)
   endwhile
 
   return s:start(flags)
