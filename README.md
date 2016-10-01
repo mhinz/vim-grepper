@@ -14,7 +14,7 @@
 
 ## Intro
 
-This plugin makes searching in files easier then ever!
+This plugin makes searching in files easier than ever!
 
 It supports many common grep tools
 ([ag](https://github.com/ggreer/the_silver_searcher),
