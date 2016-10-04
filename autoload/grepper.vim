@@ -289,9 +289,11 @@ endfunction
 function! s:unescape_query(flags, query)
   let tool = s:get_current_tool(a:flags)
   let q = a:query
-  for c in reverse(split(tool.escape, '\zs'))
-    let q = substitute(q, '\V\\'.c, c, 'g')
-  endfor
+  if has_key(tool, 'escape')
+    for c in reverse(split(tool.escape, '\zs'))
+      let q = substitute(q, '\V\\'.c, c, 'g')
+    endfor
+  endif
   return q
 endfunction
 
