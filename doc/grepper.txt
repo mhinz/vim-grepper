@@ -264,6 +264,7 @@ FAQ                                                                *grepper-faq*
 
     |grepper-faq-01|  How to git grep from the root directory?
     |grepper-faq-02|  How to change the colors of the quickfix window?
+    |grepper-faq-03|  How to use queries that begin with dashes?
 
 ------------------------------------------------------------------------------
                                                                 *grepper-faq-01*
@@ -298,6 +299,22 @@ This colorscheme uses these settings:
       \ ctermfg=238 ctermbg=NONE cterm=NONE guifg=#444444 guibg=NONE gui=NONE
     highlight qfSeparator
       \ ctermfg=243 ctermbg=NONE cterm=NONE guifg=#767676 guibg=NONE gui=NONE
+<
+------------------------------------------------------------------------------
+                                                                *grepper-faq-03*
+
+A query is put on the command-line as-is. If it starts with a dash, the search
+fails. The VCS tool thinks you try to provide an option and that the actual
+argument is missing.
+
+To avoid that, most Unix programs interpret "--" (double-dash) as separator
+between options and arguments. Thus, if you want to seek '-foo', use '-- -foo'
+as query instead.
+
+If you never use any options in the search prompt anyway, you can make it the
+default like this:
+>
+    let g:grepper.rg = { 'grepprg': 'rg --no-heading --vimgrep -i --' }
 <
 ==============================================================================
 EXAMPLE                                                        *grepper-example*
