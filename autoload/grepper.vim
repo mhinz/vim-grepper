@@ -445,12 +445,11 @@ function! s:finish_up(flags) abort
 
   call s:restore_errorformat()
 
-  if has('nvim')
-    if qf
-      call setqflist(qlist, 'r', s:cmdline)
-    else
-      call setloclist(0, llist, 'r', s:cmdline)
-    endif
+  let title = has('nvim') ? s:cmdline : {'title': s:cmdline}
+  if qf
+    call setqflist(qlist, 'r', title)
+  else
+    call setloclist(0, llist, 'r', title)
   endif
 
   if size == 0
