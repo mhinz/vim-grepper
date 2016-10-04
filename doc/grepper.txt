@@ -314,7 +314,8 @@ as query instead.
 If you never use any options in the search prompt anyway, you can make it the
 default like this:
 >
-    let g:grepper.rg = { 'grepprg': 'rg --no-heading --vimgrep -i --' }
+    let g:grepper = {}
+    let g:grepper.ag = { 'grepprg': 'ag --vimgrep --' }
 <
 ==============================================================================
 EXAMPLE                                                        *grepper-example*
