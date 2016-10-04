@@ -447,18 +447,17 @@ endfunction
 " s:finish_up() {{{1
 function! s:finish_up(flags)
   let qf = a:flags.quickfix
-  let qlist = getqflist()
-  let llist = getloclist(0)
-  let size = len(qf ? qlist : llist)
+  let list = qf ? getqflist() : getloclist(0)
+  let size = len(list)
 
   call s:restore_errorformat()
 
   try
     let title = has('nvim') ? s:cmdline : {'title': s:cmdline}
     if qf
-      call setqflist(qlist, 'r', title)
+      call setqflist(list, 'r', title)
     else
-      call setloclist(0, llist, 'r', title)
+      call setloclist(0, list, 'r', title)
     endif
   catch /E118/
   endtry
