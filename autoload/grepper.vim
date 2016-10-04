@@ -19,7 +19,7 @@ let s:options = {
       \ 'ag':        { 'grepprg':    'ag --vimgrep',
       \                'grepformat': '%f:%l:%c:%m,%f:%l:%m',
       \                'escape':     '\^$.*+?()[]{}|' },
-      \ 'rg':        { 'grepprg':    'rg --no-heading --vimgrep -i',
+      \ 'rg':        { 'grepprg':    'rg --no-heading --vimgrep',
       \                'grepformat': '%f:%l:%c:%m',
       \                'escape':     '\^$.*+?()[]{}|' },
       \ 'pt':        { 'grepprg':    'pt --nogroup',
