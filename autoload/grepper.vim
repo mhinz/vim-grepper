@@ -473,7 +473,9 @@ function! s:finish_up(flags)
     execute 'silent' (qf ? 'cfirst' : 'lfirst')
   endif
 
-  if a:flags.open
+  let contains_invalid_entries = !empty(filter(list, 'v:val.valid == 0'))
+
+  if a:flags.open || contains_invalid_entries
     execute (qf ? 'botright copen' : 'lopen') (size > 10 ? 10 : size)
     let w:quickfix_title = s:cmdline
     setlocal nowrap
