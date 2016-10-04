@@ -338,7 +338,7 @@ function! s:prompt(flags)
     call histdel('input', -1)
     call s:next_tool(a:flags)
     let a:flags.query = has_key(a:flags, 'query_orig')
-          \ ? s:escape_query(a:flags, a:flags.query_orig)
+          \ ? '-- '. s:escape_query(a:flags, a:flags.query_orig)
           \ : a:flags.query[:-len(s:magic.next)-1]
     return s:prompt(a:flags)
   elseif a:flags.query =~# s:magic.esc
@@ -525,7 +525,7 @@ function! grepper#operator(type) abort
   let flags = deepcopy(s:options)
   let flags.query_orig = @@
   let flags.query_escaped = 0
-  let flags.query = s:escape_query(flags, @@)
+  let flags.query = '-- '. s:escape_query(flags, @@)
   let @@ = regsave
 
   return s:start(flags)
