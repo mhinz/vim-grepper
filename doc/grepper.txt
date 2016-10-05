@@ -172,6 +172,9 @@ jump         Automatically jump to the first match. Defaults to 0.
 
 prompt       To prompt or not to prompt! Defaults to 1.
 
+simple_prompt   Set prompt to tool name only, without displaying its options.
+                Defaults to 0.
+
                                                          *grepper-options-tools*
 tools        These are the tools that you can choose between. The order
              matters. The first element is the default tool and will be used
