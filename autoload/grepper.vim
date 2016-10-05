@@ -473,9 +473,8 @@ function! s:finish_up(flags)
     execute 'silent' (qf ? 'cfirst' : 'lfirst')
   endif
 
-  let contains_invalid_entries = !empty(filter(list, 'v:val.valid == 0'))
-
-  if a:flags.open || contains_invalid_entries
+  " Also open if the list contains any invalid entry.
+  if a:flags.open || !empty(filter(list, 'v:val.valid == 0'))
     execute (qf ? 'botright copen' : 'lopen') (size > 10 ? 10 : size)
     let w:quickfix_title = s:cmdline
     setlocal nowrap
