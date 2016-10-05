@@ -4,34 +4,35 @@
 " ..ad\\f40+$':-# @=,!;%^&&*()_{}/ /4304\'""?`9$343%$ ^adfadf[ad)[(
 
 let s:options = {
-      \ 'quickfix':  1,
-      \ 'open':      1,
-      \ 'switch':    1,
-      \ 'jump':      0,
-      \ 'cword':     0,
-      \ 'prompt':    1,
-      \ 'highlight': 0,
-      \ 'next_tool': '<tab>',
-      \ 'tools':     ['ag', 'ack', 'grep', 'findstr', 'rg', 'pt', 'git'],
-      \ 'git':       { 'grepprg':    'git grep -nI',
-      \                'grepformat': '%f:%l:%m',
-      \                'escape':     '\^$.*[]' },
-      \ 'ag':        { 'grepprg':    'ag --vimgrep',
-      \                'grepformat': '%f:%l:%c:%m,%f:%l:%m',
-      \                'escape':     '\^$.*+?()[]{}|' },
-      \ 'rg':        { 'grepprg':    'rg --no-heading --vimgrep',
-      \                'grepformat': '%f:%l:%c:%m',
-      \                'escape':     '\^$.*+?()[]{}|' },
-      \ 'pt':        { 'grepprg':    'pt --nogroup',
-      \                'grepformat': '%f:%l:%m' },
-      \ 'ack':       { 'grepprg':    'ack --noheading --column',
-      \                'grepformat': '%f:%l:%c:%m',
-      \                'escape':     '\^$.*+?()[]{}|' },
-      \ 'grep':      { 'grepprg':    'grep -Rn $* .',
-      \                'grepformat': '%f:%l:%m',
-      \                'escape':     '\^$.*[]' },
-      \ 'findstr':   { 'grepprg':    'findstr -rspnc:"$*" *',
-      \                'grepformat': '%f:%l:%m' },
+      \ 'quickfix':      1,
+      \ 'open':          1,
+      \ 'switch':        1,
+      \ 'jump':          0,
+      \ 'cword':         0,
+      \ 'prompt':        1,
+      \ 'simple_prompt': 0,
+      \ 'highlight':     0,
+      \ 'next_tool':     '<tab>',
+      \ 'tools':         ['ag', 'ack', 'grep', 'findstr', 'rg', 'pt', 'git'],
+      \ 'git':           { 'grepprg':    'git grep -nI',
+      \                    'grepformat': '%f:%l:%m',
+      \                    'escape':     '\^$.*[]' },
+      \ 'ag':            { 'grepprg':    'ag --vimgrep',
+      \                    'grepformat': '%f:%l:%c:%m,%f:%l:%m',
+      \                    'escape':     '\^$.*+?()[]{}|' },
+      \ 'rg':            { 'grepprg':    'rg --no-heading --vimgrep',
+      \                    'grepformat': '%f:%l:%c:%m',
+      \                    'escape':     '\^$.*+?()[]{}|' },
+      \ 'pt':            { 'grepprg':    'pt --nogroup',
+      \                    'grepformat': '%f:%l:%m' },
+      \ 'ack':           { 'grepprg':    'ack --noheading --column',
+      \                    'grepformat': '%f:%l:%c:%m',
+      \                    'escape':     '\^$.*+?()[]{}|' },
+      \ 'grep':          { 'grepprg':    'grep -Rn $* .',
+      \                    'grepformat': '%f:%l:%m',
+      \                    'escape':     '\^$.*[]' },
+      \ 'findstr':       { 'grepprg':    'findstr -rspnc:"$*" *',
+      \                    'grepformat': '%f:%l:%m' },
       \ }
 
 let s:has_doau_modeline = v:version > 703 || v:version == 703 && has('patch442')
@@ -316,7 +317,10 @@ endfunction
 
 " s:prompt() {{{1
 function! s:prompt(flags)
-  let tool = s:get_current_tool(a:flags)
+  let prompt_text = a:flags.simple_prompt
+        \ ? s:get_current_tool_name(a:flags)
+        \ : s:get_current_tool(a:flags).grepprg
+
   let mapping = maparg(s:options.next_tool, 'c', '', 1)
   execute 'cnoremap' s:options.next_tool s:magic.next .'<cr>'
   execute 'cnoremap <esc>' s:magic.esc .'<cr>'
@@ -324,7 +328,7 @@ function! s:prompt(flags)
   call inputsave()
 
   try
-    let a:flags.query = input(tool.grepprg .'> ', a:flags.query,
+    let a:flags.query = input(prompt_text .'> ', a:flags.query,
           \ 'customlist,grepper#complete_files')
   finally
     execute 'cunmap' s:options.next_tool
@@ -416,6 +420,11 @@ endfunction
 " s:get_current_tool() {{{1
 function! s:get_current_tool(flags) abort
   return a:flags[a:flags.tools[0]]
+endfunction
+
+" s:get_current_tool_name() {{{1
+function! s:get_current_tool_name(flags) abort
+  return a:flags.tools[0]
 endfunction
 
 " s:store_errorformat() {{{1
