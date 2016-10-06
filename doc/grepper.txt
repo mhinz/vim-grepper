@@ -157,45 +157,61 @@ This plugin uses a single |Dictionary| for all configuration: g:grepper. If you
 are unsure how to use a dictionary, have a look at |grepper-example|. The
 supported keys are:
 
-highlight    Highlight found matches. Defaults to 0.
+ highlight~
 
-quickfix     Use the quickfix list for the matches or the location list
-             otherwise. Defaults to 1.
+    Highlight found matches. Defaults to 0.
 
-open         Open the quickfix/location window after the grep tool finished
-             running (and there was at least one match). Defaults to 1.
+ quickfix~
 
-switch       When the quickfix/location window opens, switch to it.
-             Defaults to 1.
+    Use the quickfix list for the matches or the location list otherwise.
+    Defaults to 1.
 
-jump         Automatically jump to the first match. Defaults to 0.
+ open~
 
-prompt       To prompt or not to prompt! Defaults to 1.
+    Open the quickfix/location window after the grep tool finished running
+    (and there was at least one match). Defaults to 1.
 
-simple_prompt   Set prompt to tool name only, without displaying its options.
-                Defaults to 0.
+ switch~
+
+    When the quickfix/location window opens, switch to it. Defaults to 1.
+
+ jump~
+
+    Automatically jump to the first match. Defaults to 0.
+
+ prompt~
+
+    To prompt or not to prompt! Defaults to 1.
+
+ simple_prompt~
+
+    Set prompt to tool name only, without displaying its options.
+    Defaults to 0.
 
                                                          *grepper-options-tools*
-tools        These are the tools that you can choose between. The order
-             matters. The first element is the default tool and will be used
-             if no tool was specified.
+ tools~
 
-             NOTE: Because of a name clash, some systems use "ack-grep"
-             instead of "ack". If you include "ack" here, "ack-grep" will be
-             found, too.
+    These are the tools that you can choose between. The order matters. The
+    first element is the default tool and will be used if no tool was
+    specified.
 
-             Defaults to:
+    NOTE: Because of a name clash, some systems use "ack-grep" instead of
+    "ack". If you include "ack" here, "ack-grep" will be found, too.
+
+    Defaults to:
 >
-                 ['ag', 'ack', 'grep', 'findstr', 'rg', 'pt', 'git']
+    ['ag', 'ack', 'grep', 'findstr', 'rg', 'pt', 'git']
 <
-next_tool    These keys will be used at the prompt for switching to the next
-             tool. Defaults to <tab>.
+ next_tool~
 
-             NOTE: This could also be the same keys as the ones that opened
-             the search prompt in the first place, e.g.:
+    These keys will be used at the prompt for switching to the next tool.
+    Defaults to <tab>.
+
+    NOTE: This could also be the same keys as the ones that opened the search
+    prompt in the first place, e.g.:
 >
-                 nnoremap <leader>g :Grepper<cr>
-                 let g:grepper = { 'next_tool': '<leader>g' }
+    nnoremap <leader>g :Grepper<cr>
+    let g:grepper = { 'next_tool': '<leader>g' }
 <
 ==============================================================================
 ADD TOOL                                                      *grepper-add-tool*
@@ -211,7 +227,7 @@ new one, just add/replace the key to g:grepper:
         \   'escape':     '\+*^$()[]',
         \ }}
 <
-grepprg:~
+ grepprg~
 
     The tool has be executable, but it doesn't have to be in $PATH. This works
     just as well:
@@ -232,12 +248,12 @@ grepprg:~
 >
     'grepprg': 'ag --vimgrep $* $.'
 <
-grepformat:~
+ grepformat~
 
     This is optional. If the output of 'grepprg' uses a format that is not
     already recognized by the default |'grepformat'|, define it yourself here.
 
-escape:~
+ escape~
 
     This is optional. All these characters will be escaped in the query.
 
