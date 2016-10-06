@@ -479,7 +479,7 @@ function! s:finish_up(flags)
   endif
 
   if a:flags.jump
-    execute 'silent' (qf ? 'cfirst' : 'lfirst')
+    execute (qf ? 'cfirst' : 'lfirst')
   endif
 
   " Also open if the list contains any invalid entry.
