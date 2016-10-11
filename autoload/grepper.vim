@@ -86,7 +86,13 @@ endfunction
 
 " s:on_stdout_nvim() {{{1
 function! s:on_stdout_nvim(job_id, data) dict abort
-  let self.stdoutbuf += a:data
+  if empty(self.stdoutbuf) || empty(self.stdoutbuf[-1])
+    let self.stdoutbuf += a:data
+  else
+    let self.stdoutbuf = self.stdoutbuf[:-2]
+          \ + [self.stdoutbuf[-1] . get(a:data, 0, '')]
+          \ + a:data[1:]
+  endif
 endfunction
 
 " s:on_stdout_vim() {{{1
