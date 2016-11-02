@@ -12,6 +12,7 @@ let s:options = {
       \ 'prompt':        1,
       \ 'simple_prompt': 0,
       \ 'highlight':     0,
+      \ 'buffer':        0,
       \ 'next_tool':     '<tab>',
       \ 'tools':         ['ag', 'ack', 'grep', 'findstr', 'rg', 'pt', 'git'],
       \ 'git':           { 'grepprg':    'git grep -nI',
@@ -20,7 +21,7 @@ let s:options = {
       \ 'ag':            { 'grepprg':    'ag --vimgrep',
       \                    'grepformat': '%f:%l:%c:%m,%f:%l:%m',
       \                    'escape':     '\^$.*+?()[]{}|' },
-      \ 'rg':            { 'grepprg':    'rg --no-heading --vimgrep',
+      \ 'rg':            { 'grepprg':    'rg -H --no-heading --vimgrep',
       \                    'grepformat': '%f:%l:%c:%m',
       \                    'escape':     '\^$.*+?()[]{}|' },
       \ 'pt':            { 'grepprg':    'pt --nogroup',
@@ -29,9 +30,11 @@ let s:options = {
       \                    'grepformat': '%f:%l:%c:%m',
       \                    'escape':     '\^$.*+?()[]{}|' },
       \ 'grep':          { 'grepprg':    'grep -Rn $* .',
+      \                    'grepprgbuf': 'grep -Hn $* $.',
       \                    'grepformat': '%f:%l:%m',
       \                    'escape':     '\^$.*[]' },
       \ 'findstr':       { 'grepprg':    'findstr -rspnc:"$*" *',
+      \                    'grepprgbuf': 'findstr -rpnc:"$*" $.',
       \                    'grepformat': '%f:%l:%m' },
       \ }
 
@@ -124,9 +127,9 @@ endfunction
 " #complete() {{{1
 function! grepper#complete(lead, line, _pos) abort
   if a:lead =~ '^-'
-    let flags = ['-cword', '-grepprg', '-highlight', '-jump', '-open', '-prompt',
-          \ '-query', '-quickfix', '-switch', '-tool', '-nohighlight', '-nojump',
-          \ '-noopen', '-noprompt', '-noquickfix', '-noswitch']
+    let flags = ['-buffer', '-cword', '-grepprg', '-highlight', '-jump', '-open',
+          \ '-prompt', '-query', '-quickfix', '-switch', '-tool', '-nohighlight',
+          \ '-nojump', '-noopen', '-noprompt', '-noquickfix', '-noswitch']
     return filter(map(flags, 'v:val." "'), 'v:val[:strlen(a:lead)-1] ==# a:lead')
   elseif a:line =~# '-tool \w*$'
     return filter(map(sort(copy(s:options.tools)), 'v:val." "'),
@@ -193,6 +196,7 @@ function! grepper#parse_flags(args) abort
     elseif flag =~? '\v^-%(no)?jump$'          | let flags.jump      = flag !~? '^-no'
     elseif flag =~? '\v^-%(no)?prompt$'        | let flags.prompt    = flag !~? '^-no'
     elseif flag =~? '\v^-%(no)?highlight$'     | let flags.highlight = flag !~? '^-no'
+    elseif flag =~? '\v^-%(no)?buffer$'        | let flags.buffer    = flag !~? '^-no'
     elseif flag =~? '^-cword$'                 | let flags.cword     = 1
     elseif flag =~? '^-grepprg$'
       if args != ''
@@ -358,7 +362,18 @@ endfunction
 
 " s:build_cmdline() {{{1
 function! s:build_cmdline(flags) abort
-  let grepprg = s:get_current_tool(a:flags).grepprg
+  let tool = s:get_current_tool(a:flags)
+
+  if a:flags.buffer
+    if has_key(tool, 'grepprgbuf')
+      let grepprg = tool.grepprgbuf
+    else
+      let grepprg = tool.grepprg .' $* $.'
+    endif
+  else
+    let grepprg = tool.grepprg
+  endif
+
   let grepprg = substitute(grepprg, '\V$.', bufname(''), '')
 
   if stridx(grepprg, '$+') >= 0

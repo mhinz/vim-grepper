@@ -157,6 +157,12 @@ This plugin uses a single |Dictionary| for all configuration: g:grepper. If you
 are unsure how to use a dictionary, have a look at |grepper-example|. The
 supported keys are:
 
+ buffer~
+
+    Only search the currently opened file. Make sure to write any pending
+    changes before searching, since the grep tools work on actual files, not
+    Vim buffers.
+
  highlight~
 
     Highlight found matches. Defaults to 0.
