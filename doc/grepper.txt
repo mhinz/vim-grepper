@@ -254,6 +254,11 @@ new one, just add/replace the key to g:grepper:
 >
     'grepprg': 'ag --vimgrep $* $.'
 <
+ grepprgbuf~
+
+    If this key exists, it gets used in the case of ":Grepper -buffer". If it
+    doesn't exist, Grepper will try appending " $* $." to 'grepprg' instead.
+
  grepformat~
 
     This is optional. If the output of 'grepprg' uses a format that is not
