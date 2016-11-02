@@ -256,8 +256,10 @@ new one, just add/replace the key to g:grepper:
 <
  grepprgbuf~
 
-    If this key exists, it gets used in the case of ":Grepper -buffer". If it
-    doesn't exist, Grepper will try appending " $* $." to 'grepprg' instead.
+    In the case of -buffer, 'grepprgbuf' is used. If it doesn't exist,
+    " $* $." will be appended to 'grepprg' instead.
+
+    Same goes for -buffers, only that "$+" will be used instead of "$.".
 
  grepformat~
 
