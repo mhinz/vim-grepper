@@ -540,7 +540,7 @@ function! s:finish_up(flags)
 
   redraw
   echo printf('Found %d matches.', size)
-  
+
   if exists('#User#Grepper')
     execute 'doautocmd' (s:has_doau_modeline ? '<nomodeline>' : '') 'User Grepper'
   endif
