@@ -3,7 +3,10 @@
 " Escaping test line:
 " ..ad\\f40+$':-# @=,!;%^&&*()_{}/ /4304\'""?`9$343%$ ^adfadf[ad)[(
 
-let s:options = {
+"
+" Default values that get used for missing values in g:grepper.
+"
+let s:defaults = {
       \ 'quickfix':      1,
       \ 'open':          1,
       \ 'switch':        1,
@@ -41,39 +44,54 @@ let s:options = {
 
 let s:has_doau_modeline = v:version > 703 || v:version == 703 && has('patch442')
 
+"
+" Enrich missing values in g:grepper with default ones.
+"
+" Making g:grepper a deep copy of the default values and enriching it with the
+" user configuration afterwards takes less copying than taking the user
+" configuration and enriching it with the default values.
+"
 if exists('g:grepper')
-  for key in keys(g:grepper)
-    if type(g:grepper[key]) == type({})
-      if !has_key(s:options, key)
-        let s:options[key] = {}
+  let userconfig = deepcopy(g:grepper)
+  let g:grepper = s:defaults
+  for key in keys(userconfig)
+    if type(userconfig[key]) == type({})
+      if !has_key(g:grepper, key)
+        let g:grepper[key] = {}
       endif
-      call extend(s:options[key], g:grepper[key])
+      call extend(g:grepper[key], userconfig[key])
     else
-      let s:options[key] = g:grepper[key]
+      let g:grepper[key] = userconfig[key]
     endif
   endfor
+else
+  let g:grepper = s:defaults
 endif
 
-for tool in s:options.tools
-  if !has_key(s:options, tool)
-        \ || !has_key(s:options[tool], 'grepprg')
-        \ || !executable(expand(matchstr(s:options[tool].grepprg, '^[^ ]*')))
-    call remove(s:options.tools, index(s:options.tools, tool))
+for tool in g:grepper.tools
+  if !has_key(g:grepper, tool)
+        \ || !has_key(g:grepper[tool], 'grepprg')
+        \ || !executable(expand(matchstr(g:grepper[tool].grepprg, '^[^ ]*')))
+    call remove(g:grepper.tools, index(g:grepper.tools, tool))
   endif
 endfor
 
+"
 " Special case: ag (-vimgrep isn't available in versions < 0.25)
-if index(s:options.tools, 'ag') >= 0
+"
+if index(g:grepper.tools, 'ag') >= 0
       \ && !exists('g:grepper.ag.grepprg')
       \ && split(system('ag --version'))[2] =~ '^\v\d+\.%([01]|2[0-4])'
-  let s:options.ag.grepprg = 'ag --column --nogroup'
+  let g:grepper.ag.grepprg = 'ag --column --nogroup'
 endif
 
+"
 " Special case: ack (different distros use different names for ack)
-let ack     = index(s:options.tools, 'ack')
-let ackgrep = index(s:options.tools, 'ack-grep')
+"
+let ack     = index(g:grepper.tools, 'ack')
+let ackgrep = index(g:grepper.tools, 'ack-grep')
 if (ack >= 0) && (ackgrep >= 0)
-  call remove(s:options.tools, ackgrep)
+  call remove(g:grepper.tools, ackgrep)
 endif
 
 let s:cmdline = ''
@@ -134,7 +152,7 @@ function! grepper#complete(lead, line, _pos) abort
           \ '-noquickfix', '-noswitch']
     return filter(map(flags, 'v:val." "'), 'v:val[:strlen(a:lead)-1] ==# a:lead')
   elseif a:line =~# '-tool \w*$'
-    return filter(map(sort(copy(s:options.tools)), 'v:val." "'),
+    return filter(map(sort(copy(g:grepper.tools)), 'v:val." "'),
           \ 'empty(a:lead) || v:val[:strlen(a:lead)-1] ==# a:lead')
   else
     return grepper#complete_files(a:lead, 0, 0)
@@ -188,7 +206,7 @@ endfunction
 
 " #parse_flags() {{{1
 function! grepper#parse_flags(args) abort
-  let flags = extend({ 'query': '', 'query_escaped': 0 }, s:options)
+  let flags = extend({ 'query': '', 'query_escaped': 0 }, g:grepper)
   let [flag, args] = s:split_one(a:args)
 
   while flag != ''
@@ -204,10 +222,10 @@ function! grepper#parse_flags(args) abort
     elseif flag =~? '^-grepprg$'
       if args != ''
         if !exists('tool')
-          let tool = s:options.tools[0]
+          let tool = g:grepper.tools[0]
         endif
         let flags.tools = [tool]
-        let flags[tool] = copy(s:options[tool])
+        let flags[tool] = copy(g:grepper[tool])
         let flags[tool].grepprg = args
       else
         echomsg 'Missing argument for: -grepprg'
@@ -230,9 +248,9 @@ function! grepper#parse_flags(args) abort
         echomsg 'Missing argument for: -tool'
         break
       endif
-      if index(s:options.tools, tool) >= 0
+      if index(g:grepper.tools, tool) >= 0
         let flags.tools =
-              \ [tool] + filter(copy(s:options.tools), 'v:val != tool')
+              \ [tool] + filter(copy(g:grepper.tools), 'v:val != tool')
       else
         echomsg 'No such tool: '. tool
       endif
@@ -313,7 +331,7 @@ endfunction
 
 " s:start() {{{1
 function! s:start(flags) abort
-  if empty(s:options.tools)
+  if empty(g:grepper.tools)
     call s:error('No grep tool found!')
     return
   endif
@@ -334,8 +352,8 @@ function! s:prompt(flags)
         \ ? s:get_current_tool_name(a:flags)
         \ : s:get_current_tool(a:flags).grepprg
 
-  let mapping = maparg(s:options.next_tool, 'c', '', 1)
-  execute 'cnoremap' s:options.next_tool s:magic.next .'<cr>'
+  let mapping = maparg(g:grepper.next_tool, 'c', '', 1)
+  execute 'cnoremap' g:grepper.next_tool s:magic.next .'<cr>'
   execute 'cnoremap <esc>' s:magic.esc .'<cr>'
   echohl Question
   call inputsave()
@@ -344,7 +362,7 @@ function! s:prompt(flags)
     let a:flags.query = input(prompt_text .'> ', a:flags.query,
           \ 'customlist,grepper#complete_files')
   finally
-    execute 'cunmap' s:options.next_tool
+    execute 'cunmap' g:grepper.next_tool
     call inputrestore()
     cunmap <esc>
     call s:restore_mapping(mapping)
@@ -557,7 +575,7 @@ function! grepper#operator(type) abort
   endif
 
   let &selection = selsave
-  let flags = deepcopy(s:options)
+  let flags = deepcopy(g:grepper)
   let flags.query_orig = @@
   let flags.query_escaped = 0
   let flags.query = '-- '. s:escape_query(flags, @@)
