@@ -267,6 +267,23 @@ endfunction
 
 " s:process_flags() {{{1
 function! s:process_flags(flags)
+  if a:flags.buffer
+    let a:flags.buflist = [bufname('')]
+    if !filereadable(a:flags.buflist[0])
+      call s:error('This buffer is not backed by a file!')
+      return 1
+    endif
+  endif
+
+  if a:flags.buffers
+    let a:flags.buflist = filter(map(filter(range(1, bufnr('$')),
+          \ 'bufloaded(v:val)'), 'bufname(v:val)'), 'filereadable(v:val)')
+    if empty(a:flags.buflist)
+      call s:error('No buffer is backed by a file!')
+      return 1
+    endif
+  endif
+
   if a:flags.cword
     let a:flags.query = s:escape_query(a:flags, expand('<cword>'))
   endif
@@ -285,6 +302,8 @@ function! s:process_flags(flags)
   endif
 
   call histadd('input', a:flags.query)
+
+  return 0
 endfunction
 
 " s:highlight_query() {{{1
@@ -337,7 +356,9 @@ function! s:start(flags) abort
     return
   endif
 
-  call s:process_flags(a:flags)
+  if s:process_flags(a:flags)
+    return
+  endif
 
   if a:flags.query =~# s:magic.esc
     redraw!
@@ -402,36 +423,23 @@ function! s:build_cmdline(flags) abort
   let grepprg = s:get_grepprg(a:flags)
 
   if stridx(grepprg, '$.') >= 0
-    if !filereadable(bufname(''))
-      call s:error('Buffer is not backed by a file!')
-      return ['', 1]
-    endif
-    let grepprg = substitute(grepprg, '\V$.', bufname(''), '')
+    let grepprg = substitute(grepprg, '\V$.', a:flags.buflist[0], '')
   endif
-
   if stridx(grepprg, '$+') >= 0
-    let buffers = filter(map(filter(range(1, bufnr('$')), 'bufloaded(v:val)'),
-          \ 'bufname(v:val)'), 'filereadable(v:val)')
-    if empty(buffers)
-      call s:error('No buffer is backed by a file!')
-      return ['', 1]
-    endif
-    let grepprg = substitute(grepprg, '\V$+', join(buffers), '')
+    let grepprg = substitute(grepprg, '\V$+', join(a:flags.buflist), '')
   endif
-
   if stridx(grepprg, '$*') >= 0
     let grepprg = substitute(grepprg, '\V$*', escape(a:flags.query, '\&'), 'g')
   else
     let grepprg .= ' ' . a:flags.query
   endif
 
-  return [grepprg, 0]
+  return grepprg
 endfunction
 
 " s:run() {{{1
 function! s:run(flags)
-  let [s:cmdline, err] = s:build_cmdline(a:flags)
-  if err | return | endif
+  let s:cmdline = s:build_cmdline(a:flags)
 
   " 'cmd' and 'options' are only used for async execution.
   " Use 'cat' for stripping escape sequences.
