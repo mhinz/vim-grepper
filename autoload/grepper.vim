@@ -228,7 +228,7 @@ function! grepper#parse_flags(args) abort
         let flags[tool] = copy(g:grepper[tool])
         let flags[tool].grepprg = args
       else
-        echomsg 'Missing argument for: -grepprg'
+        call s:error('Missing argument for: -grepprg')
       endif
       break
     elseif flag =~? '^-query$'
@@ -245,17 +245,17 @@ function! grepper#parse_flags(args) abort
     elseif flag =~? '^-tool$'
       let [tool, args] = s:split_one(args)
       if tool == ''
-        echomsg 'Missing argument for: -tool'
+        call s:error('Missing argument for: -tool')
         break
       endif
       if index(g:grepper.tools, tool) >= 0
         let flags.tools =
               \ [tool] + filter(copy(g:grepper.tools), 'v:val != tool')
       else
-        echomsg 'No such tool: '. tool
+        call s:error('No such tool: '. tool)
       endif
     else
-      echomsg 'Ignore unknown flag: '. flag
+      call s:error('Ignore unknown flag: '. flag)
     endif
 
     let [flag, args] = s:split_one(args)
