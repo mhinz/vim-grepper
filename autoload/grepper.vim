@@ -100,6 +100,7 @@ let s:magic   = { 'next': '$$$next###', 'esc': '$$$esc###' }
 
 " s:error() {{{1
 function! s:error(msg)
+  redraw
   echohl ErrorMsg
   echomsg a:msg
   echohl NONE
@@ -399,11 +400,22 @@ endfunction
 " s:build_cmdline() {{{1
 function! s:build_cmdline(flags) abort
   let grepprg = s:get_grepprg(a:flags)
-  let grepprg = substitute(grepprg, '\V$.', bufname(''), '')
+
+  if stridx(grepprg, '$.') >= 0
+    if !filereadable(bufname(''))
+      call s:error('Buffer is not backed by a file!')
+      return ['', 1]
+    endif
+    let grepprg = substitute(grepprg, '\V$.', bufname(''), '')
+  endif
 
   if stridx(grepprg, '$+') >= 0
     let buffers = filter(map(filter(range(1, bufnr('$')), 'bufloaded(v:val)'),
           \ 'bufname(v:val)'), 'filereadable(v:val)')
+    if empty(buffers)
+      call s:error('No buffer is backed by a file!')
+      return ['', 1]
+    endif
     let grepprg = substitute(grepprg, '\V$+', join(buffers), '')
   endif
 
@@ -413,12 +425,13 @@ function! s:build_cmdline(flags) abort
     let grepprg .= ' ' . a:flags.query
   endif
 
-  return grepprg
+  return [grepprg, 0]
 endfunction
 
 " s:run() {{{1
 function! s:run(flags)
-  let s:cmdline = s:build_cmdline(a:flags)
+  let [s:cmdline, err] = s:build_cmdline(a:flags)
+  if err | return | endif
 
   " 'cmd' and 'options' are only used for async execution.
   " Use 'cat' for stripping escape sequences.
