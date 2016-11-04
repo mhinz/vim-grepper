@@ -384,19 +384,16 @@ endfunction
 " s:get_grepprg() {{{1
 function! s:get_grepprg(flags) abort
   let tool = s:get_current_tool(a:flags)
-  if a:flags.buffer || a:flags.buffers
-    if has_key(tool, 'grepprgbuf')
-      let grepprg = tool.grepprgbuf
-    else
-      let grepprg = tool.grepprg .' -- $* $.'
-    endif
-    if a:flags.buffers
-      let grepprg = substitute(grepprg, '\V$.', '$+', '')
-    endif
-  else
-    let grepprg = tool.grepprg
+  if a:flags.buffers
+    return has_key(tool, 'grepprgbuf')
+          \ ? substitute(tool.grepprgbuf, '\V$.', '$+', '')
+          \ : tool.grepprg .' -- $* $+'
+  elseif a:flags.buffer
+    return has_key(tool, 'grepprgbuf')
+          \ ? tool.grepprgbuf
+          \ : tool.grepprg .' -- $* $.'
   endif
-  return grepprg
+  return tool.grepprg
 endfunction
 
 " s:build_cmdline() {{{1
