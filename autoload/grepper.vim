@@ -350,7 +350,7 @@ endfunction
 function! s:prompt(flags)
   let prompt_text = a:flags.simple_prompt
         \ ? s:get_current_tool_name(a:flags)
-        \ : s:get_current_tool(a:flags).grepprg
+        \ : s:get_grepprg(a:flags)
 
   let mapping = maparg(g:grepper.next_tool, 'c', '', 1)
   execute 'cnoremap' g:grepper.next_tool s:magic.next .'<cr>'
@@ -381,10 +381,9 @@ function! s:prompt(flags)
   endif
 endfunction
 
-" s:build_cmdline() {{{1
-function! s:build_cmdline(flags) abort
+" s:get_grepprg() {{{1
+function! s:get_grepprg(flags) abort
   let tool = s:get_current_tool(a:flags)
-
   if a:flags.buffer || a:flags.buffers
     if has_key(tool, 'grepprgbuf')
       let grepprg = tool.grepprgbuf
@@ -397,7 +396,12 @@ function! s:build_cmdline(flags) abort
   else
     let grepprg = tool.grepprg
   endif
+  return grepprg
+endfunction
 
+" s:build_cmdline() {{{1
+function! s:build_cmdline(flags) abort
+  let grepprg = s:get_grepprg(a:flags)
   let grepprg = substitute(grepprg, '\V$.', bufname(''), '')
 
   if stridx(grepprg, '$+') >= 0
