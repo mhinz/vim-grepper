@@ -34,7 +34,7 @@ let s:defaults = {
       \                    'grepformat': '%f:%l:%c:%m',
       \                    'escape':     '\^$.*+?()[]{}|' },
       \ 'grep':          { 'grepprg':    'grep -Rn $* .',
-      \                    'grepprgbuf': 'grep -Hn $* $.',
+      \                    'grepprgbuf': 'grep -Hn -- $* $.',
       \                    'grepformat': '%f:%l:%m',
       \                    'escape':     '\^$.*[]' },
       \ 'findstr':       { 'grepprg':    'findstr -rspnc:"$*" *',
@@ -388,7 +388,7 @@ function! s:get_grepprg(flags) abort
     if has_key(tool, 'grepprgbuf')
       let grepprg = tool.grepprgbuf
     else
-      let grepprg = tool.grepprg .' $* $.'
+      let grepprg = tool.grepprg .' -- $* $.'
     endif
     if a:flags.buffers
       let grepprg = substitute(grepprg, '\V$.', '$+', '')
