@@ -422,6 +422,10 @@ endfunction
 function! s:build_cmdline(flags) abort
   let grepprg = s:get_grepprg(a:flags)
 
+  if has_key(a:flags, 'buflist')
+    call map(a:flags.buflist, 'shellescape(v:val)')
+  endif
+
   if stridx(grepprg, '$.') >= 0
     let grepprg = substitute(grepprg, '\V$.', a:flags.buflist[0], '')
   endif
