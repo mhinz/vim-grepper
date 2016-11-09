@@ -36,7 +36,11 @@ Use your favorite plugin manager. E.g.
 
 ## Demo
 
+General usage:
+
 ![vim-grepper](https://github.com/mhinz/vim-grepper/blob/master/pictures/grepper-demo.gif)
+
+Grepping only files currently loaded in Vim:
 
 ![vim-grepper](https://github.com/mhinz/vim-grepper/blob/master/pictures/grepper-demo2.gif)
 
