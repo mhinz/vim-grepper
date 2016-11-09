@@ -38,6 +38,8 @@ Use your favorite plugin manager. E.g.
 
 ![vim-grepper](https://github.com/mhinz/vim-grepper/blob/master/pictures/grepper-demo.gif)
 
+![vim-grepper](https://github.com/mhinz/vim-grepper/blob/master/pictures/grepper-demo2.gif)
+
 ## Feedback
 
 If you like this plugin, star it! It's a great way of getting feedback. The same
