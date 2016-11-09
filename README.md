@@ -13,8 +13,9 @@ Use your **favorite grep tool**
 grep) to start an **asynchronous search**. All matches will be thrown in a
 **quickfix or location list**.
 
-- **Prompt**: Use `:Grepper` to open a prompt, enter your query, optionally
-  cycle through the list of tools, fire up the search.
+- [Prompt](https://github.com/mhinz/vim-grepper/wiki/using-the-prompt): Use
+  `:Grepper` to open a prompt, enter your query, optionally cycle through the
+  list of tools, fire up the search.
 - **Operator**: Use the current visual selection to pre-fill the prompt or start
   searching right away.
 - **Commands**: All supported tools come with their own command for convenience:
