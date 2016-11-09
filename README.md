@@ -19,8 +19,9 @@ grep) to start an **asynchronous search**. All matches will be thrown in a
 - [Operator](https://github.com/mhinz/vim-grepper/wiki/using-the-operator): Use
   the current visual selection to pre-fill the prompt or start searching right
   away.
-- **Commands**: All supported tools come with their own command for convenience:
-  `:GrepperGit`, `:GrepperAg`, and so on.
+- [Commands](https://github.com/mhinz/vim-grepper/wiki/using-the-commands): All
+  supported tools come with their own command for convenience: `:GrepperGit`,
+  `:GrepperAg`, and so on.
 - **Custom commands**: `:Grepper` takes flags that can be used to build your own
   commands. Actually, all the default commands like `:GrepperAck` are built atop
   of `:Grepper`.
