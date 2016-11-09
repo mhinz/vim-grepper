@@ -22,7 +22,7 @@ grep) to start an **asynchronous search**. All matches will be thrown in a
 - **Commands**: All supported tools come with their own command for convenience:
   `:GrepperGit`, `:GrepperAg`, and so on.
 - **Custom commands**: `:Grepper` takes flags that can be used to build your own
-  commands. Actually, all the default commands like `:GrepperAck` a built atop
+  commands. Actually, all the default commands like `:GrepperAck` are built atop
   of `:Grepper`.
 
 _The truth is out there. And in `:h grepper`._
