@@ -52,6 +52,7 @@ These tools are supported by default:
     'findstr'
     'rg'
     'pt'
+    'sift'
     'git'
 
 ==============================================================================
@@ -206,7 +207,7 @@ supported keys are:
 
     Defaults to:
 >
-    ['ag', 'ack', 'grep', 'findstr', 'rg', 'pt', 'git']
+    ['ag', 'ack', 'grep', 'findstr', 'rg', 'pt', 'sift, 'git']
 <
  next_tool~
 

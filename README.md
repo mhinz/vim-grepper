@@ -9,6 +9,7 @@ Use your **favorite grep tool**
 [ack](http://beyondgrep.com), [git grep](https://git-scm.com/docs/git-grep),
 [ripgrep](https://github.com/BurntSushi/ripgrep),
 [pt](https://github.com/monochromegane/the_platinum_searcher),
+[sift](https://sift-tool.org),
 [findstr](https://www.microsoft.com/resources/documentation/windows/xp/all/proddocs/en-us/findstr.mspx),
 grep) to start an **asynchronous search**. All matches will be put in a
 **quickfix or location list**.
