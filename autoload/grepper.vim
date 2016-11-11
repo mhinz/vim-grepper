@@ -478,6 +478,7 @@ function! s:run(flags)
       silent! call job_stop(s:id)
     endif
     let s:id = job_start(cmd, {
+          \ 'in_io':    'null',
           \ 'err_io':   'out',
           \ 'out_cb':   function('s:on_stdout_vim', options),
           \ 'close_cb': function('s:on_exit', options),
