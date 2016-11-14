@@ -31,6 +31,11 @@ This plugin is written in pure VimL and works with Vim and Neovim.
 - [Custom tools](https://github.com/mhinz/vim-grepper/wiki/Add-a-tool): Changing
   the behaviour of the default tools is very easy. And so is adding new tools.
 
+--
+
+Example configurations can be found:
+[here](https://github.com/mhinz/vim-grepper/wiki/example-configurations-and-mappings)
+
 _The truth is out there. And in `:h grepper`. And in the
 [wiki](https://github.com/mhinz/vim-grepper/wiki)._
 
