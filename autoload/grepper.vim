@@ -626,13 +626,16 @@ function! grepper#operator(type) abort
 endfunction
 " }}}
 
-" s:side() {{{1
+" -side {{{1
+let s:filename_regexp = '\v^\>\>\> [[:alnum:]\/\-_.~]+:\d+'
+
+" s:side() {{{2
 function! s:side() abort
   call s:side_create_window()
   call s:side_buffer_settings()
 endfunction
 
-" s:side_create_window() {{{1
+" s:side_create_window() {{{2
 function! s:side_create_window() abort
   " Contexts are lists of a fixed format:
   "
@@ -686,7 +689,7 @@ function! s:side_create_window() abort
   let &l:statusline = printf(' Found %d matches in %d files.', nummatches, numfiles)
 endfunction
 
-" s:side_buffer_settings() {{{1
+" s:side_buffer_settings() {{{2
 function! s:side_buffer_settings() abort
   nnoremap <buffer> q    :bdelete<cr>
   nnoremap <buffer> <cr> :call <sid>context_jump(1)<cr>
@@ -700,25 +703,25 @@ function! s:side_buffer_settings() abort
   normal! n
 
   setfiletype GrepperSide
-  syntax match GrepperSideFile /\v^\>\>\> [[:alnum:]\/\-_.~]+:\d+/
+  execute 'syntax match GrepperSideFile /'. s:filename_regexp .'/'
   highlight default link GrepperSideFile Directory
 endfunction
 
-" s:side_context_next() {{{1
+" s:side_context_next() {{{2
 function! s:context_next() abort
-  call search('\v^\>\>\> [[:alnum:]\/\-_.~]+:\d+')
+  call search(s:filename_regexp)
 endfunction
 
-" s:side_context_previous() {{{1
+" s:side_context_previous() {{{2
 function! s:context_previous() abort
-  call search('\v^\>\>\> [[:alnum:]\/\-_.~]+:\d+', 'bc')
+  call search(s:filename_regexp, 'bc')
   -
-  call search('\v^\>\>\> [[:alnum:]\/\-_.~]+:\d+', 'b')
+  call search(s:filename_regexp, 'b')
 endfunction
 
-" s:side_context_jump() {{{1
+" s:side_context_jump() {{{2
 function! s:context_jump(close_window) abort
-  let fileline = search('\v^\>\>\> [[:alnum:]\/\-_.~]+:\d+', 'bcn')
+  let fileline = search(s:filename_regexp, 'bcn')
   if empty(fileline)
     return
   endif
