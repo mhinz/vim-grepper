@@ -627,7 +627,7 @@ endfunction
 " }}}
 
 " -side {{{1
-let s:filename_regexp = '\v^\>\>\> [[:alnum:]\/\-_.~]+:\d+'
+let s:filename_regexp = '\v^\>\>\> ([[:alnum:][:blank:]\/\-_.~]+):(\d+)'
 
 " s:side() {{{2
 function! s:side() abort
@@ -726,14 +726,13 @@ function! s:context_jump(close_window) abort
   if empty(fileline)
     return
   endif
-  let [filename, line] =
-        \ matchlist(getline(fileline), '\v^\>\>\> ([[:alnum:]\/\-_.~]+):(\d+)')[1:2]
+  let [filename, line] = matchlist(getline(fileline), s:filename_regexp)[1:2]
   if a:close_window
     close
-    execute 'edit +'.line filename
+    execute 'edit +'.line fnameescape(filename)
   else
     wincmd p
-    execute 'edit +'.line filename
+    execute 'edit +'.line fnameescape(filename)
     wincmd p
   endif
 endfunction
