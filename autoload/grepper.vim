@@ -10,6 +10,7 @@ let s:defaults = {
       \ 'quickfix':      1,
       \ 'open':          1,
       \ 'switch':        1,
+      \ 'side':          0,
       \ 'jump':          0,
       \ 'cword':         0,
       \ 'prompt':        1,
@@ -152,9 +153,9 @@ endfunction
 function! grepper#complete(lead, line, _pos) abort
   if a:lead =~ '^-'
     let flags = ['-buffer', '-buffers', '-cword', '-grepprg', '-highlight',
-          \ '-jump', '-open', '-prompt', '-query', '-quickfix', '-switch',
-          \ '-tool', '-nohighlight', '-nojump', '-noopen', '-noprompt',
-          \ '-noquickfix', '-noswitch']
+          \ '-jump', '-open', '-prompt', '-query', '-quickfix', '-side',
+          \ '-switch', '-tool', '-nohighlight', '-nojump', '-noopen',
+          \ '-noprompt', '-noquickfix', '-noswitch']
     return filter(map(flags, 'v:val." "'), 'v:val[:strlen(a:lead)-1] ==# a:lead')
   elseif a:line =~# '-tool \w*$'
     return filter(map(sort(copy(g:grepper.tools)), 'v:val." "'),
@@ -224,6 +225,7 @@ function! grepper#parse_flags(args) abort
     elseif flag =~? '\v^-%(no)?buffer$'        | let flags.buffer    = flag !~? '^-no'
     elseif flag =~? '\v^-%(no)?buffers$'       | let flags.buffers   = flag !~? '^-no'
     elseif flag =~? '^-cword$'                 | let flags.cword     = 1
+    elseif flag =~? '^-side$'                  | let flags.side      = 1
     elseif flag =~? '^-grepprg$'
       if args != ''
         if !exists('tool')
@@ -299,6 +301,11 @@ function! s:process_flags(flags)
     elseif a:flags.query =~# s:magic.esc
       return
     endif
+  endif
+
+  if a:flags.side
+    let a:flags.highlight = 1
+    let a:flags.open      = 0
   endif
 
   if a:flags.highlight
@@ -571,6 +578,10 @@ function! s:finish_up(flags)
   redraw
   echo printf('Found %d matches.', size)
 
+  if a:flags.side
+    call s:side()
+  endif
+
   if exists('#User#Grepper')
     execute 'doautocmd' (s:has_doau_modeline ? '<nomodeline>' : '') 'User Grepper'
   endif
@@ -612,4 +623,101 @@ function! grepper#operator(type) abort
   let @@ = regsave
 
   return s:start(flags)
+endfunction
+" }}}
+
+" s:side() {{{1
+function! s:side() abort
+  call s:side_create_window()
+  call s:side_buffer_settings()
+endfunction
+
+" s:side_create_window() {{{1
+function! s:side_create_window() abort
+  " Contexts are lists of a fixed format:
+  "
+  "   [0] = actual line number
+  "   [1] = begin of context
+  "   [2] = end of context
+  let contexts = {}
+
+  " process quickfix entries
+  for entry in getqflist()
+    let bufname = bufname(entry.bufnr)
+    if has_key(contexts, bufname)
+      if (contexts[bufname][-1][2] + 2) > entry.lnum
+        " merge entries that are close to each other into the same context
+        let contexts[bufname][-1][2] = entry.lnum + 2
+      else
+        " new context in same file
+        let start = entry.lnum - 4
+        if start < 0
+          let start = 0
+        endif
+        let contexts[bufname] += [[entry.lnum, start, entry.lnum+2]]
+      endif
+    else
+      " new context in new file
+      let start = entry.lnum - 4
+      if start < 0
+        let start = 0
+      endif
+      let contexts[bufname] = [[entry.lnum, start, entry.lnum+2]]
+    end
+  endfor
+
+  vnew
+
+  " write contexts to buffer
+  for [filename, contexts] in items(contexts)
+    let file = readfile(expand(filename))
+    for context in contexts
+      call append('$', '>>> '. filename .':'. context[0])
+      call append('$', file[context[1]:context[2]])
+    endfor
+    call append('$', '')
+  endfor
+
+  silent $delete _
+  silent 1delete _
+
+  let nummatches = len(getqflist())
+  let numfiles = len(uniq(map(getqflist(), 'bufname(v:val.bufnr)')))
+  let &l:statusline = printf(' Found %d matches in %d files.', nummatches, numfiles)
+endfunction
+
+" s:side_buffer_settings() {{{1
+function! s:side_buffer_settings() abort
+  nnoremap <buffer> q    :bdelete<cr>
+  nnoremap <buffer> <cr> :call <sid>context_jump(1)<cr>
+  nnoremap <buffer> o    :call <sid>context_jump(0)<cr>
+  nnoremap <buffer> }    :call search('\v^\>\>\> [[:alnum:]\/\-_.~]+:\d+')<cr>
+  nnoremap <buffer> {    :call search('\v^\>\>\> [[:alnum:]\/\-_.~]+:\d+', 'b')<cr>
+
+  setlocal buftype=nofile
+
+  normal! zR
+  normal! n
+
+  setfiletype GrepperSide
+  syntax match GrepperSideFile /\v^\>\>\> [[:alnum:]\/\-_.~]+:\d+/
+  highlight default link GrepperSideFile Directory
+endfunction
+
+" s:side_context_jump() {{{1
+function! s:context_jump(close_window) abort
+  let fileline = search('\v^\>\>\> [[:alnum:]\/\-_.~]+:\d+', 'bcn')
+  if empty(fileline)
+    return
+  endif
+  let [filename, line] =
+        \ matchlist(getline(fileline), '\v^\>\>\> ([[:alnum:]\/\-_.~]+):(\d+)')[1:2]
+  if a:close_window
+    bdelete
+    execute 'edit +'.line filename
+  else
+    wincmd p
+    execute 'edit +'.line filename
+    wincmd p
+  endif
 endfunction
