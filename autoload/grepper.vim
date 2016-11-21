@@ -697,12 +697,13 @@ function! s:side_buffer_settings() abort
   nnoremap <buffer> }    :call <sid>context_next()<cr>
   nnoremap <buffer> {    :call <sid>context_previous()<cr>
 
-  setlocal buftype=nofile
+  setlocal buftype=nofile bufhidden=wipe nonumber norelativenumber foldcolumn=0
 
   normal! zR
   normal! n
 
   setfiletype GrepperSide
+
   execute 'syntax match GrepperSideFile /'. s:filename_regexp .'/'
   highlight default link GrepperSideFile Directory
 endfunction
@@ -728,7 +729,7 @@ function! s:context_jump(close_window) abort
   let [filename, line] =
         \ matchlist(getline(fileline), '\v^\>\>\> ([[:alnum:]\/\-_.~]+):(\d+)')[1:2]
   if a:close_window
-    bdelete
+    close
     execute 'edit +'.line filename
   else
     wincmd p
