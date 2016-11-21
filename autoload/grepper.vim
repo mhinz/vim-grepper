@@ -691,8 +691,8 @@ function! s:side_buffer_settings() abort
   nnoremap <buffer> q    :bdelete<cr>
   nnoremap <buffer> <cr> :call <sid>context_jump(1)<cr>
   nnoremap <buffer> o    :call <sid>context_jump(0)<cr>
-  nnoremap <buffer> }    :call search('\v^\>\>\> [[:alnum:]\/\-_.~]+:\d+')<cr>
-  nnoremap <buffer> {    :call search('\v^\>\>\> [[:alnum:]\/\-_.~]+:\d+', 'b')<cr>
+  nnoremap <buffer> }    :call <sid>context_next()<cr>
+  nnoremap <buffer> {    :call <sid>context_previous()<cr>
 
   setlocal buftype=nofile
 
@@ -702,6 +702,18 @@ function! s:side_buffer_settings() abort
   setfiletype GrepperSide
   syntax match GrepperSideFile /\v^\>\>\> [[:alnum:]\/\-_.~]+:\d+/
   highlight default link GrepperSideFile Directory
+endfunction
+
+" s:side_context_next() {{{1
+function! s:context_next() abort
+  call search('\v^\>\>\> [[:alnum:]\/\-_.~]+:\d+')
+endfunction
+
+" s:side_context_previous() {{{1
+function! s:context_previous() abort
+  call search('\v^\>\>\> [[:alnum:]\/\-_.~]+:\d+', 'bc')
+  -
+  call search('\v^\>\>\> [[:alnum:]\/\-_.~]+:\d+', 'b')
 endfunction
 
 " s:side_context_jump() {{{1
