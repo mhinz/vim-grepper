@@ -639,8 +639,8 @@ endfunction
 function! s:side_create_window() abort
   " Contexts are lists of a fixed format:
   "
-  "   [0] = actual line number
-  "   [1] = begin of context
+  "   [0] = line number of the match
+  "   [1] = start of context
   "   [2] = end of context
   let contexts = {}
 
@@ -653,19 +653,13 @@ function! s:side_create_window() abort
         let contexts[bufname][-1][2] = entry.lnum + 2
       else
         " new context in same file
-        let start = entry.lnum - 4
-        if start < 0
-          let start = 0
-        endif
-        let contexts[bufname] += [[entry.lnum, start, entry.lnum+2]]
+        let start = (entry.lnum < 4) ? 0 : (entry.lnum - 4)
+        let contexts[bufname] += [[entry.lnum, start, entry.lnum + 2]]
       endif
     else
       " new context in new file
-      let start = entry.lnum - 4
-      if start < 0
-        let start = 0
-      endif
-      let contexts[bufname] = [[entry.lnum, start, entry.lnum+2]]
+      let start = (entry.lnum < 4) ? 0 : (entry.lnum - 4)
+      let contexts[bufname] = [[entry.lnum, start, entry.lnum + 2]]
     end
   endfor
 
