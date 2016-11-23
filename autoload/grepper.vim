@@ -672,10 +672,8 @@ function! s:side_create_window() abort
       call append('$', '>>> '. filename .':'. context[0])
       call append('$', file[context[1]:context[2]])
     endfor
-    call append('$', '')
   endfor
 
-  silent $delete _
   silent 1delete _
 
   let nummatches = len(getqflist())
