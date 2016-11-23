@@ -642,31 +642,33 @@ function! s:side_create_window() abort
   "   [0] = line number of the match
   "   [1] = start of context
   "   [2] = end of context
-  let contexts = {}
+  let regions = {}
 
   " process quickfix entries
   for entry in getqflist()
     let bufname = bufname(entry.bufnr)
-    if has_key(contexts, bufname)
-      if (contexts[bufname][-1][2] + 2) > entry.lnum
+    if has_key(regions, bufname)
+      if (regions[bufname][-1][2] + 2) > entry.lnum
         " merge entries that are close to each other into the same context
-        let contexts[bufname][-1][2] = entry.lnum + 2
+        let regions[bufname][-1][2] = entry.lnum + 2
       else
         " new context in same file
         let start = (entry.lnum < 4) ? 0 : (entry.lnum - 4)
-        let contexts[bufname] += [[entry.lnum, start, entry.lnum + 2]]
+        let regions[bufname] += [[entry.lnum, start, entry.lnum + 2]]
       endif
     else
       " new context in new file
       let start = (entry.lnum < 4) ? 0 : (entry.lnum - 4)
-      let contexts[bufname] = [[entry.lnum, start, entry.lnum + 2]]
+      let regions[bufname] = [[entry.lnum, start, entry.lnum + 2]]
     end
   endfor
 
   vnew
 
   " write contexts to buffer
-  for [filename, contexts] in items(contexts)
+  for filename in sort(keys(regions))
+    echomsg filename
+    let contexts = regions[filename]
     let file = readfile(expand(filename))
     for context in contexts
       call append('$', '>>> '. filename .':'. context[0])
