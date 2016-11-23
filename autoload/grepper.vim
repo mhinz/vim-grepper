@@ -627,7 +627,7 @@ endfunction
 " }}}
 
 " -side {{{1
-let s:filename_regexp = '\v^\>\>\> ([[:alnum:][:blank:]\/\-_.~]+):(\d+)'
+let s:filename_regexp = '\v^%(\>\>\>|\]\]\]) ([[:alnum:][:blank:]\/\-_.~]+):(\d+)'
 
 " s:side() {{{2
 function! s:side() abort
@@ -669,8 +669,13 @@ function! s:side_create_window() abort
   for filename in sort(keys(regions))
     let contexts = regions[filename]
     let file = readfile(expand(filename))
-    for context in contexts
-      call append('$', '>>> '. filename .':'. context[0])
+
+    let context = contexts[0]
+    call append('$', '>>> '. filename .':'. context[0])
+    call append('$', file[context[1]:context[2]])
+
+    for context in contexts[1:]
+      call append('$', ']]] '. filename .':'. context[0])
       call append('$', file[context[1]:context[2]])
     endfor
   endfor
@@ -684,7 +689,7 @@ endfunction
 
 " s:side_buffer_settings() {{{2
 function! s:side_buffer_settings() abort
-  nnoremap <silent><buffer> q    :bdelete<cr>
+  nnoremap <silent><buffer> q :bdelete<cr>
 
   nnoremap <silent><plug>(grepper-side-context-jump) :<c-u>call <sid>context_jump(1)
   nnoremap <silent><plug>(grepper-side-context-open) :<c-u>call <sid>context_jump(0)
@@ -702,9 +707,17 @@ function! s:side_buffer_settings() abort
   normal! zR
   normal! n
 
+  set conceallevel=2
+  set concealcursor=nvic
+
   setfiletype GrepperSide
 
-  execute 'syntax match GrepperSideFile /'. s:filename_regexp .'/'
+  syntax match GrepperSideSquareBracket /]/ contained containedin=GrepperSideSquareBrackets conceal cchar=.
+  execute 'syntax match GrepperSideSquareBrackets /^]]] \v'.s:filename_regexp[20:].'/ conceal contains=GrepperSideSquareBracket'
+
+  syntax match GrepperSideAngleBracket  /> \?/ contained containedin=GrepperSideFile conceal
+  execute 'syntax match GrepperSideFile /^>>> \v'.s:filename_regexp[20:].'/ contains=GrepperSideAngleBracket'
+
   highlight default link GrepperSideFile Directory
 endfunction
 
