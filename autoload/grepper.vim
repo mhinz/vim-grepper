@@ -685,10 +685,16 @@ endfunction
 " s:side_buffer_settings() {{{2
 function! s:side_buffer_settings() abort
   nnoremap <silent><buffer> q    :bdelete<cr>
-  nnoremap <silent><buffer> <cr> :call <sid>context_jump(1)<cr>
-  nnoremap <silent><buffer> o    :call <sid>context_jump(0)<cr>
-  nnoremap <silent><buffer> }    :call <sid>context_next()<cr>
-  nnoremap <silent><buffer> {    :call <sid>context_previous()<cr>
+
+  nnoremap <silent><plug>(grepper-side-context-jump) :<c-u>call <sid>context_jump(1)
+  nnoremap <silent><plug>(grepper-side-context-open) :<c-u>call <sid>context_jump(0)
+  nnoremap <silent><plug>(grepper-side-context-next) :<c-u>call <sid>context_next()
+  nnoremap <silent><plug>(grepper-side-context-prev) :<c-u>call <sid>context_previous()
+
+  nmap <buffer> <cr> <plug>(grepper-side-context-jump)<cr>
+  nmap <buffer> o    <plug>(grepper-side-context-open)<cr>
+  nmap <buffer> }    <plug>(grepper-side-context-next)<cr>
+  nmap <buffer> {    <plug>(grepper-side-context-prev)<cr>
 
   setlocal buftype=nofile bufhidden=wipe nonumber norelativenumber foldcolumn=0
   set nowrap
