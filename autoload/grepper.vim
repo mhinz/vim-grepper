@@ -667,7 +667,6 @@ function! s:side_create_window() abort
 
   " write contexts to buffer
   for filename in sort(keys(regions))
-    echomsg filename
     let contexts = regions[filename]
     let file = readfile(expand(filename))
     for context in contexts
