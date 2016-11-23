@@ -711,7 +711,12 @@ endfunction
 " s:side_context_previous() {{{2
 function! s:context_previous() abort
   call search(s:filename_regexp, 'bc')
-  -
+  if line('.') == 1
+    $
+    call s:side_context_scroll_into_viewport()
+  else
+    -
+  endif
   call search(s:filename_regexp, 'b')
 endfunction
 
