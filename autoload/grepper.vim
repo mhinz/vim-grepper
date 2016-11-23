@@ -684,13 +684,14 @@ endfunction
 
 " s:side_buffer_settings() {{{2
 function! s:side_buffer_settings() abort
-  nnoremap <buffer> q    :bdelete<cr>
-  nnoremap <buffer> <cr> :call <sid>context_jump(1)<cr>
-  nnoremap <buffer> o    :call <sid>context_jump(0)<cr>
-  nnoremap <buffer> }    :call <sid>context_next()<cr>
-  nnoremap <buffer> {    :call <sid>context_previous()<cr>
+  nnoremap <silent><buffer> q    :bdelete<cr>
+  nnoremap <silent><buffer> <cr> :call <sid>context_jump(1)<cr>
+  nnoremap <silent><buffer> o    :call <sid>context_jump(0)<cr>
+  nnoremap <silent><buffer> }    :call <sid>context_next()<cr>
+  nnoremap <silent><buffer> {    :call <sid>context_previous()<cr>
 
   setlocal buftype=nofile bufhidden=wipe nonumber norelativenumber foldcolumn=0
+  set nowrap
 
   normal! zR
   normal! n
@@ -704,6 +705,7 @@ endfunction
 " s:side_context_next() {{{2
 function! s:context_next() abort
   call search(s:filename_regexp)
+  call s:side_context_scroll_into_viewport()
 endfunction
 
 " s:side_context_previous() {{{2
@@ -711,6 +713,24 @@ function! s:context_previous() abort
   call search(s:filename_regexp, 'bc')
   -
   call search(s:filename_regexp, 'b')
+endfunction
+
+" s:side_context_scroll_into_viewport() {{{2
+function! s:side_context_scroll_into_viewport() abort
+  redraw  " needed for line('w$')
+  let next_context_line = search(s:filename_regexp, 'nW')
+  let current_line      = line('.')
+  let last_line         = line('$')
+  let last_visible_line = line('w$')
+  if next_context_line > 0
+    let context_length = (next_context_line - 1) - current_line
+  else
+    let context_length = last_line - current_line
+  endif
+  let scroll_length = context_length - (last_visible_line - current_line)
+  if scroll_length > 0
+    execute 'normal!' scroll_length."\<c-e>"
+  endif
 endfunction
 
 " s:side_context_jump() {{{2
