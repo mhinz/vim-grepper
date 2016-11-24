@@ -765,7 +765,7 @@ function! s:context_jump(close_window) abort
   endif
   let [filename, line] = matchlist(getline(fileline), s:filename_regexp)[1:2]
   if a:close_window
-    close
+    silent! close
     execute 'edit +'.line fnameescape(filename)
   else
     wincmd p
