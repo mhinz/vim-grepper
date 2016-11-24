@@ -579,7 +579,7 @@ function! s:finish_up(flags)
   echo printf('Found %d matches.', size)
 
   if a:flags.side
-    call s:side()
+    call s:side(a:flags.quickfix)
   endif
 
   if exists('#User#Grepper')
@@ -630,22 +630,23 @@ endfunction
 let s:filename_regexp = '\v^%(\>\>\>|\]\]\]) ([[:alnum:][:blank:]\/\-_.~]+):(\d+)'
 
 " s:side() {{{2
-function! s:side() abort
-  call s:side_create_window()
+function! s:side(use_quickfix) abort
+  call s:side_create_window(a:use_quickfix)
   call s:side_buffer_settings()
 endfunction
 
 " s:side_create_window() {{{2
-function! s:side_create_window() abort
+function! s:side_create_window(use_quickfix) abort
   " Contexts are lists of a fixed format:
   "
   "   [0] = line number of the match
   "   [1] = start of context
   "   [2] = end of context
   let regions = {}
+  let list = a:use_quickfix ? getqflist() : getloclist(0)
 
   " process quickfix entries
-  for entry in getqflist()
+  for entry in list
     let bufname = bufname(entry.bufnr)
     if has_key(regions, bufname)
       if (regions[bufname][-1][2] + 2) > entry.lnum
