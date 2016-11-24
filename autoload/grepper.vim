@@ -713,6 +713,8 @@ function! s:side_buffer_settings() abort
   set conceallevel=2
   set concealcursor=nvic
 
+  let b:grepper_side = s:filename_regexp
+
   setfiletype GrepperSide
 
   syntax match GrepperSideSquareBracket /]/ contained containedin=GrepperSideSquareBrackets conceal cchar=.
