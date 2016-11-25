@@ -49,29 +49,24 @@ let s:defaults = {
 
 let s:has_doau_modeline = v:version > 703 || v:version == 703 && has('patch442')
 
-"
-" Enrich missing values in g:grepper with default ones.
-"
-" Making g:grepper a deep copy of the default values and enriching it with the
-" user configuration afterwards takes less copying than taking the user
-" configuration and enriching it with the default values.
-"
-if exists('g:grepper')
-  let userconfig = deepcopy(g:grepper)
-  let g:grepper = s:defaults
-  for key in keys(userconfig)
-    if type(userconfig[key]) == type({})
-      if !has_key(g:grepper, key)
-        let g:grepper[key] = {}
+function! s:merge_configs(smallconfig, bigconfig) abort
+  let newconfig = deepcopy(a:bigconfig)
+  for key in keys(a:smallconfig)
+    if type(a:smallconfig[key]) == type({})
+      if !has_key(newconfig, key)
+        let newconfig[key] = {}
       endif
-      call extend(g:grepper[key], userconfig[key])
+      call extend(newconfig[key], a:smallconfig[key])
     else
-      let g:grepper[key] = userconfig[key]
+      let newconfig[key] = a:smallconfig[key]
     endif
   endfor
-else
-  let g:grepper = s:defaults
-endif
+  return newconfig
+endfunction
+
+let g:grepper = exists('g:grepper')
+      \ ? s:merge_configs(g:grepper, s:defaults)
+      \ : s:defaults
 
 for tool in g:grepper.tools
   if !has_key(g:grepper, tool)
@@ -288,7 +283,11 @@ endfunction
 
 " #parse_flags() {{{1
 function! grepper#parse_flags(args) abort
-  let flags = extend({ 'query': '', 'query_escaped': 0 }, g:grepper)
+  let flags = exists('b:grepper')
+        \ ? s:merge_configs(b:grepper, g:grepper)
+        \ : deepcopy(g:grepper)
+  let flags.query = ''
+  let flags.query_escaped = 0
   let [flag, args] = s:split_one(a:args)
 
   while flag != ''
@@ -772,7 +771,9 @@ function! grepper#operator(type) abort
   endif
 
   let &selection = selsave
-  let flags = deepcopy(g:grepper)
+  let flags = exists('b:grepper')
+        \ ? s:merge_configs(b:grepper, g:grepper)
+        \ : deepcopy(g:grepper)
   let flags.query_orig = @@
   let flags.query_escaped = 0
   let flags.query = '-- '. s:escape_query(flags, @@)
