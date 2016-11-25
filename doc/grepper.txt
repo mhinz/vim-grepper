@@ -152,7 +152,7 @@ dedicated plugins:
     - https://github.com/romainl/vim-qf
 
 ==============================================================================
-OPTIONS                                *g:grepper* *b:grepper* *grepper-options*
+OPTIONS                                    *g:grepper* *b:grepper* *grepper-options*
 
 This plugin uses a single |Dictionary| for all configuration: g:grepper. For
 buffer-local configurations use b:grepper instead.
