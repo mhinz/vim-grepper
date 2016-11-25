@@ -1,4 +1,4 @@
-" vim: tw=80
+" Initialization {{{1
 
 " Escaping test line:
 " ..ad\\f40+$':-# @=,!;%^&&*()_{}/ /4304\'""?`9$343%$ ^adfadf[ad)[(
@@ -103,16 +103,8 @@ let s:cmdline = ''
 let s:slash   = exists('+shellslash') && !&shellslash ? '\' : '/'
 let s:magic   = { 'next': '$$$next###', 'esc': '$$$esc###' }
 
-" s:error() {{{1
-function! s:error(msg)
-  redraw
-  echohl ErrorMsg
-  echomsg a:msg
-  echohl NONE
-endfunction
-" }}}
-
-" s:on_stdout_nvim() {{{1
+" Job handlers {{{1
+" s:on_stdout_nvim() {{{2
 function! s:on_stdout_nvim(job_id, data) dict abort
   if empty(self.stdoutbuf) || empty(self.stdoutbuf[-1])
     let self.stdoutbuf += a:data
@@ -123,17 +115,17 @@ function! s:on_stdout_nvim(job_id, data) dict abort
   endif
 endfunction
 
-" s:on_stdout_vim() {{{1
+" s:on_stdout_vim() {{{2
 function! s:on_stdout_vim(job_id, data) dict abort
   let self.stdoutbuf += [a:data]
 endfunction
 
-" s:on_stderr() {{{1
+" s:on_stderr() {{{2
 function! s:on_stderr(job_id, data) dict abort
   let self.stdoutbuf += a:data
 endfunction
 
-" s:on_exit() {{{1
+" s:on_exit() {{{2
 function! s:on_exit(id_or_channel) dict abort
   execute 'tabnext' self.tabpage
   execute self.window .'wincmd w'
@@ -147,9 +139,9 @@ function! s:on_exit(id_or_channel) dict abort
   silent! unlet s:id
   return s:finish_up(self.flags)
 endfunction
-" }}}
 
-" #complete() {{{1
+" Completion {{{1
+" #complete() {{{2
 function! grepper#complete(lead, line, _pos) abort
   if a:lead =~ '^-'
     let flags = ['-buffer', '-buffers', '-cword', '-grepprg', '-highlight',
@@ -165,7 +157,7 @@ function! grepper#complete(lead, line, _pos) abort
   endif
 endfunction
 
-" #complete_files() {{{1
+" #complete_files() {{{2
 function! grepper#complete_files(lead, _line, _pos)
   let [head, path] = s:extract_path(a:lead)
   " handle relative paths
@@ -180,7 +172,7 @@ function! grepper#complete_files(lead, _line, _pos)
   endif
 endfunction
 
-" s:extract_path() {{{1
+" s:extract_path() {{{2
 function! s:extract_path(string) abort
   let item = split(a:string, '.*\s\zs', 1)
   let len  = len(item)
@@ -193,22 +185,106 @@ function! s:extract_path(string) abort
 
   return [head, path]
 endfunction
-" }}}
 
-" s:lstrip() {{{1
+" Helpers {{{1
+" s:error() {{{2
+function! s:error(msg)
+  redraw
+  echohl ErrorMsg
+  echomsg a:msg
+  echohl NONE
+endfunction
+
+" s:lstrip() {{{2
 function! s:lstrip(string) abort
   return substitute(a:string, '^\s\+', '', '')
 endfunction
-" }}}
 
-" s:split_one() {{{1
+" s:split_one() {{{2
 function! s:split_one(string) abort
   let stripped = s:lstrip(a:string)
   let first_word = substitute(stripped, '\v^(\S+).*', '\1', '')
   let rest = substitute(stripped, '\v^\S+\s*(.*)', '\1', '')
   return [first_word, rest]
 endfunction
-" }}}
+
+" s:next_tool() {{{2
+function! s:next_tool(flags)
+  let a:flags.tools = a:flags.tools[1:-1] + [a:flags.tools[0]]
+endfunction
+
+" s:get_current_tool() {{{2
+function! s:get_current_tool(flags) abort
+  return a:flags[a:flags.tools[0]]
+endfunction
+
+" s:get_current_tool_name() {{{2
+function! s:get_current_tool_name(flags) abort
+  return a:flags.tools[0]
+endfunction
+
+" s:get_grepprg() {{{2
+function! s:get_grepprg(flags) abort
+  let tool = s:get_current_tool(a:flags)
+  if a:flags.buffers
+    return has_key(tool, 'grepprgbuf')
+          \ ? substitute(tool.grepprgbuf, '\V$.', '$+', '')
+          \ : tool.grepprg .' -- $* $+'
+  elseif a:flags.buffer
+    return has_key(tool, 'grepprgbuf')
+          \ ? tool.grepprgbuf
+          \ : tool.grepprg .' -- $* $.'
+  endif
+  return tool.grepprg
+endfunction
+
+" s:store_errorformat() {{{2
+function! s:store_errorformat(flags) abort
+  let prog = s:get_current_tool(a:flags)
+  let s:errorformat = &errorformat
+  let &errorformat = has_key(prog, 'grepformat') ? prog.grepformat : &errorformat
+endfunction
+
+" s:restore_errorformat() {{{2
+function! s:restore_errorformat() abort
+  let &errorformat = s:errorformat
+endfunction
+
+" s:restore_mapping() {{{2
+function! s:restore_mapping(mapping)
+  if !empty(a:mapping)
+    execute printf('%s %s%s%s%s %s %s',
+          \ (a:mapping.noremap ? 'cnoremap' : 'cmap'),
+          \ (a:mapping.silent  ? '<silent>' : ''    ),
+          \ (a:mapping.buffer  ? '<buffer>' : ''    ),
+          \ (a:mapping.nowait  ? '<nowait>' : ''    ),
+          \ (a:mapping.expr    ? '<expr>'   : ''    ),
+          \  a:mapping.lhs,
+          \  a:mapping.rhs)
+  endif
+endfunction
+
+" s:escape_query() {{{2
+function! s:escape_query(flags, query)
+  let tool = s:get_current_tool(a:flags)
+  let a:flags.query_escaped = 1
+  return shellescape(has_key(tool, 'escape')
+        \ ? escape(a:query, tool.escape)
+        \ : a:query)
+endfunction
+
+" s:unescape_query() {{{2
+function! s:unescape_query(flags, query)
+  let tool = s:get_current_tool(a:flags)
+  let q = a:query
+  if has_key(tool, 'escape')
+    for c in reverse(split(tool.escape, '\zs'))
+      let q = substitute(q, '\V\\'.c, c, 'g')
+    endfor
+  endif
+  return q
+endfunction
+" }}}1
 
 " #parse_flags() {{{1
 function! grepper#parse_flags(args) abort
@@ -317,49 +393,6 @@ function! s:process_flags(flags)
   return 0
 endfunction
 
-" s:highlight_query() {{{1
-function! s:highlight_query(flags)
-  " Change Vim's '\'' to ' so it can be understood by /.
-  let vim_query = substitute(a:flags.query, "'\\\\''", "'", 'g')
-
-  " Remove surrounding quotes that denote a string.
-  let start = vim_query[0]
-  let end = vim_query[-1:-1]
-  if start == end && start =~ "\['\"]"
-    let vim_query = vim_query[1:-2]
-  endif
-
-  if a:flags.query_escaped
-    let vim_query = s:unescape_query(a:flags, vim_query)
-    let vim_query = escape(vim_query, '\')
-    let vim_query = '\V'. vim_query
-  else
-    " \bfoo\b -> \<foo\> Assume only one pair.
-    let vim_query = substitute(vim_query, '\v\\b(.{-})\\b', '\\<\1\\>', '')
-    " *? -> \{-}
-    let vim_query = substitute(vim_query, '*\\\=?', '\\{-}', 'g')
-    " +? -> \{-1,}
-    let vim_query = substitute(vim_query, '\\\=+\\\=?', '\\{-1,}', 'g')
-    let vim_query = escape(vim_query, '+')
-  endif
-
-  let @/ = vim_query
-  call histadd('search', vim_query)
-  call feedkeys(":set hls\<bar>echo\<cr>", 'n')
-endfunction
-
-" s:unescape_query() {{{1
-function! s:unescape_query(flags, query)
-  let tool = s:get_current_tool(a:flags)
-  let q = a:query
-  if has_key(tool, 'escape')
-    for c in reverse(split(tool.escape, '\zs'))
-      let q = substitute(q, '\V\\'.c, c, 'g')
-    endfor
-  endif
-  return q
-endfunction
-
 " s:start() {{{1
 function! s:start(flags) abort
   if empty(g:grepper.tools)
@@ -412,21 +445,6 @@ function! s:prompt(flags)
   elseif a:flags.query =~# s:magic.esc
     call histdel('input', -1)
   endif
-endfunction
-
-" s:get_grepprg() {{{1
-function! s:get_grepprg(flags) abort
-  let tool = s:get_current_tool(a:flags)
-  if a:flags.buffers
-    return has_key(tool, 'grepprgbuf')
-          \ ? substitute(tool.grepprgbuf, '\V$.', '$+', '')
-          \ : tool.grepprg .' -- $* $+'
-  elseif a:flags.buffer
-    return has_key(tool, 'grepprgbuf')
-          \ ? tool.grepprgbuf
-          \ : tool.grepprg .' -- $* $.'
-  endif
-  return tool.grepprg
 endfunction
 
 " s:build_cmdline() {{{1
@@ -499,42 +517,6 @@ function! s:run(flags)
   endif
 endfunction
 
-" s:get_current_tool() {{{1
-function! s:get_current_tool(flags) abort
-  return a:flags[a:flags.tools[0]]
-endfunction
-
-" s:get_current_tool_name() {{{1
-function! s:get_current_tool_name(flags) abort
-  return a:flags.tools[0]
-endfunction
-
-" s:store_errorformat() {{{1
-function! s:store_errorformat(flags) abort
-  let prog = s:get_current_tool(a:flags)
-  let s:errorformat = &errorformat
-  let &errorformat = has_key(prog, 'grepformat') ? prog.grepformat : &errorformat
-endfunction
-
-" s:restore_errorformat() {{{1
-function! s:restore_errorformat() abort
-  let &errorformat = s:errorformat
-endfunction
-
-" s:restore_mapping() {{{1
-function! s:restore_mapping(mapping)
-  if !empty(a:mapping)
-    execute printf('%s %s%s%s%s %s %s',
-          \ (a:mapping.noremap ? 'cnoremap' : 'cmap'),
-          \ (a:mapping.silent  ? '<silent>' : ''    ),
-          \ (a:mapping.buffer  ? '<buffer>' : ''    ),
-          \ (a:mapping.nowait  ? '<nowait>' : ''    ),
-          \ (a:mapping.expr    ? '<expr>'   : ''    ),
-          \  a:mapping.lhs,
-          \  a:mapping.rhs)
-  endif
-endfunction
-
 " s:finish_up() {{{1
 function! s:finish_up(flags)
   let qf = a:flags.quickfix
@@ -587,44 +569,39 @@ function! s:finish_up(flags)
   endif
 endfunction
 
-" s:escape_query() {{{1
-function! s:escape_query(flags, query)
-  let tool = s:get_current_tool(a:flags)
-  let a:flags.query_escaped = 1
-  return shellescape(has_key(tool, 'escape')
-        \ ? escape(a:query, tool.escape)
-        \ : a:query)
-endfunction
+" }}}1
 
-" s:next_tool() {{{1
-function! s:next_tool(flags)
-  let a:flags.tools = a:flags.tools[1:-1] + [a:flags.tools[0]]
-endfunction
+" -highlight {{{1
+" s:highlight_query() {{{2
+function! s:highlight_query(flags)
+  " Change Vim's '\'' to ' so it can be understood by /.
+  let vim_query = substitute(a:flags.query, "'\\\\''", "'", 'g')
 
-" #operator() {{{1
-function! grepper#operator(type) abort
-  let regsave = @@
-  let selsave = &selection
-  let &selection = 'inclusive'
-
-  if a:type =~? 'v'
-    silent execute "normal! gvy"
-  elseif a:type == 'line'
-    silent execute "normal! '[V']y"
-  else
-    silent execute "normal! `[v`]y"
+  " Remove surrounding quotes that denote a string.
+  let start = vim_query[0]
+  let end = vim_query[-1:-1]
+  if start == end && start =~ "\['\"]"
+    let vim_query = vim_query[1:-2]
   endif
 
-  let &selection = selsave
-  let flags = deepcopy(g:grepper)
-  let flags.query_orig = @@
-  let flags.query_escaped = 0
-  let flags.query = '-- '. s:escape_query(flags, @@)
-  let @@ = regsave
+  if a:flags.query_escaped
+    let vim_query = s:unescape_query(a:flags, vim_query)
+    let vim_query = escape(vim_query, '\')
+    let vim_query = '\V'. vim_query
+  else
+    " \bfoo\b -> \<foo\> Assume only one pair.
+    let vim_query = substitute(vim_query, '\v\\b(.{-})\\b', '\\<\1\\>', '')
+    " *? -> \{-}
+    let vim_query = substitute(vim_query, '*\\\=?', '\\{-}', 'g')
+    " +? -> \{-1,}
+    let vim_query = substitute(vim_query, '\\\=+\\\=?', '\\{-1,}', 'g')
+    let vim_query = escape(vim_query, '+')
+  endif
 
-  return s:start(flags)
+  let @/ = vim_query
+  call histadd('search', vim_query)
+  call feedkeys(":set hls\<bar>echo\<cr>", 'n')
 endfunction
-" }}}
 
 " -side {{{1
 let s:filename_regexp = '\v^%(\>\>\>|\]\]\]) ([[:alnum:][:blank:]\/\-_.~]+):(\d+)'
@@ -778,3 +755,30 @@ function! s:context_jump(close_window) abort
     wincmd p
   endif
 endfunction
+" }}}1
+
+" Operator {{{1
+function! grepper#operator(type) abort
+  let regsave = @@
+  let selsave = &selection
+  let &selection = 'inclusive'
+
+  if a:type =~? 'v'
+    silent execute "normal! gvy"
+  elseif a:type == 'line'
+    silent execute "normal! '[V']y"
+  else
+    silent execute "normal! `[v`]y"
+  endif
+
+  let &selection = selsave
+  let flags = deepcopy(g:grepper)
+  let flags.query_orig = @@
+  let flags.query_escaped = 0
+  let flags.query = '-- '. s:escape_query(flags, @@)
+  let @@ = regsave
+
+  return s:start(flags)
+endfunction
+
+" vim: tw=80 et sts=2 sw=2 fdm=marker
