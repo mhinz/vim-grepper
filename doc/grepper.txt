@@ -27,6 +27,7 @@ CONTENTS                                                      *grepper-contents*
             ADD TOOL ............... |grepper-add-tool|
             AUTOCMD ................ |grepper-autocmd|
             COLORS ................. |grepper-colors|
+            SIDE ................... |grepper-side|
             FAQ .................... |grepper-faq|
             EXAMPLE ................ |grepper-example|
 
@@ -84,6 +85,9 @@ Flags:~
 
 -[no]prompt          To prompt or not to prompt! Common uses are together with
                      -cword or -grepprg in a command.
+
+-side                Open a new window and show matches with surrounding
+                     context. Also see |grepper-side|.
 
 -tool <tool>         Any supported tool. Either from |grepper-tools| or ones
                      you added yourself via |grepper-add-tool|.
@@ -198,6 +202,11 @@ The supported keys are:
     Set prompt to tool name only, without displaying its options.
     Defaults to 0.
 
+ side~
+
+    Open a new window and show matches with surrounding context. Also see
+    |grepper-side|. Defaults to 0.
+
                                                          *grepper-options-tools*
  tools~
 
@@ -294,6 +303,49 @@ this:
     highlight Question ctermfg=160 guifg=#ff0000 cterm=NONE
 >
 For error messages, |hl-ErrorMsg| is used.
+
+==============================================================================
+SIDE                                                              *grepper-side*
+
+This feature opens a new window containing all matches plus three lines of
+surround context. Matches near to each other get merged into the same context.
+
+Implies -noopen and -highlight.
+
+Mappings:~
+
+  Use `}`and `{` to jump to contexts. `o` opens the current context in the
+  last window. `<cr>` opens the current context in the last window, but closes
+  the current window first.
+
+Colors:~
+
+  Only two things get highlighted: the filename and the separator between
+  contexts which uses the |conceal| feature. Change it like this:
+>
+    highlight GrepperSideFile ctermfg=161 cterm=reverse
+    highlight Conceal ctermfg=NONE ctermbg=250
+<
+  GrepperSideFile links to |hl-Directory| by default.
+
+Customization:~
+
+  After the buffer of the new window is filled with the matches, the
+  "GrepperSide" filetype is set.
+  There's also a buffer-local variable "b:grepper_side" that contains the
+  regular expression used for the context separators.
+
+  Example: indent contexts
+>
+    autocmd FileType GrepperSide
+      \  silent execute 'keeppatterns v#'.b:grepper_side.'#>'
+      \| silent normal! ggn
+<
+
+  Explanation: When the autocmd is triggered, |:vglobal| will match all lines
+  that are NOT context separators. These lines will be shifted using |:>|.
+  Since :vglobal works from top to bottom, we end up on the last line, so we
+  use |gg| and |n| to jump back to the first match afterwards.
 
 ==============================================================================
 FAQ                                                                *grepper-faq*
