@@ -62,7 +62,7 @@ COMMANDS                                                      *grepper-:Grepper*
 There is only one command:
 
 :Grepper [flags]     Opens the search prompt with the first tool in
-                     |grepper-options-tools|.
+                     |g:grepper.tools|.
 
                      After you inserted a query, an external process will be
                      kicked off and its result will be put into the quickfix
@@ -144,7 +144,7 @@ MAPPINGS                                                      *grepper-mappings*
 Search prompt:~
 
     <cr>     Start search with current query.
-    <tab>    Next tool. (See |grepper-options-tools| on how to change this.)
+    <tab>    Next tool. (See |g:grepper.tools| on how to change this.)
     <esc>    Close prompt without searching.
     <c-c>    Close prompt without searching.
     <c-f>    Open |cmdline-window|. Use <c-c><c-c> to quit without searching.
@@ -158,79 +158,128 @@ dedicated plugins:
 ==============================================================================
 OPTIONS                                    *g:grepper* *b:grepper* *grepper-options*
 
-This plugin uses a single |Dictionary| for all configuration: g:grepper. For
-buffer-local configurations use b:grepper instead.
+This plugin uses a single |Dictionary| for the global configuration: `g:grepper`.
+For buffer-local configurations use `b:grepper` instead.
 
-If you are unsure how to use a dictionary, have a look at |grepper-example|.
-
-The supported keys are:
-
- buffer~
-
-    Only search the currently opened file. Make sure to write any pending
-    changes before searching, since the grep tools work on actual files, not
-    Vim buffers.
-
- highlight~
-
-    Highlight found matches. Defaults to 0.
-
- quickfix~
-
-    Use the quickfix list for the matches or the location list otherwise.
-    Defaults to 1.
-
- open~
-
-    Open the quickfix/location window after the grep tool finished running
-    (and there was at least one match). Defaults to 1.
-
- switch~
-
-    When the quickfix/location window opens, switch to it. Defaults to 1.
-
- jump~
-
-    Automatically jump to the first match. Defaults to 0.
-
- prompt~
-
-    To prompt or not to prompt! Defaults to 1.
-
- simple_prompt~
-
-    Set prompt to tool name only, without displaying its options.
-    Defaults to 0.
-
- side~
-
-    Open a new window and show matches with surrounding context. Also see
-    |grepper-side|. Defaults to 0.
-
-                                                         *grepper-options-tools*
- tools~
-
-    These are the tools that you can choose between. The order matters. The
-    first element is the default tool and will be used if no tool was
-    specified.
-
-    NOTE: Because of a name clash, some systems use "ack-grep" instead of
-    "ack". If you include "ack" here, "ack-grep" will be found, too.
-
-    Defaults to:
+If you want to set global grepper options in your vimrc, use either of the
+following two lines first:
 >
-    ['ag', 'ack', 'grep', 'findstr', 'rg', 'pt', 'sift, 'git']
+    let g:grepper = {}            " initialize g:grepper with empty dictionary
+    runtime autoload/grepper.vim  " initialize g:grepper with default values
 <
- next_tool~
+Make sure to have a look at |grepper-example|.
 
-    These keys will be used at the prompt for switching to the next tool.
-    Defaults to <tab>.
+All options:~
 
-    NOTE: This could also be the same keys as the ones that opened the search
-    prompt in the first place, e.g.:
+    |g:grepper.buffer|
+    |g:grepper.buffers|
+    |g:grepper.highlight|
+    |g:grepper.quickfix|
+    |g:grepper.open|
+    |g:grepper.switch|
+    |g:grepper.jump|
+    |g:grepper.prompt|
+    |g:grepper.simple_prompt|
+    |g:grepper.side|
+    |g:grepper.tools|
+    |g:grepper.next_tool|
+
+------------------------------------------------------------------------------
+                                            *g:grepper.buffer* *g:grepper.buffers*
+>
+    let g:grepper.buffer  = 0
+<
+Grep the current buffer.
+>
+    let g:grepper.buffers = 0
+<
+Grep all currently loaded buffers.
+
+NOTE: Make sure to write any pending changes before grepping, since grep tools
+work on actual files, not Vim buffers.
+
+------------------------------------------------------------------------------
+                                                           *g:grepper.highlight*
+>
+    let g:grepper.highlight = 0
+<
+Highlight found matches.
+
+------------------------------------------------------------------------------
+                                                            *g:grepper.quickfix*
+>
+    let g:grepper.quickfix = 1
+<
+Use the quickfix list for the matches or the location list otherwise.
+
+------------------------------------------------------------------------------
+                                                                *g:grepper.open*
+>
+    let g:grepper.open = 1
+<
+Open the quickfix/location window after the grep tool finished running (and
+there was at least one match).
+
+------------------------------------------------------------------------------
+                                                              *g:grepper.switch*
+>
+    let g:grepper.switch = 1
+<
+When the quickfix/location window opens, switch to it.
+
+------------------------------------------------------------------------------
+                                                                *g:grepper.jump*
+>
+    let g:grepper.jump = 0
+<
+Automatically jump to the first match.
+
+------------------------------------------------------------------------------
+                                                              *g:grepper.prompt*
+>
+    let g:grepper.prompt = 1
+<
+To prompt or not to prompt!
+
+------------------------------------------------------------------------------
+                                                       *g:grepper.simple_prompt*
+>
+    let g:grepper.simple_prompt = 0
+<
+Only show the tool name in the prompt, without any of its arguments.
+
+------------------------------------------------------------------------------
+                                                                *g:grepper.side*
+>
+    let g:grepper.side = 0
+<
+Open a new window and show matches with surrounding context. See |grepper-side|
+for details.
+
+------------------------------------------------------------------------------
+                                                               *g:grepper.tools*
+>
+    let g:grepper.tools =
+      \ ['ag', 'ack', 'grep', 'findstr', 'rg', 'pt', 'sift, 'git']
+<
+These are the tools that you can choose from. The first tool in this list is
+the default tool and always gets used if no other tool was explicitly
+specified.
+
+NOTE: Because of a name clash, some systems use "ack-grep" instead of "ack". If
+you include "ack" here, "ack-grep" will be found, too.
+
+------------------------------------------------------------------------------
+                                                           *g:grepper.next_tool*
+>
+    let g:grepper.next_tool = '<tab>'
+<
+The prompt uses these keys to switch to the next tool.
+
+NOTE: This can also be the same keys as the ones that open the prompt:
 >
     nnoremap <leader>g :Grepper<cr>
-    let g:grepper = { 'next_tool': '<leader>g' }
+    let g:grepper.next_tool = '<leader>g'
 <
 ==============================================================================
 ADD TOOL                                                      *grepper-add-tool*
@@ -297,12 +346,27 @@ trigger new events, be sure to add "nested": |autocmd-nested|.
 ==============================================================================
 COLORS                                                          *grepper-colors*
 
-The search prompt is highlighted via the |hl-Question| group. Change it like
-this:
+Prompt:~
+
+    Default highlight group: |hl-Question|
 >
     highlight Question ctermfg=160 guifg=#ff0000 cterm=NONE
 >
-For error messages, |hl-ErrorMsg| is used.
+Error messages:~
+
+    Default highlight group: |hl-ErrorMsg|
+>
+    highlight ErrorMsg ctermfg=160 ctermbg=NONE cterm=NONE
+<
+-side:~
+
+    Only two things get highlighted: the filename and the separator between
+    contexts which uses the |conceal| feature. Change it like this:
+>
+    highlight GrepperSideFile ctermfg=161 cterm=reverse
+    highlight Conceal ctermfg=NONE ctermbg=250
+<
+    GrepperSideFile links to |hl-Directory| by default.
 
 ==============================================================================
 SIDE                                                              *grepper-side*
@@ -317,16 +381,6 @@ Mappings:~
   Use `}`and `{` to jump to contexts. `o` opens the current context in the
   last window. `<cr>` opens the current context in the last window, but closes
   the current window first.
-
-Colors:~
-
-  Only two things get highlighted: the filename and the separator between
-  contexts which uses the |conceal| feature. Change it like this:
->
-    highlight GrepperSideFile ctermfg=161 cterm=reverse
-    highlight Conceal ctermfg=NONE ctermbg=250
-<
-  GrepperSideFile links to |hl-Directory| by default.
 
 Customization:~
 
@@ -395,15 +449,15 @@ A query is put on the command-line as-is. If it starts with a dash, the search
 fails. The VCS tool thinks you try to provide an option and that the actual
 argument is missing.
 
-To avoid that, most Unix programs interpret "--" (double-dash) as separator
-between options and arguments. Thus, if you want to seek '-foo', use '-- -foo'
+To avoid that, most Unix programs interpret `--` (double-dash) as separator
+between options and arguments. Thus, if you want to grep "-foo", use "-- -foo"
 as query instead.
 
 If you never use any options in the search prompt anyway, you can make it the
 default like this:
 >
-    let g:grepper = {}
-    let g:grepper.ag = { 'grepprg': 'ag --vimgrep --' }
+    runtime autoload/grepper.vim
+    let g:grepper.ag.grepprg .= ' --'
 <
 ==============================================================================
 EXAMPLE                                                        *grepper-example*
@@ -417,25 +471,21 @@ This is a possible configuration..
     nmap gs <plug>(GrepperOperator)
     xmap gs <plug>(GrepperOperator)
 
-    nnoremap <leader>g :Grepper -tool git<cr>
-    nnoremap <leader>G :Grepper -tool ag<cr>
-    nnoremap <leader>* :Grepper -tool ag -cword -noprompt<cr>
+    nnoremap <leader>gg :Grepper -tool git<cr>
+    nnoremap <leader>ga :Grepper -tool ag<cr>
+    nnoremap <leader>gs :Grepper -tool ag -side<cr>
+    nnoremap <leader>*  :Grepper -tool ag -cword -noprompt<cr>
 
-    let g:grepper = {
-        \ 'tools':     ['git', 'ag', 'grep'],
-        \ 'open':      0,
-        \ 'jump':      1,
-        \ 'next_tool': '<leader>g',
-        \ }
-<
-If you don't like this way of setting options, you can also set them like
-this:
->
     let g:grepper           = {}
     let g:grepper.tools     = ['git', 'ag', 'grep']
     let g:grepper.open      = 0
     let g:grepper.jump      = 1
     let g:grepper.next_tool = '<leader>g'
+
+    command! Todo :Grepper
+          \ -noprompt
+          \ -tool git
+          \ -grepprg git grep -nIi '\(TODO\|FIXME\)'
 <
 ==============================================================================
 vim: tw=78
