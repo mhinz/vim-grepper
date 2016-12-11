@@ -20,10 +20,10 @@ CONTENTS                                                      *grepper-contents*
 
             INTRO .................. |grepper-intro|
             TOOLS .................. |grepper-tools|
-            COMMANDS ............... |grepper-:Grepper|
-            OPERATOR ............... |grepper-operator|
-            MAPPINGS ............... |grepper-mappings|
             OPTIONS ................ |grepper-options|
+            COMMANDS ............... |grepper-:Grepper|
+            MAPPINGS ............... |grepper-mappings|
+            OPERATOR ............... |grepper-operator|
             ADD TOOL ............... |grepper-add-tool|
             AUTOCMD ................ |grepper-autocmd|
             COLORS ................. |grepper-colors|
@@ -57,143 +57,6 @@ These tools are supported by default:
     'pt'
     'sift'
     'git'
-
-==============================================================================
-COMMANDS                                                      *grepper-:Grepper*
->
-    :Grepper [flags]
-<
-Without any flags, this opens the prompt with the default tool. The default
-tool is the first tool in |g:grepper.tools|.
-
-All flags:~
-
-    |:Grepper-highlight|
-    |:Grepper-jump|
-    |:Grepper-open|
-    |:Grepper-switch|
-    |:Grepper-quickfix|
-    |:Grepper-prompt|
-    |:Grepper-side|
-    |:Grepper-tool|
-    |:Grepper-cword|
-    |:Grepper-query|
-    |:Grepper-grepprg|
-
-------------------------------------------------------------------------------
-                                                            *:Grepper-highlight*  >
-    -[no]highlight
-<
-Overrules |g:grepper.highlight|.
-
-------------------------------------------------------------------------------
-                                                                 *:Grepper-jump*  >
-    -[no]jump
-<
-Overrules |g:grepper.jump|.
-
-------------------------------------------------------------------------------
-                                                                 *:Grepper-open*  >
-    -[no]open
-<
-Overrules |g:grepper.open|.
-
-------------------------------------------------------------------------------
-                                                               *:Grepper-switch*  >
-    -[no]switch
-<
-Overrules |g:grepper.switch|.
-
-------------------------------------------------------------------------------
-                                                             *:Grepper-quickfix*  >
-    -[no]quickfix
-<
-Overrules |g:grepper.quickfix|.
-
-------------------------------------------------------------------------------
-                                                               *:Grepper-prompt*  >
-    -[no]prompt
-<
-Overrules |g:grepper.prompt|.
-
-------------------------------------------------------------------------------
-                                                                 *:Grepper-side*  >
-    -side
-<
-Overrules |g:grepper.side|.
-
-------------------------------------------------------------------------------
-                                                                 *:Grepper-tool*  >
-    -tool <tool>
-<
-Use the given tool from |g:grepper-tools| instead of the default one.
-
-------------------------------------------------------------------------------
-                                                                *:Grepper-cword*  >
-    -cword
-<
-Populate the prompt with the word under cursor.
->
-    nnoremap <leader>* :Grepper -tool git -open -switch -cword -noprompt<cr>
-<
-------------------------------------------------------------------------------
-                                                                *:Grepper-query*  >
-    -query <query>
-<
-Use a fixed query. This implies `-noprompt`.
-
-This must be the last flag!~
-
-------------------------------------------------------------------------------
-                                                              *:Grepper-grepprg*  >
-    -grepprg <cmd>
-<
-Overrule the default |'grepprg'| for the current tool. See |grepper-add-tool|
-for what a tool is made of.
-
-NOTE: It's recommended to use this together with |:Grepper-tool|, so that the
-output gets escaped properly.
->
-    :Grepper -tool ag -grepprg ag --vimgrep -G '^.+\.txt'
-<
-This must be the last flag!~
-
-==============================================================================
-OPERATOR                                                      *grepper-operator*
-
-There is no default mapping for the operator, but you can set it like this:
->
-    nmap gs  <plug>(GrepperOperator)
-    xmap gs  <plug>(GrepperOperator)
-<
-This defines an |operator| "gs" that takes any |{motion}| and uses that
-selection to populate the search prompt. The query is quoted automatically.
-
-Useful examples are gsW, gsiw, or gsi". See |text-objects| for all of them.
-
-In visual mode, it uses the current selection.
-
-If you have vim-repeat installed, you can repeat the operator action. For
-example, you can "gsiw" on "nice_word" to populate the search prompt with
-"nice_word". Next time you hit ".", "gsiw" will be repeated and the search
-prompt populated with the current |word| under the cursor.
-
-==============================================================================
-MAPPINGS                                                      *grepper-mappings*
-
-Search prompt:~
-
-    <cr>     Start search with current query.
-    <tab>    Next tool. (See |g:grepper.tools| on how to change this.)
-    <esc>    Close prompt without searching.
-    <c-c>    Close prompt without searching.
-    <c-f>    Open |cmdline-window|. Use <c-c><c-c> to quit without searching.
-
-If you crave any mappings for the quickfix window, I suggest having a look at
-dedicated plugins:
-
-    - https://github.com/yssl/QFEnter
-    - https://github.com/romainl/vim-qf
 
 ==============================================================================
 OPTIONS                                    *g:grepper* *b:grepper* *grepper-options*
@@ -310,6 +173,143 @@ NOTE: This can also be the same keys as the ones that open the prompt:
     nnoremap <leader>g :Grepper<cr>
     let g:grepper.next_tool = '<leader>g'
 <
+==============================================================================
+COMMANDS                                                      *grepper-:Grepper*
+>
+    :Grepper [flags]
+<
+Without any flags, this opens the prompt with the default tool. The default
+tool is the first tool in |g:grepper.tools|.
+
+All flags:~
+
+    |:Grepper-highlight|
+    |:Grepper-jump|
+    |:Grepper-open|
+    |:Grepper-switch|
+    |:Grepper-quickfix|
+    |:Grepper-prompt|
+    |:Grepper-side|
+    |:Grepper-tool|
+    |:Grepper-cword|
+    |:Grepper-query|
+    |:Grepper-grepprg|
+
+------------------------------------------------------------------------------
+                                                            *:Grepper-highlight*  >
+    -[no]highlight
+<
+Overrules |g:grepper.highlight|.
+
+------------------------------------------------------------------------------
+                                                                 *:Grepper-jump*  >
+    -[no]jump
+<
+Overrules |g:grepper.jump|.
+
+------------------------------------------------------------------------------
+                                                                 *:Grepper-open*  >
+    -[no]open
+<
+Overrules |g:grepper.open|.
+
+------------------------------------------------------------------------------
+                                                               *:Grepper-switch*  >
+    -[no]switch
+<
+Overrules |g:grepper.switch|.
+
+------------------------------------------------------------------------------
+                                                             *:Grepper-quickfix*  >
+    -[no]quickfix
+<
+Overrules |g:grepper.quickfix|.
+
+------------------------------------------------------------------------------
+                                                               *:Grepper-prompt*  >
+    -[no]prompt
+<
+Overrules |g:grepper.prompt|.
+
+------------------------------------------------------------------------------
+                                                                 *:Grepper-side*  >
+    -side
+<
+Overrules |g:grepper.side|.
+
+------------------------------------------------------------------------------
+                                                                 *:Grepper-tool*  >
+    -tool <tool>
+<
+Use the given tool from |g:grepper-tools| instead of the default one.
+
+------------------------------------------------------------------------------
+                                                                *:Grepper-cword*  >
+    -cword
+<
+Populate the prompt with the word under cursor.
+>
+    nnoremap <leader>* :Grepper -tool git -open -switch -cword -noprompt<cr>
+<
+------------------------------------------------------------------------------
+                                                                *:Grepper-query*  >
+    -query <query>
+<
+Use a fixed query. This implies `-noprompt`.
+
+This must be the last flag!~
+
+------------------------------------------------------------------------------
+                                                              *:Grepper-grepprg*  >
+    -grepprg <cmd>
+<
+Overrule the default |'grepprg'| for the current tool. See |grepper-add-tool|
+for what a tool is made of.
+
+NOTE: It's recommended to use this together with |:Grepper-tool|, so that the
+output gets escaped properly.
+>
+    :Grepper -tool ag -grepprg ag --vimgrep -G '^.+\.txt'
+<
+This must be the last flag!~
+
+==============================================================================
+MAPPINGS                                                      *grepper-mappings*
+
+Search prompt:~
+
+    <cr>     Start search with current query.
+    <tab>    Next tool. (See |g:grepper.tools| on how to change this.)
+    <esc>    Close prompt without searching.
+    <c-c>    Close prompt without searching.
+    <c-f>    Open |cmdline-window|. Use <c-c><c-c> to quit without searching.
+
+If you crave any mappings for the quickfix window, I suggest having a look at
+dedicated plugins:
+
+    - https://github.com/yssl/QFEnter
+    - https://github.com/romainl/vim-qf
+
+==============================================================================
+OPERATOR                                                      *grepper-operator*
+
+There is no default mapping for the operator, but you can set it like this:
+>
+    nmap gs  <plug>(GrepperOperator)
+    xmap gs  <plug>(GrepperOperator)
+<
+This defines an |operator| "gs" that takes any |{motion}| and uses that
+selection to populate the search prompt. The query is quoted automatically.
+
+Useful examples are gsW, gsiw, or gsi". See |text-objects| for all of them.
+
+In visual mode, it uses the current selection.
+
+If you have vim-repeat installed, you can repeat the operator action. For
+example, you can "gsiw" on "nice_word" to populate the search prompt with
+"nice_word". Next time you hit ".", "gsiw" will be repeated and the search
+prompt populated with the current |word| under the cursor.
+
 ==============================================================================
 ADD TOOL                                                      *grepper-add-tool*
 
