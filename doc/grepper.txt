@@ -19,12 +19,11 @@
 CONTENTS                                                      *grepper-contents*
 
             INTRO .................. |grepper-intro|
-            TOOLS .................. |grepper-tools|
             OPTIONS ................ |grepper-options|
             COMMANDS ............... |grepper-:Grepper|
             MAPPINGS ............... |grepper-mappings|
             OPERATOR ............... |grepper-operator|
-            ADD TOOL ............... |grepper-add-tool|
+            TOOLS .................. |grepper-tools|
             AUTOCMD ................ |grepper-autocmd|
             COLORS ................. |grepper-colors|
             SIDE ................... |grepper-side|
@@ -43,9 +42,6 @@ If the query is empty, |<cword>| will be used as query.
 
 Searches (Neovim and Vim 7.4.1967+) will be executed asynchronously. Thus you
 will be able to continue editing while the grep program is still running.
-
-==============================================================================
-TOOLS                                                            *grepper-tools*
 
 These tools are supported by default:
 
@@ -89,7 +85,7 @@ All options:~
 
 ------------------------------------------------------------------------------
                                             *g:grepper.buffer* *g:grepper.buffers*  >
-    let g:grepper.buffer  = 0
+    let g:grepper.buffer = 0
 <
 Grep the current buffer.
 >
@@ -183,6 +179,8 @@ tool is the first tool in |g:grepper.tools|.
 
 All flags:~
 
+    |:Grepper-buffer|
+    |:Grepper-buffers|
     |:Grepper-highlight|
     |:Grepper-jump|
     |:Grepper-open|
@@ -194,6 +192,14 @@ All flags:~
     |:Grepper-cword|
     |:Grepper-query|
     |:Grepper-grepprg|
+
+------------------------------------------------------------------------------
+                                              *:Grepper-buffer* *:Grepper-buffers*  >
+    -buffer
+    -buffers
+<
+Only grep either the current buffer or all loaded buffers, instead of working
+on the current working directory.
 
 ------------------------------------------------------------------------------
                                                             *:Grepper-highlight*  >
@@ -311,55 +317,57 @@ example, you can "gsiw" on "nice_word" to populate the search prompt with
 prompt populated with the current |word| under the cursor.
 
 ==============================================================================
-ADD TOOL                                                      *grepper-add-tool*
+TOOLS                                                            *grepper-tools*
 
-If you don't like the default arguments to a grep tool or you want to add a
-new one, just add/replace the key to g:grepper:
+A tool is, like any other option, just a key in |g:grepper|. If you add a new
+tool, you have to add it to |g:grepper.tools| as well.
 >
-    let g:grepper = {
-        \ 'tools': ['pt'],
-        \ 'pt': {
-        \   'grepprg':    'pt --nocolor --nogroup',
-        \   'grepformat': '%f:%l:%m',
-        \   'escape':     '\+*^$()[]',
-        \ }}
-<
- grepprg~
+    " initialize g:grepper with defaults
+    runtime autoload/grepper.vim
 
-    The tool has be executable, but it doesn't have to be in $PATH. This works
-    just as well:
+    let g:grepper.tools += ['git'],
+    let g:grepper.git = {
+        \ 'grepprg':    'git grep -nI',
+        \ 'grepformat': '%f:%l:%m',
+        \ 'escape':     '\^$.*[]'
+        \ }
+<
+If you merely want to add an option for a default tool:
 >
-    'grepprg': '~/bin/greppy -a -b --c'
+    runtime autoload/grepper.vim
+    let g:grepper.rg.grepprg .= ' --smart-case'
 <
-    In cases where the arguments don't come last, use $* as a placeholder:
+-----------------------------------------------------------------------------
+                                                   *grepper-tools-placeholders*
+
+Use these placeholders with 'grepprg' or 'grepprgbuf':
+
+  $*           Will be replaced by the query.
+  $.           Will be replaced by the name of the current buffer.
+  $+           Will be replaced by the names of all loaded buffers.
+
+Buffers that are not backed by a file will be ignored.
+
+-----------------------------------------------------------------------------
+                                                           *grepper-tools-keys*
+
+  grepprg      The actual command to run. The tool has be executable, but it
+               doesn't have to be in $PATH. This works just as well:
 >
-    'grepprg': 'grep -Rn $* .'
+               'grepprg': '~/bin/greppy -a -b --c'
 <
-    If you want to use the tool on all currently opened files (instead of the
-    current directory), use $+ as a placeholder:
->
-    'grepprg': 'ag --vimgrep $* $+'
-<
-    If you want to use the tool only on the current file, use $. as a
-    placeholder:
->
-    'grepprg': 'ag --vimgrep $* $.'
-<
- grepprgbuf~
+  grepprgbuf   This will be used for |:Grepper-buffer| and |:Grepper-buffers|.
+               If this key doesn't exist, it will default to the value of
+               'grepprg' appended by:
 
-    In the case of -buffer, 'grepprgbuf' is used. If it doesn't exist,
-    " $* $." will be appended to 'grepprg' instead.
+               -buffer:   " $* $."
+               -buffers:  " $* $+"
 
-    Same goes for -buffers, only that "$." will be replaced by "$+".
+  grepformat   This is optional. If the output of 'grepprg' uses a format that
+               is not already recognized by the default |'grepformat'|, define
+               it yourself here.
 
- grepformat~
-
-    This is optional. If the output of 'grepprg' uses a format that is not
-    already recognized by the default |'grepformat'|, define it yourself here.
-
- escape~
-
-    This is optional. All these characters will be escaped in the query.
+  escape       This is optional. These characters get escaped in the query.
 
 ==============================================================================
 AUTOCMD                                                        *grepper-autocmd*
