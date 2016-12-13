@@ -100,7 +100,7 @@ let s:magic   = { 'next': '$$$next###', 'esc': '$$$esc###' }
 
 " Job handlers {{{1
 " s:on_stdout_nvim() {{{2
-function! s:on_stdout_nvim(job_id, data) dict abort
+function! s:on_stdout_nvim(job_id, data, _event) dict abort
   if empty(self.stdoutbuf) || empty(self.stdoutbuf[-1])
     let self.stdoutbuf += a:data
   else
@@ -115,13 +115,9 @@ function! s:on_stdout_vim(job_id, data) dict abort
   let self.stdoutbuf += [a:data]
 endfunction
 
-" s:on_stderr() {{{2
-function! s:on_stderr(job_id, data) dict abort
-  let self.stdoutbuf += a:data
-endfunction
 
 " s:on_exit() {{{2
-function! s:on_exit(id_or_channel) dict abort
+function! s:on_exit(...) dict abort
   execute 'tabnext' self.tabpage
   execute self.window .'wincmd w'
 
@@ -497,7 +493,7 @@ function! s:run(flags)
     endif
     let s:id = jobstart(cmd, extend(options, {
           \ 'on_stdout': function('s:on_stdout_nvim'),
-          \ 'on_stderr': function('s:on_stderr'),
+          \ 'on_stderr': function('s:on_stdout_nvim'),
           \ 'on_exit':   function('s:on_exit'),
           \ }))
   elseif !get(w:, 'testing') && (v:version > 704 || v:version == 704 && has('patch1967'))
