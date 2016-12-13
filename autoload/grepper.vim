@@ -715,7 +715,7 @@ function! s:side_buffer_settings() abort
   set nowrap
 
   normal! zR
-  normal! n
+  silent! normal! n
 
   set conceallevel=2
   set concealcursor=nvic
