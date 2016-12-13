@@ -18,6 +18,7 @@ let s:defaults = {
       \ 'highlight':     0,
       \ 'buffer':        0,
       \ 'buffers':       0,
+      \ 'dir':           '',
       \ 'next_tool':     '<tab>',
       \ 'tools':         ['ag', 'ack', 'grep', 'findstr', 'rg', 'pt', 'sift', 'git'],
       \ 'git':           { 'grepprg':    'git grep -nI',
@@ -275,6 +276,29 @@ function! s:unescape_query(flags, query)
   endif
   return q
 endfunction
+
+" s:change_working_directory() {{{2
+function! s:change_working_directory(dirflag) abort
+  for dir in split(a:dirflag, ',')
+    if dir == 'repo'
+      for repo in ['.git', '.hg', '.svn']
+        let repopath = finddir(repo, '.;')
+        if !empty(repopath)
+          let repopath = fnamemodify(repopath, ':h')
+          execute 'lcd' fnameescape(repopath)
+          return
+        endif
+      endfor
+    elseif dir == 'file'
+      let cwd = getcwd()
+      let bufdir = expand('%:p:h')
+      if stridx(bufdir, cwd) != 0
+        execute 'lcd' fnameescape(bufdir)
+        return
+      endif
+    endif
+  endfor
+endfunction
 " }}}1
 
 " #parse_flags() {{{1
@@ -297,6 +321,13 @@ function! grepper#parse_flags(args) abort
     elseif flag =~? '\v^-%(no)?buffers$'       | let flags.buffers   = flag !~? '^-no'
     elseif flag =~? '^-cword$'                 | let flags.cword     = 1
     elseif flag =~? '^-side$'                  | let flags.side      = 1
+    elseif flag =~? '^-dir$'
+      let [dir, args] = s:split_one(args)
+      if empty(dir)
+        call s:error('Missing argument for: -dir')
+      else
+        let flags.dir = dir
+      endif
     elseif flag =~? '^-grepprg$'
       if args != ''
         if !exists('tool')
@@ -344,6 +375,10 @@ endfunction
 
 " s:process_flags() {{{1
 function! s:process_flags(flags)
+  if !empty(a:flags.dir)
+    call s:change_working_directory(a:flags.dir)
+  endif
+
   if a:flags.buffer
     let a:flags.buflist = [bufname('')]
     if !filereadable(a:flags.buflist[0])
