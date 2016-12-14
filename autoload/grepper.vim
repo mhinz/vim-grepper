@@ -277,6 +277,12 @@ function! s:unescape_query(flags, query)
   return q
 endfunction
 
+" s:cword() {{{2
+function! s:cword(flags)
+  let word = expand('<cword>')
+  return empty(word) ? '' : s:escape_query(a:flags, word)
+endfunction
+
 " s:change_working_directory() {{{2
 function! s:change_working_directory(dirflag) abort
   for dir in split(a:dirflag, ',')
@@ -397,16 +403,20 @@ function! s:process_flags(flags)
   endif
 
   if a:flags.cword
-    let a:flags.query = s:escape_query(a:flags, expand('<cword>'))
+    let a:flags.query = s:cword(a:flags)
   endif
 
   if a:flags.prompt
     call s:prompt(a:flags)
     if empty(a:flags.query)
-      let a:flags.query = s:escape_query(a:flags, expand('<cword>'))
+      let a:flags.query = s:cword(a:flags)
     elseif a:flags.query =~# s:magic.esc
       return
     endif
+  endif
+
+  if empty(a:flags.query)
+    return 1
   endif
 
   if a:flags.side
