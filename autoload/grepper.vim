@@ -136,9 +136,9 @@ endfunction
 " #complete() {{{2
 function! grepper#complete(lead, line, _pos) abort
   if a:lead =~ '^-'
-    let flags = ['-buffer', '-buffers', '-cword', '-grepprg', '-highlight',
-          \ '-jump', '-open', '-prompt', '-query', '-quickfix', '-side',
-          \ '-switch', '-tool', '-nohighlight', '-nojump', '-noopen',
+    let flags = ['-buffer', '-buffers', '-cword', '-dir', '-grepprg',
+          \ '-highlight', '-jump', '-open', '-prompt', '-query', '-quickfix',
+          \ '-side', '-switch', '-tool', '-nohighlight', '-nojump', '-noopen',
           \ '-noprompt', '-noquickfix', '-noswitch']
     return filter(map(flags, 'v:val." "'), 'v:val[:strlen(a:lead)-1] ==# a:lead')
   elseif a:line =~# '-tool \w*$'
