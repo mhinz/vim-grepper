@@ -473,21 +473,16 @@ Customization:~
 ==============================================================================
 FAQ                                                                *grepper-faq*
 
-    |grepper-faq-01|  How to git grep from the root directory?
+    |grepper-faq-01|  How to grep from the repository root?
     |grepper-faq-02|  How to change the colors of the quickfix window?
     |grepper-faq-03|  How to use queries that begin with dashes?
 
 ------------------------------------------------------------------------------
                                                                 *grepper-faq-01*
-How to git grep from the root directory?~
+How to grep from the repository root?~
 
-Usually git grep considers the current working directory (|:pwd|) and only
-searches that part of the repo. If you always want to search from the root
-directory, consider replacing the default |'grepprg'| for git like this:
->
-    let g:grepper.git =
-      \ { 'grepprg': 'git grep -nI $* -- `git rev-parse --show-toplevel`' }
-<
+Have a look at |g:grepper.dir| and |:Grepper-dir|.
+
 ------------------------------------------------------------------------------
                                                                 *grepper-faq-02*
 How to change the colors of the quickfix window?~
