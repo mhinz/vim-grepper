@@ -78,6 +78,7 @@ All options:~
     |g:grepper.switch|
     |g:grepper.jump|
     |g:grepper.prompt|
+    |g:grepper.dir|
     |g:grepper.simple_prompt|
     |g:grepper.side|
     |g:grepper.tools|
@@ -134,6 +135,30 @@ Automatically jump to the first match.
 To prompt or not to prompt!
 
 ------------------------------------------------------------------------------
+                                                                 *g:grepper.dir*  >
+    let g:grepper.dir = 'cwd'
+<
+Change working directory before grepping. If the directory changes, Grepper
+won't change back after the search finishes.
+
+ cwd~
+    Use the current working directory as reported by |:pwd|.
+
+ file~
+    Change to the directory of the current buffer, but only, if that directory
+    isn't below the current working directory already.
+
+ repo~
+    Look in the current and all upper directories for a folder called
+    .git, .hg, or .svn and change to the directory that contains it.
+
+You can specify multiple values:
+>
+    let g:grepper.dir = 'repo,file'
+<
+In this case, `file` is only used if `repo` failed.
+
+------------------------------------------------------------------------------
                                                        *g:grepper.simple_prompt*  >
     let g:grepper.simple_prompt = 0
 <
@@ -187,6 +212,7 @@ All flags:~
     |:Grepper-switch|
     |:Grepper-quickfix|
     |:Grepper-prompt|
+    |:Grepper-dir|
     |:Grepper-side|
     |:Grepper-tool|
     |:Grepper-cword|
@@ -236,6 +262,12 @@ Overrules |g:grepper.quickfix|.
     -[no]prompt
 <
 Overrules |g:grepper.prompt|.
+
+------------------------------------------------------------------------------
+                                                                  *:Grepper-dir*  >
+    -dir <value>
+<
+Overrules |g:grepper.dir|.
 
 ------------------------------------------------------------------------------
                                                                  *:Grepper-side*  >
