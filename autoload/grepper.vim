@@ -136,7 +136,7 @@ endfunction
 " #complete() {{{2
 function! grepper#complete(lead, line, _pos) abort
   if a:lead =~ '^-'
-    let flags = ['-buffer', '-buffers', '-cword', '-grepprg', '-highlight',
+    let flags = ['-buffer', '-buffers', '-cword', '-dir', '-grepprg', '-highlight',
           \ '-jump', '-open', '-prompt', '-query', '-quickfix', '-side',
           \ '-switch', '-tool', '-nohighlight', '-nojump', '-noopen',
           \ '-noprompt', '-noquickfix', '-noswitch']
