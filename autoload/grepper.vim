@@ -18,7 +18,7 @@ let s:defaults = {
       \ 'highlight':     0,
       \ 'buffer':        0,
       \ 'buffers':       0,
-      \ 'dir':           '',
+      \ 'dir':           'cwd',
       \ 'next_tool':     '<tab>',
       \ 'tools':         ['ag', 'ack', 'grep', 'findstr', 'rg', 'pt', 'sift', 'git'],
       \ 'git':           { 'grepprg':    'git grep -nI',
@@ -375,7 +375,7 @@ endfunction
 
 " s:process_flags() {{{1
 function! s:process_flags(flags)
-  if !empty(a:flags.dir)
+  if a:flags.dir != 'cwd'
     call s:change_working_directory(a:flags.dir)
   endif
 
