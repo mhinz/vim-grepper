@@ -357,11 +357,11 @@ tool, you have to add it to |g:grepper.tools| as well.
     " initialize g:grepper with defaults
     runtime autoload/grepper.vim
 
-    let g:grepper.tools += ['git'],
+    let g:grepper.tools += ['git']
     let g:grepper.git = {
         \ 'grepprg':    'git grep -nI',
         \ 'grepformat': '%f:%l:%m',
-        \ 'escape':     '\^$.*[]'
+        \ 'escape':     '\^$.*[]',
         \ }
 <
 If you merely want to add an option for a default tool:
