@@ -116,7 +116,6 @@ function! s:on_stdout_vim(job_id, data) dict abort
   let self.stdoutbuf += [a:data]
 endfunction
 
-
 " s:on_exit() {{{2
 function! s:on_exit(...) dict abort
   execute 'tabnext' self.tabpage
@@ -505,7 +504,6 @@ function! s:run(flags)
   let s:cmdline = s:build_cmdline(a:flags)
 
   " 'cmd' and 'options' are only used for async execution.
-  " Use 'cat' for stripping escape sequences.
   if has('win32') && &shell =~ 'cmd'
     let cmd = s:cmdline
   else
