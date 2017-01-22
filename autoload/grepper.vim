@@ -336,13 +336,16 @@ function! s:change_working_directory(dirflag) abort
           return
         endif
       endfor
-    elseif dir == 'file'
+    elseif dir == 'filecwd'
       let cwd = getcwd()
       let bufdir = expand('%:p:h')
       if stridx(bufdir, cwd) != 0
         execute 'lcd' fnameescape(bufdir)
         return
       endif
+    elseif dir == 'file'
+      let bufdir = expand('%:p:h')
+      execute 'lcd' fnameescape(bufdir)
     endif
   endfor
 endfunction

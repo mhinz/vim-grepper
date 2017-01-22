@@ -147,6 +147,9 @@ won't change back after the search finishes.
     Use the current working directory as reported by |:pwd|.
 
  file~
+    Change to the directory of the current buffer.
+
+ filecwd~
     Change to the directory of the current buffer, but only, if that directory
     isn't below the current working directory already.
 
