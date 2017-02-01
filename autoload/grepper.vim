@@ -67,7 +67,7 @@ endfunction
 
 let g:grepper = exists('g:grepper')
       \ ? s:merge_configs(g:grepper, s:defaults)
-      \ : s:defaults
+      \ : deepcopy(s:defaults)
 
 for tool in g:grepper.tools
   if !has_key(g:grepper, tool)
@@ -298,13 +298,23 @@ function! s:change_working_directory(dirflag) abort
     endif
   endfor
 endfunction
+
+" s:get_config() {{{2
+function! s:get_config() abort
+  let g:grepper = exists('g:grepper')
+        \ ? s:merge_configs(g:grepper, s:defaults)
+        \ : deepcopy(s:defaults)
+  let flags = deepcopy(g:grepper)
+  if exists('b:grepper')
+    let flags = s:merge_configs(b:grepper, g:grepper)
+  endif
+  return flags
+endfunction
 " }}}1
 
 " #parse_flags() {{{1
 function! grepper#parse_flags(args) abort
-  let flags = exists('b:grepper')
-        \ ? s:merge_configs(b:grepper, g:grepper)
-        \ : deepcopy(g:grepper)
+  let flags = s:get_config()
   let flags.query = ''
   let flags.query_escaped = 0
   let [flag, args] = s:split_one(a:args)
@@ -800,9 +810,7 @@ function! grepper#operator(type) abort
   endif
 
   let &selection = selsave
-  let flags = exists('b:grepper')
-        \ ? s:merge_configs(b:grepper, g:grepper)
-        \ : deepcopy(g:grepper)
+  let flags = s:get_config()
   let flags.query_orig = @@
   let flags.query_escaped = 0
   let flags.query = '-- '. s:escape_query(flags, @@)
