@@ -101,9 +101,10 @@ let s:magic   = { 'next': '$$$next###', 'esc': '$$$esc###' }
 
 " Job handlers {{{1
 " s:on_stdout_nvim() {{{2
-function! s:on_stdout_nvim(job_id, data, _event) dict abort
-  if empty(self.stdoutbuf) || empty(self.stdoutbuf[-1])
-    let self.stdoutbuf += a:data
+function! s:on_stdout_nvim(_job_id, data, _event) dict abort
+  if empty(a:data[-1])
+    execute self.addexpr 'self.stdoutbuf + a:data[:-2]'
+    let self.stdoutbuf = []
   else
     let self.stdoutbuf = self.stdoutbuf[:-2]
           \ + [self.stdoutbuf[-1] . get(a:data, 0, '')]
@@ -112,21 +113,14 @@ function! s:on_stdout_nvim(job_id, data, _event) dict abort
 endfunction
 
 " s:on_stdout_vim() {{{2
-function! s:on_stdout_vim(job_id, data) dict abort
-  let self.stdoutbuf += [a:data]
+function! s:on_stdout_vim(_job_id, data) dict abort
+  execute self.addexpr 'a:data'
 endfunction
 
 " s:on_exit() {{{2
 function! s:on_exit(...) dict abort
   execute 'tabnext' self.tabpage
   execute self.window .'wincmd w'
-
-  if has('nvim')
-    call filter(self.stdoutbuf, '!empty(v:val)')
-  endif
-
-  execute (self.flags.quickfix ? 'cgetexpr' : 'lgetexpr') 'self.stdoutbuf'
-
   silent! unlet s:id
   return s:finish_up(self.flags)
 endfunction
@@ -523,6 +517,7 @@ function! s:run(flags)
   let options = {
         \ 'cmd':       s:cmdline,
         \ 'flags':     a:flags,
+        \ 'addexpr':   a:flags.quickfix ? 'caddexpr' : 'laddexpr',
         \ 'window':    winnr(),
         \ 'tabpage':   tabpagenr(),
         \ 'stdoutbuf': [],
