@@ -612,8 +612,10 @@ endfunction
 " -highlight {{{1
 " s:highlight_query() {{{2
 function! s:highlight_query(flags)
+  let query = has_key(a:flags, 'query_orig') ? a:flags.query_orig : a:flags.query
+
   " Change Vim's '\'' to ' so it can be understood by /.
-  let vim_query = substitute(a:flags.query, "'\\\\''", "'", 'g')
+  let vim_query = substitute(query, "'\\\\''", "'", 'g')
 
   " Remove surrounding quotes that denote a string.
   let start = vim_query[0]
