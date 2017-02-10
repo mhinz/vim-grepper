@@ -505,6 +505,12 @@ endfunction
 
 " s:run() {{{1
 function! s:run(flags)
+  if a:flags.quickfix
+    call setqflist([])
+  else
+    call setloclist(0, [])
+  endif
+
   let s:cmdline = s:build_cmdline(a:flags)
 
   " 'cmd' and 'options' are only used for async execution.
