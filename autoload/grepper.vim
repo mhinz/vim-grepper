@@ -106,9 +106,13 @@ function! s:on_stdout_nvim(_job_id, data, _event) dict abort
     execute self.addexpr 'self.stdoutbuf + a:data[:-2]'
     let self.stdoutbuf = []
   else
-    let self.stdoutbuf = self.stdoutbuf[:-2]
-          \ + [self.stdoutbuf[-1] . get(a:data, 0, '')]
-          \ + a:data[1:]
+    if empty(self.stdoutbuf)
+      let self.stdoutbuf = a:data
+    else
+      let self.stdoutbuf = self.stdoutbuf[:-2]
+            \ + [self.stdoutbuf[-1] . get(a:data, 0, '')]
+            \ + a:data[1:]
+    endif
   endif
 endfunction
 
