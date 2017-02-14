@@ -43,8 +43,8 @@ let s:defaults = {
       \                    'grepprgbuf': 'grep -HIn -- $* $.',
       \                    'grepformat': '%f:%l:%m',
       \                    'escape':     '\^$.*[]' },
-      \ 'findstr':       { 'grepprg':    'findstr -rspnc:"$*" *',
-      \                    'grepprgbuf': 'findstr -rpnc:"$*" $.',
+      \ 'findstr':       { 'grepprg':    'findstr -rspnc:$* *',
+      \                    'grepprgbuf': 'findstr -rpnc:$* $.',
       \                    'grepformat': '%f:%l:%m' },
       \ }
 
@@ -475,8 +475,9 @@ function! s:prompt(flags)
   if a:flags.query =~# s:magic.next
     call histdel('input', -1)
     call s:next_tool(a:flags)
+    let is_findstr = s:get_current_tool_name(a:flags) == 'findstr'
     let a:flags.query = has_key(a:flags, 'query_orig')
-          \ ? '-- '. s:escape_query(a:flags, a:flags.query_orig)
+          \ ? (is_findstr ? '' : '-- '). s:escape_query(a:flags, a:flags.query_orig)
           \ : a:flags.query[:-len(s:magic.next)-1]
     return s:prompt(a:flags)
   elseif a:flags.query =~# s:magic.esc
@@ -820,7 +821,11 @@ function! grepper#operator(type) abort
   let flags = s:get_config()
   let flags.query_orig = @@
   let flags.query_escaped = 0
-  let flags.query = '-- '. s:escape_query(flags, @@)
+
+  let flags.query = s:escape_query(flags, @@)
+  if s:get_current_tool_name(flags) != 'findstr'
+    let flags.query = '-- '. flags.query
+  endif
   let @@ = regsave
 
   return s:start(flags)
