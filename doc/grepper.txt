@@ -509,6 +509,7 @@ This colorscheme uses these settings:
 <
 ------------------------------------------------------------------------------
                                                                 *grepper-faq-03*
+How to use queries that begin with dashes?~
 
 A query is put on the command-line as-is. If it starts with a dash, the search
 fails. The VCS tool thinks you try to provide an option and that the actual
