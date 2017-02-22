@@ -18,6 +18,7 @@ let s:defaults = {
       \ 'highlight':     0,
       \ 'buffer':        0,
       \ 'buffers':       0,
+      \ 'stop':          0,
       \ 'dir':           'cwd',
       \ 'next_tool':     '<tab>',
       \ 'tools':         ['ag', 'ack', 'grep', 'findstr', 'rg', 'pt', 'sift', 'git'],
@@ -101,7 +102,7 @@ let s:magic   = { 'next': '$$$next###', 'esc': '$$$esc###' }
 
 " Job handlers {{{1
 " s:on_stdout_nvim() {{{2
-function! s:on_stdout_nvim(_job_id, data, _event) dict abort
+function! s:on_stdout_nvim(job_id, data, _event) dict abort
   if empty(a:data[-1])
     execute self.addexpr 'self.stdoutbuf + a:data[:-2]'
     let self.stdoutbuf = []
@@ -114,11 +115,21 @@ function! s:on_stdout_nvim(_job_id, data, _event) dict abort
             \ + a:data[1:]
     endif
   endif
+  let l = len(self.flags.quickfix ? getqflist() : getloclist(0))
+  if self.flags.stop > 0 && l >= self.flags.stop
+    echomsg 'JOB: '. a:job_id 'STOP: '. self.flags.stop 'LEN:  '. len(getqflist())
+    silent! call jobstop(a:job_id)
+  endif
 endfunction
 
 " s:on_stdout_vim() {{{2
-function! s:on_stdout_vim(_job_id, data) dict abort
+function! s:on_stdout_vim(job_id, data) dict abort
   execute self.addexpr 'a:data'
+  let l = len(self.flags.quickfix ? getqflist() : getloclist(0))
+  if self.flags.stop > 0 && l >= self.flags.stop
+    echomsg 'JOB: '. a:job_id 'STOP: '. self.flags.stop 'LEN:  '. len(getqflist())
+    silent! call job_stop(a:job_id, 'kill')
+  endif
 endfunction
 
 " s:on_exit() {{{2
@@ -328,6 +339,13 @@ function! grepper#parse_flags(args) abort
     elseif flag =~? '\v^-%(no)?buffers$'       | let flags.buffers   = flag !~? '^-no'
     elseif flag =~? '^-cword$'                 | let flags.cword     = 1
     elseif flag =~? '^-side$'                  | let flags.side      = 1
+    elseif flag =~? '^-stop$'
+      if empty(args) || args[0] =~ '^-'
+        let flags.stop = -1
+      else
+        let [numstring, args] = s:split_one(args)
+        let flags.stop = str2nr(numstring)
+      endif
     elseif flag =~? '^-dir$'
       let [dir, args] = s:split_one(args)
       if empty(dir)
@@ -382,6 +400,17 @@ endfunction
 
 " s:process_flags() {{{1
 function! s:process_flags(flags)
+  if a:flags.stop == -1
+    if exists('s:id')
+      if has('nvim')
+        call jobstop(s:id)
+      else
+        call job_stop(s:id)
+      endif
+    endif
+    return 1
+  endif
+
   if a:flags.dir != 'cwd'
     call s:change_working_directory(a:flags.dir)
   endif
