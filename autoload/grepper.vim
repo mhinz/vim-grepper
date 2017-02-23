@@ -18,7 +18,7 @@ let s:defaults = {
       \ 'highlight':     0,
       \ 'buffer':        0,
       \ 'buffers':       0,
-      \ 'stop':          0,
+      \ 'stop':          5000,
       \ 'dir':           'cwd',
       \ 'next_tool':     '<tab>',
       \ 'tools':         ['ag', 'ack', 'grep', 'findstr', 'rg', 'pt', 'sift', 'git'],
