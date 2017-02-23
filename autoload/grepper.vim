@@ -587,7 +587,7 @@ function! s:run(flags)
           \ 'on_stderr': function('s:on_stdout_nvim'),
           \ 'on_exit':   function('s:on_exit'),
           \ }))
-  elseif !get(w:, 'testing') && (v:version > 704 || v:version == 704 && has('patch1967'))
+  elseif !get(w:, 'testing') && has('patch-7.4.1967')
     if exists('s:id')
       silent! call job_stop(s:id)
     endif
