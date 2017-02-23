@@ -102,33 +102,45 @@ let s:magic   = { 'next': '$$$next###', 'esc': '$$$esc###' }
 
 " Job handlers {{{1
 " s:on_stdout_nvim() {{{2
-function! s:on_stdout_nvim(job_id, data, _event) dict abort
+function! s:on_stdout_nvim(_job_id, data, _event) dict abort
+  if !exists('s:id')
+    return
+  endif
   if empty(a:data[-1])
+    " Second-last item is the last complete line in a:data.
     execute self.addexpr 'self.stdoutbuf + a:data[:-2]'
     let self.stdoutbuf = []
   else
     if empty(self.stdoutbuf)
-      let self.stdoutbuf = a:data
+      " Last item in a:data is an incomplete line. Put into buffer.
+      let self.stdoutbuf = [remove(a:data, -1)]
+      execute self.addexpr 'a:data'
     else
+      " Last item in a:data is an incomplete line. Append to buffer.
       let self.stdoutbuf = self.stdoutbuf[:-2]
             \ + [self.stdoutbuf[-1] . get(a:data, 0, '')]
             \ + a:data[1:]
     endif
   endif
-  let l = len(self.flags.quickfix ? getqflist() : getloclist(0))
-  if self.flags.stop > 0 && l >= self.flags.stop
-    echomsg 'JOB: '. a:job_id 'STOP: '. self.flags.stop 'LEN:  '. len(getqflist())
-    silent! call jobstop(a:job_id)
+  if self.flags.stop > 0
+    let nmatches = len(self.flags.quickfix ? getqflist() : getloclist(0))
+    if nmatches >= self.flags.stop || len(self.stdoutbuf) >= self.flags.stop
+      call jobstop(s:id)
+      unlet s:id
+    endif
   endif
 endfunction
 
 " s:on_stdout_vim() {{{2
-function! s:on_stdout_vim(job_id, data) dict abort
+function! s:on_stdout_vim(_job_id, data) dict abort
+  if !exists('s:id')
+    return
+  endif
   execute self.addexpr 'a:data'
-  let l = len(self.flags.quickfix ? getqflist() : getloclist(0))
-  if self.flags.stop > 0 && l >= self.flags.stop
-    echomsg 'JOB: '. a:job_id 'STOP: '. self.flags.stop 'LEN:  '. len(getqflist())
-    silent! call job_stop(a:job_id, 'kill')
+  if self.flags.stop > 0
+        \ && len(self.flags.quickfix ? getqflist() : getloclist(0)) >= self.flags.stop
+    call job_stop(s:id)
+    unlet s:id
   endif
 endfunction
 
@@ -407,6 +419,7 @@ function! s:process_flags(flags)
       else
         call job_stop(s:id)
       endif
+      unlet s:id
     endif
     return 1
   endif
