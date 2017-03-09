@@ -488,6 +488,9 @@ function! s:start(flags) abort
     return
   endif
 
+  redraw
+  echo printf('Grepper %s searching for %s ...', a:flags.tools, a:flags.query)
+
   return s:run(a:flags)
 endfunction
 
