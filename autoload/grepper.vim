@@ -198,6 +198,12 @@ function! s:extract_path(string) abort
   return [head, path]
 endfunction
 
+" Statusline {{{1
+" #statusline() {{{2
+function! grepper#statusline() abort
+  return s:cmdline
+endfunction
+
 " Helpers {{{1
 " s:error() {{{2
 function! s:error(msg)
@@ -609,10 +615,13 @@ function! s:finish_up(flags)
   let list = qf ? getqflist() : getloclist(0)
   let size = len(list)
 
+  let cmdline = s:cmdline
+  let s:cmdline = ''
+
   call s:restore_errorformat()
 
   try
-    let title = has('nvim') ? s:cmdline : {'title': s:cmdline}
+    let title = has('nvim') ? cmdline : {'title': cmdline}
     if qf
       call setqflist(list, 'r', title)
     else
@@ -635,7 +644,7 @@ function! s:finish_up(flags)
   " Also open if the list contains any invalid entry.
   if a:flags.open || !empty(filter(list, 'v:val.valid == 0'))
     execute (qf ? 'botright copen' : 'lopen') (size > 10 ? 10 : size)
-    let w:quickfix_title = s:cmdline
+    let w:quickfix_title = cmdline
     setlocal nowrap
 
     if !a:flags.switch

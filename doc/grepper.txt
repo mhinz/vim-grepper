@@ -25,6 +25,7 @@ CONTENTS                                                      *grepper-contents*
             OPERATOR ............... |grepper-operator|
             TOOLS .................. |grepper-tools|
             AUTOCMD ................ |grepper-autocmd|
+            STATUSLINE ............. |grepper-statusline|
             COLORS ................. |grepper-colors|
             SIDE ................... |grepper-side|
             FAQ .................... |grepper-faq|
@@ -444,6 +445,16 @@ this:
 NOTE: Autocmds don't nest by default. If you use any command that would
 trigger new events, be sure to add "nested": |autocmd-nested|.
 
+==============================================================================
+STATUSLINE                                                  *grepper-statusline*
+
+The function `grepper#statusline()` returns either the command of the
+currently running search or an empty string.
+
+Example:~
+>
+    let &statusline .= ' %{grepper#statusline()}'
+<
 ==============================================================================
 COLORS                                                          *grepper-colors*
 
