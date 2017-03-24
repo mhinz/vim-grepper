@@ -46,7 +46,8 @@ let s:defaults = {
       \                    'escape':     '\^$.*[]' },
       \ 'findstr':       { 'grepprg':    'findstr -rspnc:$* *',
       \                    'grepprgbuf': 'findstr -rpnc:$* $.',
-      \                    'grepformat': '%f:%l:%m' },
+      \                    'grepformat': '%f:%l:%m',
+      \                    'wordanchors': ['\<', '\>'] }
       \ }
 
 let s:has_doau_modeline = v:version > 703 || v:version == 703 && has('patch442')
@@ -303,6 +304,26 @@ function! s:unescape_query(flags, query)
   return q
 endfunction
 
+" s:escape_cword() {{{2
+function! s:escape_cword(flags, cword)
+  let tool = s:get_current_tool(a:flags)
+  let escaped_cword = has_key(tool, 'escape')
+        \ ? escape(a:cword, tool.escape)
+        \ : a:cword
+  let wordanchors = has_key(tool, 'wordanchors')
+        \ ? tool.wordanchors
+        \ : ['\b', '\b']
+  if a:cword =~# '^\k'
+    let escaped_cword = wordanchors[0] . escaped_cword
+  endif
+  if a:cword =~# '\k$'
+    let escaped_cword = escaped_cword . wordanchors[1]
+  endif
+  let a:flags.query_orig = a:cword
+  let a:flags.query_escaped = 1
+  return shellescape(escaped_cword)
+endfunction
+
 " s:change_working_directory() {{{2
 function! s:change_working_directory(dirflag) abort
   for dir in split(a:dirflag, ',')
@@ -452,13 +473,13 @@ function! s:process_flags(flags)
   endif
 
   if a:flags.cword
-    let a:flags.query = s:escape_query(a:flags, expand('<cword>'))
+    let a:flags.query = s:escape_cword(a:flags, expand('<cword>'))
   endif
 
   if a:flags.prompt
     call s:prompt(a:flags)
     if empty(a:flags.query)
-      let a:flags.query = s:escape_query(a:flags, expand('<cword>'))
+      let a:flags.query = s:escape_cword(a:flags, expand('<cword>'))
     elseif a:flags.query =~# s:magic.esc
       return
     endif
@@ -523,10 +544,14 @@ function! s:prompt(flags)
   if a:flags.query =~# s:magic.next
     call histdel('input', -1)
     call s:next_tool(a:flags)
-    let is_findstr = s:get_current_tool_name(a:flags) == 'findstr'
-    let a:flags.query = has_key(a:flags, 'query_orig')
-          \ ? (is_findstr ? '' : '-- '). s:escape_query(a:flags, a:flags.query_orig)
-          \ : a:flags.query[:-len(s:magic.next)-1]
+    if a:flags.cword
+      let a:flags.query = s:escape_cword(a:flags, a:flags.query_orig)
+    else
+      let is_findstr = s:get_current_tool_name(a:flags) == 'findstr'
+      let a:flags.query = has_key(a:flags, 'query_orig')
+            \ ? (is_findstr ? '' : '-- '). s:escape_query(a:flags, a:flags.query_orig)
+            \ : a:flags.query[:-len(s:magic.next)-1]
+    endif
     return s:prompt(a:flags)
   elseif a:flags.query =~# s:magic.esc
     call histdel('input', -1)
@@ -684,6 +709,14 @@ function! s:highlight_query(flags)
   if a:flags.query_escaped
     let vim_query = s:unescape_query(a:flags, vim_query)
     let vim_query = escape(vim_query, '\')
+    if a:flags.cword
+      if a:flags.query_orig =~# '^\k'
+        let vim_query = '\<' . vim_query
+      endif
+      if a:flags.query_orig =~# '\k$'
+        let vim_query = vim_query . '\>'
+      endif
+    endif
     let vim_query = '\V'. vim_query
   else
     " \bfoo\b -> \<foo\> Assume only one pair.
