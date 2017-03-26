@@ -99,7 +99,7 @@ endif
 
 let s:cmdline = ''
 let s:slash   = exists('+shellslash') && !&shellslash ? '\' : '/'
-let s:magic   = { 'next': '$$$next###', 'esc': '$$$esc###' }
+let s:magic   = { 'next': '$$$next###', 'cr': '$$$cr###' }
 
 " Job handlers {{{1
 " s:on_stdout_nvim() {{{2
@@ -478,10 +478,14 @@ function! s:process_flags(flags)
 
   if a:flags.prompt
     call s:prompt(a:flags)
+    " Empty query string indicates that prompt was canceled
+    if empty(a:flags.query)
+      return
+    endif
+    " Remove marker indicating that prompt was accepted
+    let a:flags.query = substitute(a:flags.query, '\V\C'.s:magic.cr .'\$', '', '')
     if empty(a:flags.query)
       let a:flags.query = s:escape_cword(a:flags, expand('<cword>'))
-    elseif a:flags.query =~# s:magic.esc
-      return
     endif
   endif
 
@@ -510,7 +514,7 @@ function! s:start(flags) abort
     return
   endif
 
-  if a:flags.query =~# s:magic.esc
+  if a:flags.prompt && empty(a:flags.query)
     redraw!
     return
   endif
@@ -526,7 +530,14 @@ function! s:prompt(flags)
 
   let mapping = maparg(g:grepper.next_tool, 'c', '', 1)
   execute 'cnoremap' g:grepper.next_tool s:magic.next .'<cr>'
-  execute 'cnoremap <esc>' s:magic.esc .'<cr>'
+  execute 'cnoremap <cr>' s:magic.cr .'<cr>'
+
+  " Set low timeout for key codes, so <esc> would cancel prompt faster
+  let ttimeoutsave = &ttimeout
+  let ttimeoutlensave = &ttimeoutlen
+  let &ttimeout = 1
+  let &ttimeoutlen = 100
+
   echohl Question
   call inputsave()
 
@@ -535,14 +546,24 @@ function! s:prompt(flags)
           \ 'customlist,grepper#complete_files')
   finally
     execute 'cunmap' g:grepper.next_tool
-    call inputrestore()
-    cunmap <esc>
+    cunmap <cr>
     call s:restore_mapping(mapping)
+
+    " Restore original timeout settings for key codes
+    let &ttimeout = ttimeoutsave
+    let &ttimeoutlen = ttimeoutlensave
+
     echohl NONE
+    call inputrestore()
   endtry
 
-  if a:flags.query =~# s:magic.next
+  if !empty(a:flags.query)
+    " Always delete entered line from the history because it contains magic
+    " sequence. Real query will be added to the history later.
     call histdel('input', -1)
+  endif
+
+  if a:flags.query =~# s:magic.next
     call s:next_tool(a:flags)
     if a:flags.cword
       let a:flags.query = s:escape_cword(a:flags, a:flags.query_orig)
@@ -553,8 +574,6 @@ function! s:prompt(flags)
             \ : a:flags.query[:-len(s:magic.next)-1]
     endif
     return s:prompt(a:flags)
-  elseif a:flags.query =~# s:magic.esc
-    call histdel('input', -1)
   endif
 endfunction
 
