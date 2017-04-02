@@ -1,8 +1,12 @@
 [![Build Status](https://travis-ci.org/mhinz/vim-grepper.svg?branch=master)](https://travis-ci.org/mhinz/vim-grepper)
 
+<br />
+<br />
+
 ![vim-grepper](https://raw.githubusercontent.com/mhinz/vim-grepper/master/pictures/grepper-logo.png)
 
---
+<br />
+<br />
 
 Use your **favorite grep tool**
 ([ag](https://github.com/ggreer/the_silver_searcher),
@@ -16,7 +20,7 @@ grep) to start an **asynchronous search**. All matches will be put in a
 
 This plugin is written in pure VimL and works with Vim and Neovim.
 
---
+---
 
 - [Prompt](https://github.com/mhinz/vim-grepper/wiki/using-the-prompt): Use
   `:Grepper` to open a prompt, enter your query, optionally cycle through the
@@ -31,7 +35,7 @@ This plugin is written in pure VimL and works with Vim and Neovim.
 - [Custom tools](https://github.com/mhinz/vim-grepper/wiki/Add-a-tool): Changing
   the behaviour of the default tools is very easy. And so is adding new tools.
 
---
+---
 
 If you liked [ack](https://github.com/mileszs/ack.vim) and
 [ag](https://github.com/rking/ag.vim), you will love vim-grepper.
