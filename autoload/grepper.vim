@@ -107,29 +107,36 @@ function! s:on_stdout_nvim(_job_id, data, _event) dict abort
   if !exists('s:id')
     return
   endif
-  if empty(a:data[-1])
-    " Second-last item is the last complete line in a:data.
-    execute self.addexpr 'self.stdoutbuf + a:data[:-2]'
-    let self.stdoutbuf = []
-  else
-    if empty(self.stdoutbuf)
-      " Last item in a:data is an incomplete line. Put into buffer.
-      let self.stdoutbuf = [remove(a:data, -1)]
-      execute self.addexpr 'a:data'
+
+  let orig_dir = s:chdir_push(self.cmd_dir)
+
+  try
+    if empty(a:data[-1])
+      " Second-last item is the last complete line in a:data.
+      execute self.addexpr 'self.stdoutbuf + a:data[:-2]'
+      let self.stdoutbuf = []
     else
-      " Last item in a:data is an incomplete line. Append to buffer.
-      let self.stdoutbuf = self.stdoutbuf[:-2]
-            \ + [self.stdoutbuf[-1] . get(a:data, 0, '')]
-            \ + a:data[1:]
+      if empty(self.stdoutbuf)
+        " Last item in a:data is an incomplete line. Put into buffer.
+        let self.stdoutbuf = [remove(a:data, -1)]
+        execute self.addexpr 'a:data'
+      else
+        " Last item in a:data is an incomplete line. Append to buffer.
+        let self.stdoutbuf = self.stdoutbuf[:-2]
+              \ + [self.stdoutbuf[-1] . get(a:data, 0, '')]
+              \ + a:data[1:]
+      endif
     endif
-  endif
-  if self.flags.stop > 0
-    let nmatches = len(self.flags.quickfix ? getqflist() : getloclist(0))
-    if nmatches >= self.flags.stop || len(self.stdoutbuf) >= self.flags.stop
-      call jobstop(s:id)
-      unlet s:id
+    if self.flags.stop > 0
+      let nmatches = len(self.flags.quickfix ? getqflist() : getloclist(0))
+      if nmatches >= self.flags.stop || len(self.stdoutbuf) >= self.flags.stop
+        call jobstop(s:id)
+        unlet s:id
+      endif
     endif
-  endif
+  finally
+    call s:chdir_pop(orig_dir)
+  endtry
 endfunction
 
 " s:on_stdout_vim() {{{2
@@ -137,12 +144,19 @@ function! s:on_stdout_vim(_job_id, data) dict abort
   if !exists('s:id')
     return
   endif
-  execute self.addexpr 'a:data'
-  if self.flags.stop > 0
-        \ && len(self.flags.quickfix ? getqflist() : getloclist(0)) >= self.flags.stop
-    call job_stop(s:id)
-    unlet s:id
-  endif
+
+  let orig_dir = s:chdir_push(self.cmd_dir)
+
+  try
+    execute self.addexpr 'a:data'
+    if self.flags.stop > 0
+          \ && len(self.flags.quickfix ? getqflist() : getloclist(0)) >= self.flags.stop
+      call job_stop(s:id)
+      unlet s:id
+    endif
+  finally
+    call s:chdir_pop(orig_dir)
+  endtry
 endfunction
 
 " s:on_exit() {{{2
@@ -324,30 +338,46 @@ function! s:escape_cword(flags, cword)
   return shellescape(escaped_cword)
 endfunction
 
-" s:change_working_directory() {{{2
-function! s:change_working_directory(dirflag) abort
+" s:compute_working_directory() {{{2
+function! s:compute_working_directory(dirflag) abort
   for dir in split(a:dirflag, ',')
     if dir == 'repo'
       for repo in ['.git', '.hg', '.svn']
         let repopath = finddir(repo, '.;')
         if !empty(repopath)
           let repopath = fnamemodify(repopath, ':h')
-          execute 'lcd' fnameescape(repopath)
-          return
+          return fnameescape(repopath)
         endif
       endfor
     elseif dir == 'filecwd'
       let cwd = getcwd()
       let bufdir = expand('%:p:h')
       if stridx(bufdir, cwd) != 0
-        execute 'lcd' fnameescape(bufdir)
-        return
+        return fnameescape(bufdir)
       endif
     elseif dir == 'file'
       let bufdir = expand('%:p:h')
-      execute 'lcd' fnameescape(bufdir)
+      return fnameescape(bufdir)
     endif
   endfor
+  return ''
+endfunction
+
+" s:chdir_push() {{{2
+function! s:chdir_push(cmd_dir)
+  if a:cmd_dir != ''
+    let cwd = getcwd()
+    execute 'lcd' a:cmd_dir
+    return cwd
+  endif
+  return ''
+endfunction
+
+" s:chdir_pop() {{{2
+function! s:chdir_pop(buf_dir)
+  if a:buf_dir != ''
+    execute 'lcd' a:buf_dir
+  endif
 endfunction
 
 " s:get_config() {{{2
@@ -452,10 +482,6 @@ function! s:process_flags(flags)
       unlet s:id
     endif
     return 1
-  endif
-
-  if a:flags.dir != 'cwd'
-    call s:change_working_directory(a:flags.dir)
   endif
 
   if a:flags.buffer
@@ -622,6 +648,7 @@ function! s:run(flags)
 
   let options = {
         \ 'cmd':       s:cmdline,
+        \ 'cmd_dir':   s:compute_working_directory(a:flags.dir),
         \ 'flags':     a:flags,
         \ 'addexpr':   a:flags.quickfix ? 'caddexpr' : 'laddexpr',
         \ 'window':    winnr(),
@@ -631,27 +658,42 @@ function! s:run(flags)
 
   call s:store_errorformat(a:flags)
 
+  let orig_dir = s:chdir_push(options.cmd_dir)
+
   if has('nvim')
     if exists('s:id')
       silent! call jobstop(s:id)
     endif
-    let s:id = jobstart(cmd, extend(options, {
-          \ 'on_stdout': function('s:on_stdout_nvim'),
-          \ 'on_stderr': function('s:on_stdout_nvim'),
-          \ 'on_exit':   function('s:on_exit'),
-          \ }))
+    try
+      let s:id = jobstart(cmd, extend(options, {
+            \ 'on_stdout': function('s:on_stdout_nvim'),
+            \ 'on_stderr': function('s:on_stdout_nvim'),
+            \ 'on_exit':   function('s:on_exit'),
+            \ }))
+    finally
+      call s:chdir_pop(orig_dir)
+    endtry
   elseif !get(w:, 'testing') && has('patch-7.4.1967')
     if exists('s:id')
       silent! call job_stop(s:id)
     endif
-    let s:id = job_start(cmd, {
-          \ 'in_io':    'null',
-          \ 'err_io':   'out',
-          \ 'out_cb':   function('s:on_stdout_vim', options),
-          \ 'close_cb': function('s:on_exit', options),
-          \ })
+
+    try
+      let s:id = job_start(cmd, {
+            \ 'in_io':    'null',
+            \ 'err_io':   'out',
+            \ 'out_cb':   function('s:on_stdout_vim', options),
+            \ 'close_cb': function('s:on_exit', options),
+            \ })
+    finally
+      call s:chdir_pop(orig_dir)
+    endtry
   else
-    execute 'silent' (a:flags.quickfix ? 'cgetexpr' : 'lgetexpr') 'system(s:cmdline)'
+    try
+      execute 'silent' (a:flags.quickfix ? 'cgetexpr' : 'lgetexpr') 'system(s:cmdline)'
+    finally
+      call s:chdir_pop(orig_dir)
+    endtry
     call s:finish_up(a:flags)
   endif
 endfunction
