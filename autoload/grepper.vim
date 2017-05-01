@@ -113,13 +113,13 @@ function! s:on_stdout_nvim(_job_id, data, _event) dict abort
   try
     if empty(a:data[-1])
       " Second-last item is the last complete line in a:data.
-      execute self.addexpr 'self.stdoutbuf + a:data[:-2]'
+      noautocmd execute self.addexpr 'self.stdoutbuf + a:data[:-2]'
       let self.stdoutbuf = []
     else
       if empty(self.stdoutbuf)
         " Last item in a:data is an incomplete line. Put into buffer.
         let self.stdoutbuf = [remove(a:data, -1)]
-        execute self.addexpr 'a:data'
+        noautocmd execute self.addexpr 'a:data'
       else
         " Last item in a:data is an incomplete line. Append to buffer.
         let self.stdoutbuf = self.stdoutbuf[:-2]
@@ -148,7 +148,7 @@ function! s:on_stdout_vim(_job_id, data) dict abort
   let orig_dir = s:chdir_push(self.cmd_dir)
 
   try
-    execute self.addexpr 'a:data'
+    noautocmd execute self.addexpr 'a:data'
     if self.flags.stop > 0
           \ && len(self.flags.quickfix ? getqflist() : getloclist(0)) >= self.flags.stop
       call job_stop(s:id)
