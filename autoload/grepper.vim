@@ -129,7 +129,13 @@ function! s:on_stdout_nvim(_job_id, data, _event) dict abort
     endif
     if self.flags.stop > 0
       let nmatches = len(self.flags.quickfix ? getqflist() : getloclist(0))
-      if nmatches >= self.flags.stop || len(self.stdoutbuf) >= self.flags.stop
+      if nmatches >= self.flags.stop || len(self.stdoutbuf) > self.flags.stop
+        " Add the remaining data
+        let n_rem_lines = self.flags.stop - nmatches - 1
+        if n_rem_lines > 0
+          noautocmd execute self.addexpr 'self.stdoutbuf[:n_rem_lines]'
+        endif
+
         call jobstop(s:id)
         unlet s:id
       endif
