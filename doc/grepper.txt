@@ -211,11 +211,6 @@ Chances are, if you have more than 5000 matches, you executed Grepper in a
 place with too many subdirectories or your search query was too general or
 both. This limits the impact of otherwise long-running processes.
 
-NOTE: In Vim, the stdout callback works line-by-line and Grepper will stop the
-search at the exact number of matches. In Neovim, it most probably won't be
-the exact number. For the sake of improving performance, Neovim (or rather the
-underlying libuv) does batch processing of the grep tools' output.
-
 ==============================================================================
 COMMANDS                                                      *grepper-:Grepper*
 >
