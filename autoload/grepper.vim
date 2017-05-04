@@ -21,6 +21,7 @@ let s:defaults = {
       \ 'stop':          5000,
       \ 'dir':           'cwd',
       \ 'next_tool':     '<tab>',
+      \ 'repo':          ['.git', '.hg', '.svn'],
       \ 'tools':         ['ag', 'ack', 'grep', 'findstr', 'rg', 'pt', 'sift', 'git'],
       \ 'git':           { 'grepprg':    'git grep -nI',
       \                    'grepformat': '%f:%l:%m',
@@ -348,8 +349,8 @@ endfunction
 function! s:compute_working_directory(dirflag) abort
   for dir in split(a:dirflag, ',')
     if dir == 'repo'
-      for repo in ['.git', '.hg', '.svn']
-        let repopath = finddir(repo, '.;')
+      for repo in g:grepper.repo
+        let repopath = finddir(repo, '.;').findfile(repo,'.;')
         if !empty(repopath)
           let repopath = fnamemodify(repopath, ':h')
           return fnameescape(repopath)

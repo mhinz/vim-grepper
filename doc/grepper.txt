@@ -157,6 +157,14 @@ won't change back after the search finishes.
     Look in the current and all upper directories for a folder called
     .git, .hg, or .svn and change to the directory that contains it.
 
+    If your repo directory can be identified by a different name (for example,
+    _FOSSIL_ for a fossil-scm workspace), you can customize it by adding
+    the name (could be either file or directory name) to the list:
+
+>
+    let g:grepper.repo = ['.git','.hg','.svn','_FOSSIL_']
+<
+
 You can specify multiple values:
 >
     let g:grepper.dir = 'repo,file'
