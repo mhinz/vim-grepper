@@ -629,7 +629,7 @@ function! s:build_cmdline(flags) abort
   if stridx(grepprg, '$*') >= 0
     let grepprg = substitute(grepprg, '\V$*', escape(a:flags.query, '\&'), 'g')
   else
-    let grepprg .= ' ' . a:flags.query
+    let grepprg .= ' "' . a:flags.query . '"'
   endif
 
   return grepprg
