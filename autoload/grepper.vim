@@ -350,7 +350,10 @@ function! s:compute_working_directory(dirflag) abort
   for dir in split(a:dirflag, ',')
     if dir == 'repo'
       for repo in g:grepper.repo
-        let repopath = finddir(repo, '.;').findfile(repo,'.;')
+        let repopath = finddir(repo, '.;')
+        if empty(repopath)
+          let repopath = findfile(repo, '.;')
+        endif
         if !empty(repopath)
           let repopath = fnamemodify(repopath, ':h')
           return fnameescape(repopath)
