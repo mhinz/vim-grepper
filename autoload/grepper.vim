@@ -569,7 +569,7 @@ function! s:prompt(flags)
 
   let mapping = maparg(g:grepper.next_tool, 'c', '', 1)
   execute 'cnoremap' g:grepper.next_tool s:magic.next .'<cr>'
-  execute 'cnoremap <cr>' s:magic.cr .'<cr>'
+  execute 'cnoremap <cr> <end>'. s:magic.cr .'<cr>'
 
   " Set low timeout for key codes, so <esc> would cancel prompt faster
   let ttimeoutsave = &ttimeout
