@@ -326,8 +326,8 @@ This must be the last flag!~
                                                               *:Grepper-grepprg*  >
     -grepprg <cmd>
 <
-Overrule the default |'grepprg'| for the current tool. See |grepper-add-tool|
-for what a tool is made of.
+Overrule the default |'grepprg'| for the current tool. See |grepper-tools| for
+what a tool is made of.
 
 NOTE: It's recommended to use this together with |:Grepper-tool|, so that the
 output gets escaped properly.
