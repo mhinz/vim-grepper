@@ -584,6 +584,7 @@ function! s:prompt(flags)
     let a:flags.query = input(prompt_text .'> ', a:flags.query,
           \ 'customlist,grepper#complete_files')
   finally
+    redraw!
     execute 'cunmap' g:grepper.next_tool
     cunmap <cr>
     call s:restore_mapping(mapping)
