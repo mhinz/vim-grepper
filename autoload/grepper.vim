@@ -179,10 +179,10 @@ endfunction
 " #complete() {{{2
 function! grepper#complete(lead, line, _pos) abort
   if a:lead =~ '^-'
-    let flags = ['-buffer', '-buffers', '-cword', '-dir', '-grepprg', '-highlight',
-          \ '-jump', '-open', '-prompt', '-query', '-quickfix', '-side', '-stop',
-          \ '-switch', '-tool', '-nohighlight', '-nojump', '-noopen', '-noprompt',
-          \ '-noquickfix', '-noswitch']
+    let flags = ['-append', '-buffer', '-buffers', '-cword', '-dir', '-grepprg',
+          \ '-highlight', '-jump', '-open', '-prompt', '-query', '-quickfix',
+          \ '-side', '-stop', '-switch', '-tool', '-noappend', '-nohighlight',
+          \ '-nojump', '-noopen', '-noprompt', '-noquickfix', '-noswitch']
     return filter(map(flags, 'v:val." "'), 'v:val[:strlen(a:lead)-1] ==# a:lead')
   elseif a:line =~# '-dir \w*$'
     return filter(map(['cwd', 'file', 'filecwd', 'repo'], 'v:val." "'),
