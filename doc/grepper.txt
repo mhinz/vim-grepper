@@ -86,6 +86,7 @@ All options:~
     |g:grepper.tools|
     |g:grepper.next_tool|
     |g:grepper.stop|
+    |g:grepper.append|
 
 ------------------------------------------------------------------------------
                                             *g:grepper.buffer* *g:grepper.buffers*  >
@@ -218,6 +219,12 @@ Chances are, if you have more than 5000 matches, you executed Grepper in a
 place with too many subdirectories or your search query was too general or
 both. This limits the impact of otherwise long-running processes.
 
+------------------------------------------------------------------------------
+                                                              *g:grepper.append*  >
+    let g:grepper.append = 0
+<
+Append matches to the current quickfix or location list.
+
 ==============================================================================
 COMMANDS                                                      *grepper-:Grepper*
 >
@@ -243,6 +250,7 @@ All flags:~
     |:Grepper-query|
     |:Grepper-grepprg|
     |:Grepper-stop|
+    |:Grepper-append|
 
 ------------------------------------------------------------------------------
                                               *:Grepper-buffer* *:Grepper-buffers*  >
@@ -348,6 +356,12 @@ This flag can be used in two ways:
     `:Grepper -stop`      stop the currently running search
 
 NOTE: Starting a new search will stop the currently running job anyway.
+
+------------------------------------------------------------------------------
+                                                               *:Grepper-append*  >
+    -[no]append
+<
+Overrules |g:grepper.append|.
 
 ==============================================================================
 MAPPINGS                                                      *grepper-mappings*
