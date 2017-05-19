@@ -183,6 +183,9 @@ function! grepper#complete(lead, line, _pos) abort
           \ '-switch', '-tool', '-nohighlight', '-nojump', '-noopen', '-noprompt',
           \ '-noquickfix', '-noswitch']
     return filter(map(flags, 'v:val." "'), 'v:val[:strlen(a:lead)-1] ==# a:lead')
+  elseif a:line =~# '-dir \w*$'
+    return filter(map(['cwd', 'file', 'filecwd', 'repo'], 'v:val." "'),
+          \ 'empty(a:lead) || v:val[:strlen(a:lead)-1] ==# a:lead')
   elseif a:line =~# '-stop $'
     return ['5000']
   elseif a:line =~# '-tool \w*$'
