@@ -18,6 +18,7 @@ let s:defaults = {
       \ 'highlight':     0,
       \ 'buffer':        0,
       \ 'buffers':       0,
+      \ 'append':        0,
       \ 'stop':          5000,
       \ 'dir':           'cwd',
       \ 'next_tool':     '<tab>',
@@ -424,6 +425,7 @@ function! grepper#parse_flags(args) abort
     elseif flag =~? '\v^-%(no)?highlight$'     | let flags.highlight = flag !~? '^-no'
     elseif flag =~? '\v^-%(no)?buffer$'        | let flags.buffer    = flag !~? '^-no'
     elseif flag =~? '\v^-%(no)?buffers$'       | let flags.buffers   = flag !~? '^-no'
+    elseif flag =~? '\v^-%(no)?append$'        | let flags.append    = flag !~? '^-no'
     elseif flag =~? '^-cword$'                 | let flags.cword     = 1
     elseif flag =~? '^-side$'                  | let flags.side      = 1
     elseif flag =~? '^-stop$'
@@ -728,9 +730,9 @@ function! s:finish_up(flags)
   try
     let title = has('nvim') ? cmdline : {'title': cmdline}
     if qf
-      call setqflist(list, 'r', title)
+      call setqflist(list, a:flags.append ? 'a' : 'r', title)
     else
-      call setloclist(0, list, 'r', title)
+      call setloclist(0, list, a:flags.append ? 'a' : 'r', title)
     endif
   catch /E118/
   endtry
