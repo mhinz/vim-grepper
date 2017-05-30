@@ -380,6 +380,22 @@ dedicated plugins:
     - https://github.com/yssl/QFEnter
     - https://github.com/romainl/vim-qf
 
+Quickfix/Location Window:~
+
+In the quickfix/location window, you can use:
+
+    e    to open file and close the quickfix/location window
+    o    to open (same as enter)
+    go   to preview file (open but maintain focus on grepper results)
+    t    to open in new tab
+    T    to open in new tab silently
+    h    to open in horizontal split
+    H    to open in horizontal split silently
+    v    to open in vertical split
+    gv   to open in vertical split silently
+    q    to close the quickfix/location window
+
+
 ==============================================================================
 OPERATOR                                                      *grepper-operator*
 
