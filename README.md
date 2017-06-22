@@ -59,6 +59,10 @@ manager](https://github.com/mhinz/vim-galore#managing-plugins), e.g.
 
     Plug 'mhinz/vim-grepper'
 
+If you prefer lazy loading:
+
+    Plug 'mhinz/vim-grepper', { 'on': ['Grepper', '<plug>(GrepperOperator)'] }
+
 ## Demo
 
 General usage:
