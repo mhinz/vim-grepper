@@ -1008,21 +1008,10 @@ endif
 " Commands {{{1
 command! -nargs=* -complete=customlist,<sid>complete Grepper call <sid>parse_flags(<q-args>)
 
-let cmds = [
-      \ ['GrepperAck',     'ack'    ],
-      \ ['GrepperAg',      'ag'     ],
-      \ ['GrepperFindstr', 'findstr'],
-      \ ['GrepperGit',     'git'    ],
-      \ ['GrepperGrep',    'grep'   ],
-      \ ['GrepperRg',      'rg'     ],
-      \ ['GrepperPt',      'pt'     ],
-      \ ]
-
-for [cmd, tool] in cmds
-  if exists(':'.cmd) != 2
-    execute 'command! -nargs=+ -complete=file' cmd
-          \ 'Grepper -noprompt -tool' tool '-query <args>'
-  endif
+for tool in g:grepper.tools
+  let tool = toupper(tool[0]) . tool[1:]
+  execute 'command! -nargs=+ -complete=file Grepper'. tool
+        \ 'Grepper -noprompt -tool' tool '-query <args>'
 endfor
 
 " vim: tw=80 et sts=2 sw=2 fdm=marker
