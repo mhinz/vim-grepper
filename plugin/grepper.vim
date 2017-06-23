@@ -1009,8 +1009,8 @@ endif
 command! -nargs=* -complete=customlist,<sid>complete Grepper call <sid>parse_flags(<q-args>)
 
 for tool in g:grepper.tools
-  let tool = toupper(tool[0]) . tool[1:]
-  execute 'command! -nargs=+ -complete=file Grepper'. tool
+  let utool = toupper(tool[0]) . tool[1:]
+  execute 'command! -nargs=+ -complete=file Grepper'. utool
         \ 'Grepper -noprompt -tool' tool '-query <args>'
 endfor
 
