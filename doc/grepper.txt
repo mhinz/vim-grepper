@@ -65,7 +65,7 @@ If you want to set global grepper options in your vimrc, use either of the
 following two lines first:
 >
     let g:grepper = {}            " initialize g:grepper with empty dictionary
-    runtime autoload/grepper.vim  " initialize g:grepper with default values
+    runtime plugin/grepper.vim    " initialize g:grepper with default values
 <
 Make sure to have a look at |grepper-example|.
 
@@ -407,7 +407,7 @@ A tool is, like any other option, just a key in |g:grepper|. If you add a new
 tool, you have to add it to |g:grepper.tools| as well.
 >
     " initialize g:grepper with defaults
-    runtime autoload/grepper.vim
+    runtime plugin/grepper.vim
 
     let g:grepper.tools += ['git']
     let g:grepper.git = {
@@ -418,7 +418,7 @@ tool, you have to add it to |g:grepper.tools| as well.
 <
 If you merely want to add an option for a default tool:
 >
-    runtime autoload/grepper.vim
+    runtime plugin/grepper.vim
     let g:grepper.rg.grepprg .= ' --smart-case'
 <
 -----------------------------------------------------------------------------
@@ -584,7 +584,7 @@ as query instead.
 If you never use any options in the search prompt anyway, you can make it the
 default like this:
 >
-    runtime autoload/grepper.vim
+    runtime plugin/grepper.vim
     let g:grepper.ag.grepprg .= ' --'
 <
 ------------------------------------------------------------------------------
