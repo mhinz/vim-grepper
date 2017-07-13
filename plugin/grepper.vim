@@ -176,8 +176,8 @@ function! s:on_exit(...) dict abort
 endfunction
 
 " Completion {{{1
-" s:complete() {{{2
-function! s:complete(lead, line, _pos) abort
+" grepper#complete() {{{2
+function! grepper#complete(lead, line, _pos) abort
   if a:lead =~ '^-'
     let flags = ['-append', '-buffer', '-buffers', '-cword', '-dir', '-grepprg',
           \ '-highlight', '-jump', '-open', '-prompt', '-query', '-quickfix',
@@ -193,12 +193,12 @@ function! s:complete(lead, line, _pos) abort
     return filter(map(sort(copy(g:grepper.tools)), 'v:val." "'),
           \ 'empty(a:lead) || v:val[:strlen(a:lead)-1] ==# a:lead')
   else
-    return s:complete_files(a:lead, 0, 0)
+    return grepper#complete_files(a:lead, 0, 0)
   endif
 endfunction
 
-" s:complete_files() {{{2
-function! s:complete_files(lead, _line, _pos)
+" grepper#complete_files() {{{2
+function! grepper#complete_files(lead, _line, _pos)
   let [head, path] = s:extract_path(a:lead)
   " handle relative paths
   if empty(path) || (path =~ '\s$')
@@ -589,7 +589,7 @@ function! s:prompt(flags)
 
   try
     let a:flags.query = input(prompt_text .'> ', a:flags.query,
-          \ 'customlist,<sid>complete_files')
+          \ 'customlist,grepper#complete_files')
   finally
     redraw!
     execute 'cunmap' g:grepper.next_tool
@@ -1006,7 +1006,7 @@ if hasmapto('<plug>(GrepperOperator)')
 endif
 
 " Commands {{{1
-command! -nargs=* -complete=customlist,<sid>complete Grepper call <sid>parse_flags(<q-args>)
+command! -nargs=* -complete=customlist,grepper#complete Grepper call <sid>parse_flags(<q-args>)
 
 for tool in g:grepper.tools
   let utool = toupper(tool[0]) . tool[1:]
