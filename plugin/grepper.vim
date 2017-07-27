@@ -502,7 +502,9 @@ function! s:process_flags(flags)
   endif
 
   if a:flags.buffer
+    let [shellslash, &shellslash] = [&shellslash, 1]
     let a:flags.buflist = [bufname('')]
+    let &shellslash = shellslash
     if !filereadable(a:flags.buflist[0])
       call s:error('This buffer is not backed by a file!')
       return 1
@@ -510,8 +512,10 @@ function! s:process_flags(flags)
   endif
 
   if a:flags.buffers
+    let [shellslash, &shellslash] = [&shellslash, 1]
     let a:flags.buflist = filter(map(filter(range(1, bufnr('$')),
           \ 'bufloaded(v:val)'), 'bufname(v:val)'), 'filereadable(v:val)')
+    let &shellslash = shellslash
     if empty(a:flags.buflist)
       call s:error('No buffer is backed by a file!')
       return 1
