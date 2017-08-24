@@ -682,6 +682,10 @@ function! s:run(flags)
 
   let orig_dir = s:chdir_push(options.cmd_dir)
 
+  if &verbose
+    echom 'grepper: running '.string(cmd)
+  endif
+
   if has('nvim')
     if exists('s:id')
       silent! call jobstop(s:id)
