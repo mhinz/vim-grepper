@@ -10,7 +10,6 @@ let s:defaults = {
       \ 'quickfix':      1,
       \ 'open':          1,
       \ 'switch':        1,
-      \ 'side':          0,
       \ 'jump':          0,
       \ 'cword':         0,
       \ 'prompt':        1,
@@ -19,6 +18,8 @@ let s:defaults = {
       \ 'buffer':        0,
       \ 'buffers':       0,
       \ 'append':        0,
+      \ 'side':          0,
+      \ 'side_cmd':      'vnew',
       \ 'stop':          5000,
       \ 'dir':           'cwd',
       \ 'next_tool':     '<tab>',
@@ -771,7 +772,7 @@ function! s:finish_up(flags)
   echo printf('Found %d matches.', size)
 
   if a:flags.side
-    call s:side(a:flags.quickfix)
+    call s:side(a:flags)
   endif
 
   if exists('#User#Grepper')
@@ -827,20 +828,20 @@ endfunction
 let s:filename_regexp = '\v^%(\>\>\>|\]\]\]) ([[:alnum:][:blank:]\/\-_.~]+):(\d+)'
 
 " s:side() {{{2
-function! s:side(use_quickfix) abort
-  call s:side_create_window(a:use_quickfix)
+function! s:side(flags) abort
+  call s:side_create_window(a:flags)
   call s:side_buffer_settings()
 endfunction
 
 " s:side_create_window() {{{2
-function! s:side_create_window(use_quickfix) abort
+function! s:side_create_window(flags) abort
   " Contexts are lists of a fixed format:
   "
   "   [0] = line number of the match
   "   [1] = start of context
   "   [2] = end of context
   let regions = {}
-  let list = a:use_quickfix ? getqflist() : getloclist(0)
+  let list = a:flags.quickfix ? getqflist() : getloclist(0)
 
   " process quickfix entries
   for entry in list
@@ -861,7 +862,7 @@ function! s:side_create_window(use_quickfix) abort
     end
   endfor
 
-  vnew
+  execute a:flags.side_cmd
 
   " write contexts to buffer
   for filename in sort(keys(regions))

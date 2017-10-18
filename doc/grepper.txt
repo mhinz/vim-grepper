@@ -83,6 +83,7 @@ All options:~
     |g:grepper.repo|
     |g:grepper.simple_prompt|
     |g:grepper.side|
+    |g:grepper.side_cmd|
     |g:grepper.tools|
     |g:grepper.next_tool|
     |g:grepper.stop|
@@ -183,6 +184,12 @@ Only show the tool name in the prompt, without any of its arguments.
 <
 Open a new window and show matches with surrounding context. See |grepper-side|
 for details.
+
+------------------------------------------------------------------------------
+                                                            *g:grepper.side_cmd*  >
+    let g:grepper.side_cmd = 'vnew'
+<
+The command used for opening the side window. See |grepper-side| for details.
 
 ------------------------------------------------------------------------------
                                                                *g:grepper.tools*  >
@@ -514,6 +521,9 @@ Mappings:~
   the current window first.
 
 Customization:~
+
+  Set |g:grepper.side_cmd| to open the side window with a command other than
+  |:vnew|.
 
   After the buffer of the new window is filled with the matches, the
   "GrepperSide" filetype is set.
