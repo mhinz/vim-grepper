@@ -537,6 +537,8 @@ function! s:process_flags(flags)
     let a:flags.query = substitute(a:flags.query, '\V\C'.s:magic.cr .'\$', '', '')
     if empty(a:flags.query)
       let a:flags.query = s:escape_cword(a:flags, expand('<cword>'))
+    elseif a:flags.prompt_quote
+      let a:flags.query = shellescape(a:flags.query)
     endif
   endif
 

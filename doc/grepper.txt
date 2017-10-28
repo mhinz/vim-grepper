@@ -79,6 +79,7 @@ All options:~
     |g:grepper.switch|
     |g:grepper.jump|
     |g:grepper.prompt|
+    |g:grepper.prompt_quote|
     |g:grepper.dir|
     |g:grepper.repo|
     |g:grepper.simple_prompt|
@@ -138,6 +139,21 @@ Automatically jump to the first match.
     let g:grepper.prompt = 1
 <
 To prompt or not to prompt!
+
+------------------------------------------------------------------------------
+                                                        *g:grepper.prompt_quote*  >
+    let g:grepper.prompt_quote = 0
+<
+Think of the prompt as a pre-populated command-line in your shell. When the
+query contains whitespace or other special characters, you need to quote it.
+
+But the input to the prompt is not limited to only the actual query. You're
+free to give other options to the specified tool like you would in the shell.
+E.g. the git prompt defaults to `git grep -nI`, so `-i 'foo bar' *.vim` is a
+perfectly valid query.
+
+To keep that flexibility, Grepper does not quote the query by default. Enable
+this option to change that behaviour.
 
 ------------------------------------------------------------------------------
                                                                  *g:grepper.dir*  >
