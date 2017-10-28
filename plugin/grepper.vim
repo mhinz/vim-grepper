@@ -994,6 +994,7 @@ function! s:operator(type) abort
 
   let &selection = selsave
   let flags = s:get_config()
+  let flags.prompt = 0
   let flags.query_orig = @@
   let flags.query_escaped = 0
 

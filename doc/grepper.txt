@@ -395,8 +395,8 @@ There is no default mapping for the operator, but you can set it like this:
     nmap gs  <plug>(GrepperOperator)
     xmap gs  <plug>(GrepperOperator)
 <
-This defines an |operator| "gs" that takes any |{motion}| and uses that
-selection to populate the search prompt. The query is quoted automatically.
+This defines an |operator| "gs" that takes any |{motion}| and starts searching
+for the selected query right away. The query is quoted automatically.
 
 Useful examples are gsW, gsiw, or gsi". See |text-objects| for all of them.
 
