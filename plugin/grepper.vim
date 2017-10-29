@@ -383,7 +383,7 @@ endfunction
 
 " s:chdir_push() {{{2
 function! s:chdir_push(cmd_dir)
-  if a:cmd_dir != ''
+  if !empty(a:cmd_dir)
     let cwd = getcwd()
     execute 'lcd' a:cmd_dir
     return cwd
@@ -393,7 +393,7 @@ endfunction
 
 " s:chdir_pop() {{{2
 function! s:chdir_pop(buf_dir)
-  if a:buf_dir != ''
+  if !empty(a:buf_dir)
     execute 'lcd' fnameescape(a:buf_dir)
   endif
 endfunction
@@ -418,7 +418,7 @@ function! s:parse_flags(args) abort
   let flags.query_escaped = 0
   let [flag, args] = s:split_one(a:args)
 
-  while flag != ''
+  while !empty(flag)
     if     flag =~? '\v^-%(no)?(quickfix|qf)$' | let flags.quickfix  = flag !~? '^-no'
     elseif flag =~? '\v^-%(no)?open$'          | let flags.open      = flag !~? '^-no'
     elseif flag =~? '\v^-%(no)?switch$'        | let flags.switch    = flag !~? '^-no'
@@ -445,28 +445,27 @@ function! s:parse_flags(args) abort
         let flags.dir = dir
       endif
     elseif flag =~? '^-grepprg$'
-      if args != ''
+      if empty(args)
+        call s:error('Missing argument for: -grepprg')
+      else
         if !exists('tool')
           let tool = g:grepper.tools[0]
         endif
         let flags.tools = [tool]
         let flags[tool] = copy(g:grepper[tool])
         let flags[tool].grepprg = args
-      else
-        call s:error('Missing argument for: -grepprg')
       endif
       break
     elseif flag =~? '^-query$'
-      if args != ''
-        let flags.query = args
-        let flags.prompt = 0
-        break
-      else
+      if empty(args)
         " No warning message here. This allows for..
         " nnoremap ... :Grepper! -tool ag -query<space>
         " ..thus you get nicer file completion.
-        break
+      else
+        let flags.query = args
+        let flags.prompt = 0
       endif
+      break
     elseif flag =~? '^-tool$'
       let [tool, args] = s:split_one(args)
       if tool == ''
