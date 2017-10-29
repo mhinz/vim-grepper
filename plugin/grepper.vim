@@ -14,6 +14,7 @@ let s:defaults = {
       \ 'cword':         0,
       \ 'prompt':        1,
       \ 'simple_prompt': 0,
+      \ 'prompt_quote':  0,
       \ 'highlight':     0,
       \ 'buffer':        0,
       \ 'buffers':       0,
