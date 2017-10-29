@@ -394,7 +394,7 @@ endfunction
 " s:chdir_pop() {{{2
 function! s:chdir_pop(buf_dir)
   if a:buf_dir != ''
-    execute 'lcd' a:buf_dir
+    execute 'lcd' fnameescape(a:buf_dir)
   endif
 endfunction
 
