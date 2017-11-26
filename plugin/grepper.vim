@@ -54,6 +54,10 @@ let s:defaults = {
       \                    'wordanchors': ['\<', '\>'] }
       \ }
 
+" Make it possible to configure the global and operator behaviours separately.
+let s:defaults.operator = deepcopy(s:defaults)
+let s:defaults.operator.prompt = 0
+
 let s:has_doau_modeline = v:version > 703 || v:version == 703 && has('patch442')
 
 function! s:merge_configs(smallconfig, bigconfig) abort
@@ -1001,8 +1005,7 @@ function! s:operator(type) abort
   endif
 
   let &selection = selsave
-  let flags = s:get_config()
-  let flags.prompt = 0
+  let flags = s:get_config().operator
   let flags.query_orig = @@
   let flags.query_escaped = 0
 
