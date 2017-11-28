@@ -152,8 +152,13 @@ free to give other options to the specified tool like you would in the shell.
 E.g. the git prompt defaults to `git grep -nI`, so `-i 'foo bar' *.vim` is a
 perfectly valid query.
 
-To keep that flexibility, Grepper does not quote the query by default. Enable
-this option to change that behaviour.
+To keep that flexibility, Grepper does not quote the query by default.
+
+The following values are available:
+
+  1    Quote the query automatically.
+  2    Populate the prompt with single quotes and put cursor in between.
+  3    Populate the prompt with double quotes and put cursor in between.
 
 ------------------------------------------------------------------------------
                                                                  *g:grepper.dir*  >
