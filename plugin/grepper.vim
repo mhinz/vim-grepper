@@ -60,19 +60,44 @@ let s:defaults.operator.prompt = 0
 
 let s:has_doau_modeline = v:version > 703 || v:version == 703 && has('patch442')
 
-function! s:merge_configs(smallconfig, bigconfig) abort
-  let newconfig = deepcopy(a:bigconfig)
-  for key in keys(a:smallconfig)
-    if type(a:smallconfig[key]) == type({})
-      if !has_key(newconfig, key)
-        let newconfig[key] = {}
-      endif
-      call extend(newconfig[key], a:smallconfig[key])
-    else
-      let newconfig[key] = a:smallconfig[key]
+function! s:merge_configs(config, defaults) abort
+  let new = deepcopy(a:config)
+
+  " Add all missing default options.
+  call extend(new, a:defaults, 'keep')
+
+  " Global options.
+  for [k,v] in items(a:config)
+    if k == 'operator'
+      continue
+    endif
+
+    " If only part of an option dict was set, add the missing default keys.
+    if type(new[k]) == type({}) && has_key(a:defaults, k) && new[k] != a:defaults[k]
+      call extend(new[k], a:defaults[k], 'keep')
+    endif
+
+    " Inherit operator option from global option unless it already exists or
+    " has a default value where the global option has not.
+    if !has_key(new.operator, k) || (has_key(a:defaults, k)
+          \                          && new[k] != a:defaults[k]
+          \                          && new.operator[k] == s:defaults.operator[k])
+      let new.operator[k] = deepcopy(new[k])
     endif
   endfor
-  return newconfig
+
+  " Operator options.
+  if has_key(a:config, 'operator')
+    for opt in keys(a:config.operator)
+      " If only part of an operator option dict was set, inherit the missing
+      " keys from the global option.
+      if type(new.operator[opt]) == type({}) && new.operator[opt] != new[opt]
+        call extend(new.operator[opt], new[opt], 'keep')
+      endif
+    endfor
+  endif
+
+  return new
 endfunction
 
 let g:grepper = exists('g:grepper')
