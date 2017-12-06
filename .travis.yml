@@ -1,9 +1,5 @@
-sudo: required
+sudo: false
 dist: trusty
-
-os:
-  - linux
-  - osx
 
 addons:
   apt:
@@ -11,8 +7,4 @@ addons:
       - vim-gtk
       - silversearcher-ag
 
-before_script:
-  - if [[ "$TRAVIS_OS_NAME" == osx ]]; then brew update && brew install vim the_silver_searcher; fi
-
-script:
-  - test/run
+script: test/run
