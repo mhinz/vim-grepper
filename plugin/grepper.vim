@@ -67,7 +67,7 @@ function! s:merge_configs(config, defaults) abort
   call extend(new, a:defaults, 'keep')
 
   " Global options.
-  for [k,v] in items(a:config)
+  for k in keys(a:config)
     if k == 'operator'
       continue
     endif
