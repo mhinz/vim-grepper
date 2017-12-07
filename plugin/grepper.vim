@@ -620,19 +620,19 @@ function! s:prompt(flags)
   let &ttimeout = 1
   let &ttimeoutlen = 100
 
-  if a:flags.prompt_quote == 2
-    let text = "'". a:flags.query ."'\<left>"
-  elseif a:flags.prompt_quote == 3
-    let text = '"'. a:flags.query ."\"\<left>"
+  if a:flags.prompt_quote == 2 && !has_key(a:flags, 'query_orig')
+    let a:flags.query = "'". a:flags.query ."'\<left>"
+  elseif a:flags.prompt_quote == 3 && !has_key(a:flags, 'query_orig')
+    let a:flags.query = '"'. a:flags.query ."\"\<left>"
   else
-    let text = a:flags.query
+    let a:flags.query = a:flags.query
   endif
 
   echohl Question
   call inputsave()
 
   try
-    let a:flags.query = input(prompt_text .'> ', text,
+    let a:flags.query = input(prompt_text .'> ', a:flags.query,
           \ 'customlist,grepper#complete_files')
   finally
     redraw!
