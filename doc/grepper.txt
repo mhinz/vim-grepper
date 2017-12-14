@@ -181,6 +181,9 @@ won't change back after the search finishes.
     Start searching for any directory or file from |g:grepper.repo| from the
     current directory upwards. If there is a match, switch to its directory.
 
+    Exception: If git is used, we first try `git rev-parse --show-toplevel`,
+    since submodules don't have an own .git directory.
+
 You can specify multiple values:
 >
     let g:grepper.dir = 'repo,file'

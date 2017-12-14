@@ -383,9 +383,16 @@ function! s:escape_cword(flags, cword)
 endfunction
 
 " s:compute_working_directory() {{{2
-function! s:compute_working_directory(dirflag) abort
-  for dir in split(a:dirflag, ',')
+function! s:compute_working_directory(flags) abort
+  for dir in split(a:flags.dir, ',')
     if dir == 'repo'
+      if s:get_current_tool_name(a:flags) == 'git'
+        let dir = system(printf('git -C %s rev-parse --show-toplevel',
+              \ expand('%:p:h')))
+        if !v:shell_error
+          return dir
+        endif
+      endif
       for repo in g:grepper.repo
         let repopath = finddir(repo, '.;')
         if empty(repopath)
@@ -722,7 +729,7 @@ function! s:run(flags)
 
   let options = {
         \ 'cmd':       s:cmdline,
-        \ 'cmd_dir':   s:compute_working_directory(a:flags.dir),
+        \ 'cmd_dir':   s:compute_working_directory(a:flags),
         \ 'flags':     a:flags,
         \ 'addexpr':   a:flags.quickfix ? 'caddexpr' : 'laddexpr',
         \ 'window':    winnr(),
