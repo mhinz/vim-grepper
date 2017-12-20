@@ -722,7 +722,7 @@ function! s:run(flags)
     " cmd.exe handles single quotes as part of the query. To avoid this
     " behaviour, we run the query via powershell.exe from within cmd.exe:
     " https://stackoverflow.com/questions/94382/vim-with-powershell
-    let cmd = ['powershell.exe', '-NoLogo','-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'RemoteSigned' , s:cmdline]
+    let cmd = 'powershell.exe -NoLogo -NoProfile -NonInteractive -ExecutionPolicy RemoteSigned '. s:cmdline
   else
     let cmd = ['sh', '-c', s:cmdline]
   endif
