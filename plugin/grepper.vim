@@ -686,7 +686,9 @@ function! s:build_cmdline(flags) abort
   let grepprg = s:get_grepprg(a:flags)
 
   if has_key(a:flags, 'buflist')
+    let [shellslash, &shellslash] = [&shellslash, 1]
     call map(a:flags.buflist, 'shellescape(fnamemodify(v:val, ":."))')
+    let &shellslash = shellslash
   endif
 
   if stridx(grepprg, '$.') >= 0
