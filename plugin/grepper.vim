@@ -141,7 +141,7 @@ function! s:on_stdout_nvim(_job_id, data, _event) dict abort
     return
   endif
 
-  let orig_dir = s:chdir_push(self.cmd_dir)
+  let orig_dir = s:chdir_push(self.work_dir)
 
   try
     if empty(a:data[-1])
@@ -184,7 +184,7 @@ function! s:on_stdout_vim(_job_id, data) dict abort
     return
   endif
 
-  let orig_dir = s:chdir_push(self.cmd_dir)
+  let orig_dir = s:chdir_push(self.work_dir)
 
   try
     noautocmd execute self.addexpr 'a:data'
@@ -418,10 +418,10 @@ function! s:compute_working_directory(flags) abort
 endfunction
 
 " s:chdir_push() {{{2
-function! s:chdir_push(cmd_dir)
-  if !empty(a:cmd_dir)
+function! s:chdir_push(work_dir)
+  if !empty(a:work_dir)
     let cwd = getcwd()
-    execute 'lcd' a:cmd_dir
+    execute 'lcd' a:work_dir
     return cwd
   endif
   return ''
@@ -540,7 +540,7 @@ function! s:process_flags(flags)
 
   if a:flags.buffer
     let [shellslash, &shellslash] = [&shellslash, 1]
-    let a:flags.buflist = [bufname('')]
+    let a:flags.buflist = [fnamemodify(bufname(''), ':p')]
     let &shellslash = shellslash
     if !filereadable(a:flags.buflist[0])
       call s:error('This buffer is not backed by a file!')
@@ -551,7 +551,7 @@ function! s:process_flags(flags)
   if a:flags.buffers
     let [shellslash, &shellslash] = [&shellslash, 1]
     let a:flags.buflist = filter(map(filter(range(1, bufnr('$')),
-          \ 'bufloaded(v:val)'), 'bufname(v:val)'), 'filereadable(v:val)')
+          \ 'bufloaded(v:val)'), 'fnamemodify(bufname(v:val), ":p")'), 'filereadable(v:val)')
     let &shellslash = shellslash
     if empty(a:flags.buflist)
       call s:error('No buffer is backed by a file!')
@@ -686,7 +686,7 @@ function! s:build_cmdline(flags) abort
   let grepprg = s:get_grepprg(a:flags)
 
   if has_key(a:flags, 'buflist')
-    call map(a:flags.buflist, 'shellescape(v:val)')
+    call map(a:flags.buflist, 'shellescape(fnamemodify(v:val, ":."))')
   endif
 
   if stridx(grepprg, '$.') >= 0
@@ -712,6 +712,8 @@ function! s:run(flags)
     call setloclist(0, [])
   endif
 
+  let work_dir  = s:compute_working_directory(a:flags)
+  let orig_dir  = s:chdir_push(work_dir)
   let s:cmdline = s:build_cmdline(a:flags)
 
   " 'cmd' and 'options' are only used for async execution.
@@ -729,7 +731,7 @@ function! s:run(flags)
 
   let options = {
         \ 'cmd':       s:cmdline,
-        \ 'cmd_dir':   s:compute_working_directory(a:flags),
+        \ 'work_dir':  work_dir,
         \ 'flags':     a:flags,
         \ 'addexpr':   a:flags.quickfix ? 'caddexpr' : 'laddexpr',
         \ 'window':    winnr(),
@@ -738,8 +740,6 @@ function! s:run(flags)
         \ }
 
   call s:store_errorformat(a:flags)
-
-  let orig_dir = s:chdir_push(options.cmd_dir)
 
   if &verbose
     echomsg 'grepper: running' string(cmd)
