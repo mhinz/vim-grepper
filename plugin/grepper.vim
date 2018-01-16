@@ -123,11 +123,12 @@ endif
 
 "
 " Special case: ack (different distros use different names for ack)
+" Prefer ack-grep since its presence likely means ack is a different tool.
 "
 let s:ack     = index(g:grepper.tools, 'ack')
 let s:ackgrep = index(g:grepper.tools, 'ack-grep')
 if (s:ack >= 0) && (s:ackgrep >= 0)
-  call remove(g:grepper.tools, s:ackgrep)
+  call remove(g:grepper.tools, s:ack)
 endif
 
 let s:cmdline = ''
