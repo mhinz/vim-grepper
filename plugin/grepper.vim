@@ -124,10 +124,10 @@ endif
 "
 " Special case: ack (different distros use different names for ack)
 "
-let ack     = index(g:grepper.tools, 'ack')
-let ackgrep = index(g:grepper.tools, 'ack-grep')
-if (ack >= 0) && (ackgrep >= 0)
-  call remove(g:grepper.tools, ackgrep)
+let s:ack     = index(g:grepper.tools, 'ack')
+let s:ackgrep = index(g:grepper.tools, 'ack-grep')
+if (s:ack >= 0) && (s:ackgrep >= 0)
+  call remove(g:grepper.tools, s:ackgrep)
 endif
 
 let s:cmdline = ''
@@ -1079,10 +1079,10 @@ endif
 " Commands {{{1
 command! -nargs=* -complete=customlist,grepper#complete Grepper call <sid>parse_flags(<q-args>)
 
-for tool in g:grepper.tools
-  let utool = toupper(tool[0]) . tool[1:]
-  execute 'command! -nargs=+ -complete=file Grepper'. utool
-        \ 'Grepper -noprompt -tool' tool '-query <args>'
+for s:tool in g:grepper.tools
+  let s:utool = toupper(s:tool[0]) . s:tool[1:]
+  execute 'command! -nargs=+ -complete=file Grepper'. s:utool
+        \ 'Grepper -noprompt -tool' s:tool '-query <args>'
 endfor
 
 " vim: tw=80 et sts=2 sw=2 fdm=marker
