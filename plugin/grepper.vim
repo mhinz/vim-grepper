@@ -104,11 +104,11 @@ let g:grepper = exists('g:grepper')
       \ ? s:merge_configs(g:grepper, s:defaults)
       \ : deepcopy(s:defaults)
 
-for tool in g:grepper.tools
-  if !has_key(g:grepper, tool)
-        \ || !has_key(g:grepper[tool], 'grepprg')
-        \ || !executable(expand(matchstr(g:grepper[tool].grepprg, '^[^ ]*')))
-    call remove(g:grepper.tools, index(g:grepper.tools, tool))
+for s:tool in g:grepper.tools
+  if !has_key(g:grepper, s:tool)
+        \ || !has_key(g:grepper[s:tool], 'grepprg')
+        \ || !executable(expand(matchstr(g:grepper[s:tool].grepprg, '^[^ ]*')))
+    call remove(g:grepper.tools, index(g:grepper.tools, s:tool))
   endif
 endfor
 
