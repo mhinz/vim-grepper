@@ -218,14 +218,15 @@ The command used for opening the side window. See |grepper-side| for details.
 ------------------------------------------------------------------------------
                                                                *g:grepper.tools*  >
     let g:grepper.tools =
-      \ ['ag', 'ack', 'grep', 'findstr', 'rg', 'pt', 'sift, 'git']
+      \ ['ag', 'ack', 'ack-grep', 'grep', 'findstr', 'rg', 'pt', 'sift, 'git']
 <
 These are the tools that you can choose from. The first tool in this list is
 the default tool and always gets used if no other tool was explicitly
 specified.
 
-NOTE: Because of a name clash, some systems use "ack-grep" instead of "ack". If
-you include "ack" here, "ack-grep" will be found, too.
+NOTE: Because of a name clash, some systems use "ack-grep" instead of "ack".
+If both are included in this option and found to be executable, "ack" will be
+removed, so "ack-grep" gets preferred.
 
 ------------------------------------------------------------------------------
                                                            *g:grepper.next_tool*  >
