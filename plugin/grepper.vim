@@ -1084,7 +1084,8 @@ endif
 command! -nargs=* -complete=customlist,grepper#complete Grepper call <sid>parse_flags(<q-args>)
 
 for s:tool in g:grepper.tools
-  let s:utool = toupper(s:tool[0]) . s:tool[1:]
+  let s:utool = substitute(toupper(s:tool[0]) . s:tool[1:], '-\(.\)',
+        \ '\=toupper(submatch(1))', 'g')
   execute 'command! -nargs=+ -complete=file Grepper'. s:utool
         \ 'Grepper -noprompt -tool' s:tool '-query <args>'
 endfor
