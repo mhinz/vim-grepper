@@ -37,8 +37,8 @@ This plugin is written in pure VimL and works with Vim and Neovim.
 
 ---
 
-If you liked [ack](https://github.com/mileszs/ack.vim) and
-[ag](https://github.com/rking/ag.vim), you will love vim-grepper.
+_If you like [ack.vim](https://github.com/mileszs/ack.vim) and
+[ag.vim](https://github.com/rking/ag.vim), you will love vim-grepper._
 
 ## Documentation
 
