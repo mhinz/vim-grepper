@@ -18,7 +18,7 @@ Use your **favorite grep tool**
 grep) to start an **asynchronous search**. All matches will be put in a
 **quickfix or location list**.
 
-This plugin is written in pure VimL and works with Vim and Neovim.
+_This plugin works with Vim and Neovim on Windows and Unix-like systems._
 
 ---
 
