@@ -692,7 +692,7 @@ function! s:build_cmdline(flags) abort
       " double quotes. Beforehand escape all backslashes, otherwise \t in
       " 'dir\test' would be considered a tab etc.
       let [shellslash, &shellslash] = [&shellslash, 0]
-      call map(a:flags.buflist, 'shellescape(escape(fnamemodify(v:val, ":."), "\\")')
+      call map(a:flags.buflist, 'shellescape(escape(fnamemodify(v:val, ":."), "\\"))')
       let &shellslash = shellslash
     else
       call map(a:flags.buflist, 'shellescape(fnamemodify(v:val, ":."))')
