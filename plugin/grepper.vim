@@ -543,9 +543,7 @@ function! s:process_flags(flags)
   endif
 
   if a:flags.buffer
-    let [shellslash, &shellslash] = [&shellslash, 1]
     let a:flags.buflist = [fnamemodify(bufname(''), ':p')]
-    let &shellslash = shellslash
     if !filereadable(a:flags.buflist[0])
       call s:error('This buffer is not backed by a file!')
       return 1
@@ -553,10 +551,8 @@ function! s:process_flags(flags)
   endif
 
   if a:flags.buffers
-    let [shellslash, &shellslash] = [&shellslash, 1]
     let a:flags.buflist = filter(map(filter(range(1, bufnr('$')),
           \ 'bufloaded(v:val)'), 'fnamemodify(bufname(v:val), ":p")'), 'filereadable(v:val)')
-    let &shellslash = shellslash
     if empty(a:flags.buflist)
       call s:error('No buffer is backed by a file!')
       return 1
@@ -690,9 +686,17 @@ function! s:build_cmdline(flags) abort
   let grepprg = s:get_grepprg(a:flags)
 
   if has_key(a:flags, 'buflist')
-    let [shellslash, &shellslash] = [&shellslash, 1]
-    call map(a:flags.buflist, 'shellescape(fnamemodify(v:val, ":."))')
-    let &shellslash = shellslash
+    if has('win32')
+      " cmd.exe does not use single quotes for quoting. Using 'noshellslash'
+      " forces path separators to be backslashes and makes shellescape() using
+      " double quotes. Beforehand escape all backslashes, otherwise \t in
+      " 'dir\test' would be considered a tab etc.
+      let [shellslash, &shellslash] = [&shellslash, 0]
+      call map(a:flags.buflist, 'shellescape(escape(fnamemodify(v:val, ":."), "\\"))')
+      let &shellslash = shellslash
+    else
+      call map(a:flags.buflist, 'shellescape(fnamemodify(v:val, ":."))')
+    endif
   endif
 
   if stridx(grepprg, '$.') >= 0
@@ -723,14 +727,8 @@ function! s:run(flags)
   let s:cmdline = s:build_cmdline(a:flags)
 
   " 'cmd' and 'options' are only used for async execution.
-  if has('win32') && &shell =~# 'powershell'
-    " Windows powershell has better quote handling.
-    let cmd = s:cmdline
-  elseif has('win32') && &shell =~# 'cmd'
-    " cmd.exe handles single quotes as part of the query. To avoid this
-    " behaviour, we run the query via powershell.exe from within cmd.exe:
-    " https://stackoverflow.com/questions/94382/vim-with-powershell
-    let cmd = 'powershell.exe -NoLogo -NoProfile -NonInteractive -ExecutionPolicy RemoteSigned '. s:cmdline
+  if has('win32')
+    let cmd = 'cmd.exe /c '. s:cmdline
   else
     let cmd = ['sh', '-c', s:cmdline]
   endif
