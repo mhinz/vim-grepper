@@ -401,7 +401,7 @@ MAPPINGS                                                      *grepper-mappings*
 Search prompt:~
 
     <cr>     Start search with current query.
-    <tab>    Next tool. (See |g:grepper.tools| on how to change this.)
+    <tab>    Next tool. (See |g:grepper.next_tool| on how to change this.)
     <esc>    Close prompt without searching.
     <c-c>    Close prompt without searching.
     <c-f>    Open |cmdline-window|. Use <c-c><c-c> to quit without searching.
