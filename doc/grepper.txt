@@ -521,9 +521,9 @@ COLORS                                                          *grepper-colors*
 
 Prompt:~
 
-    Default highlight group: |hl-Question|
+    Default highlight group: GrepperPrompt linked to |hl-Question|.
 >
-    highlight Question ctermfg=160 guifg=#ff0000 cterm=NONE
+    highlight GrepperPrompt ctermfg=160 guifg=#ff0000 cterm=NONE
 >
 Error messages:~
 

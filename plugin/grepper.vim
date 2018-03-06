@@ -3,6 +3,8 @@
 " Escaping test line:
 " ..ad\\f40+$':-# @=,!;%^&&*()_{}/ /4304\'""?`9$343%$ ^adfadf[ad)[(
 
+highlight default link GrepperPrompt Question
+
 "
 " Default values that get used for missing values in g:grepper.
 "
@@ -644,7 +646,7 @@ function! s:prompt(flags)
   "   'cr':         start searching
   let s:prompt_op = 'cancelled'
 
-  echohl Question
+  echohl GrepperPrompt
   call inputsave()
 
   try
