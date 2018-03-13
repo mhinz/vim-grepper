@@ -235,8 +235,7 @@ function! grepper#complete_files(lead, _line, _pos)
   " handle paths in $HOME (~/foo)
   if path[0:1] ==# '~/'
     let home = expand('~')
-    let home_len = len(home)
-    return map(split(globpath(home, path[2:].'*'), '\n'), "head . '~' . v:val[home_len:] . (isdirectory(v:val) ? s:slash : '')")
+    return map(split(globpath(home, path[2:].'*'), '\n'), "head . '~' . v:val[".len(home).":] . (isdirectory(v:val) ? s:slash : '')")
   " handle (explicit) relative paths
   elseif path[0:1] ==# './'
     return map(split(globpath('.'.s:slash, path[2:].'*'), '\n'), "head . v:val . (isdirectory(v:val) ? s:slash : '')")
