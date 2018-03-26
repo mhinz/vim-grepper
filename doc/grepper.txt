@@ -140,6 +140,11 @@ Automatically jump to the first match.
 <
 To prompt or not to prompt!
 
+NOTE: When you disable the prompt, `:Grepper` will act as `:Grepper -noprompt` .
+Without any other option this uses an empty query by default. Since some tools
+don't even handle empty queries, the empty query will be replaced by the word
+under the cursor. Use |:Grepper-query| to use your own query.
+
 ------------------------------------------------------------------------------
                                                         *g:grepper.prompt_quote*  >
     let g:grepper.prompt_quote = 0
