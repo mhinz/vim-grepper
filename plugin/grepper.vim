@@ -819,6 +819,7 @@ function! s:finish_up(flags)
     execute (qf ? 'cclose' : 'lclose')
     redraw
     echo 'No matches found.'
+    call s:redraw_cursor()
     return
   endif
 
@@ -1075,7 +1076,14 @@ function! s:operator(type) abort
   return s:start(flags)
 endfunction
 
+" Redraw Cursor {{{1
+function! s:redraw_cursor() abort
+  " counteract disappearing cursor caused by :echo
+  call feedkeys("\<plug>(GrepperNop)")
+endfunction
+
 " Mappings {{{1
+nnoremap <silent> <plug>(GrepperNop)      <nop>
 nnoremap <silent> <plug>(GrepperOperator) :set opfunc=<sid>operator<cr>g@
 xnoremap <silent> <plug>(GrepperOperator) :<c-u>call <sid>operator(visualmode())<cr>
 
