@@ -806,11 +806,11 @@ function! s:finish_up(flags)
   call s:restore_errorformat()
 
   try
-    let title = has('nvim') ? cmdline : {'title': cmdline}
+    let attrs = has('nvim') ? cmdline : {'title': cmdline, 'context': @/}
     if qf
-      call setqflist(list, a:flags.append ? 'a' : 'r', title)
+      call setqflist(list, a:flags.append ? 'a' : 'r', attrs)
     else
-      call setloclist(0, list, a:flags.append ? 'a' : 'r', title)
+      call setloclist(0, list, a:flags.append ? 'a' : 'r', attrs)
     endif
   catch /E118/
   endtry
