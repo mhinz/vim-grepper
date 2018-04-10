@@ -811,7 +811,10 @@ function! s:finish_up(flags)
   call s:restore_errorformat()
 
   try
-    let attrs = has('nvim') ? cmdline : {'title': cmdline, 'context': @/}
+    " TODO: Remove condition if nvim 0.2.0+ enters Debian stable.
+    let attrs = has('nvim') && !has('nvim-0.2.0')
+          \ ? cmdline
+          \ : {'title': cmdline, 'context': @/}
     if qf
       call setqflist(list, a:flags.append ? 'a' : 'r', attrs)
     else
