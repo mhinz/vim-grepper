@@ -1,5 +1,10 @@
 " Initialization {{{1
 
+if exists('g:loaded_grepper')
+  finish
+endif
+let g:loaded_grepper = 1
+
 " Escaping test line:
 " ..ad\\f40+$':-# @=,!;%^&&*()_{}/ /4304\'""?`9$343%$ ^adfadf[ad)[(
 
