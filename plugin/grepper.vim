@@ -127,7 +127,7 @@ endfor
 "
 if index(g:grepper.tools, 'ag') >= 0
       \ && !exists('g:grepper.ag.grepprg')
-      \ && split(system('ag --version'))[2] =~ '^\v\d+\.%([01]|2[0-4])'
+      \ && split(system('ag --version'))[2] =~ '^\v0\.%([01]|2[0-4])'
   let g:grepper.ag.grepprg = 'ag --column --nogroup'
 endif
 
