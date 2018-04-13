@@ -123,15 +123,6 @@ for s:tool in g:grepper.tools
 endfor
 
 "
-" Special case: ag (-vimgrep isn't available in versions < 0.25)
-"
-if index(g:grepper.tools, 'ag') >= 0
-      \ && !exists('g:grepper.ag.grepprg')
-      \ && split(system('ag --version'))[2] =~ '^\v0\.%([01]|2[0-4])'
-  let g:grepper.ag.grepprg = 'ag --column --nogroup'
-endif
-
-"
 " Special case: ack (different distros use different names for ack)
 " Prefer ack-grep since its presence likely means ack is a different tool.
 "
