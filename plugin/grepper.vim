@@ -805,7 +805,7 @@ function! s:finish_up(flags)
     " TODO: Remove condition if nvim 0.2.0+ enters Debian stable.
     let attrs = has('nvim') && !has('nvim-0.2.0')
           \ ? cmdline
-          \ : {'title': cmdline, 'context': @/}
+          \ : {'title': cmdline, 'context': {'query': @/}}
     if qf
       call setqflist(list, a:flags.append ? 'a' : 'r', attrs)
     else
