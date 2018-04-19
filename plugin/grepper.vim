@@ -576,6 +576,8 @@ function! s:process_flags(flags)
     elseif a:flags.prompt_quote == 1
       let a:flags.query = shellescape(a:flags.query)
     endif
+  else
+    call histadd('input', a:flags.query)
   endif
 
   if a:flags.side
