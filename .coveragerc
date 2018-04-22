@@ -1,0 +1,6 @@
+[run]
+plugins = covimerage
+data_file = .coverage.covimerage
+
+[report]
+omit = test/vader.vim/*
