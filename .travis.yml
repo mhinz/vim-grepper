@@ -7,4 +7,15 @@ addons:
       - vim-gtk
       - silversearcher-ag
 
+install:
+  - pip install covimerage
+
+env:
+  - GREPPER_TEST_VIM='covimerage run --data-file $PWD/.coverage.covimerage --source $PWD -- vim'
+
 script: test/run
+
+after_success:
+  - coverage xml
+  - coverage report -m
+  - bash <(curl -s https://codecov.io/bash) -X gcov -X coveragepy -X search -X fix -X xcode -f coverage.xml
