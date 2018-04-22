@@ -9,8 +9,7 @@ addons:
       - silversearcher-ag
 
 install:
-  - python3 -m venv .venv
-  - .venv/bin/pip install covimerage
+  - pip install covimerage
 
 env:
   - GREPPER_TEST_VIM='covimerage run --data-file $PWD/.coverage.covimerage --source $PWD -- vim'
@@ -18,6 +17,6 @@ env:
 script: test/run
 
 after_success:
-  - .venv/bin/coverage xml
-  - .venv/bin/coverage report -m
+  - coverage xml
+  - coverage report -m
   - bash <(curl -s https://codecov.io/bash) -X gcov -X coveragepy -X search -X fix -X xcode -f coverage.xml
