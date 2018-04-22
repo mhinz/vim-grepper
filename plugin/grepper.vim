@@ -862,10 +862,30 @@ function! s:highlight_query(flags)
 
   " Remove surrounding quotes that denote a string.
   let start = vim_query[0]
-  let end = vim_query[-1:-1]
-  if start == end && start =~ "\['\"]"
-    let vim_query = vim_query[1:-2]
+  if start ==# '"' || start ==# "'"
+    let offset = 1
+    while 1
+      let end = stridx(vim_query, start, offset)
+      if end == -1
+        break
+      endif
+      if vim_query[end-1] != '\'
+        break
+      endif
+      let offset = end + 1
+    endwhile
+    if end != -1
+      let vim_query = vim_query[1:end-1]
+    endif
+  else
+    " Use first WORD (with escaped whitespace).
+    let vim_query = matchstr(vim_query, '\v^%(\\\s|\S)+')
   endif
+
+  " Unescape (removing backslashes).
+  let vim_query = substitute(vim_query, '\\"', '"', 'g')
+  let vim_query = substitute(vim_query, '\\''', "'", 'g')
+  let vim_query = substitute(vim_query, '\v\\(\s)', '\1', 'g')
 
   if a:flags.query_escaped
     let vim_query = s:unescape_query(a:flags, vim_query)

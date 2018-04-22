@@ -3,3 +3,5 @@ plain text file that is used
 for, well, testing purposes.
 
 foo bar quux
+
+Something "quoted with 'inline quotes'" and "escaped \" quotes"
