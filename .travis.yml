@@ -1,5 +1,6 @@
 sudo: false
 dist: trusty
+language: python
 
 addons:
   apt:
@@ -8,7 +9,7 @@ addons:
       - silversearcher-ag
 
 install:
-  - python -m venv .venv
+  - python3 -m venv .venv
   - .venv/bin/pip install covimerage
 
 env:
