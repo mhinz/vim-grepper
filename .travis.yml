@@ -12,7 +12,7 @@ install:
   - pip install covimerage
 
 env:
-  - GREPPER_TEST_VIM='covimerage run --data-file $PWD/.coverage.covimerage --source $PWD -- vim'
+  - GREPPER_TEST_VIM="covimerage run --data-file $PWD/.coverage.covimerage --source $PWD -- vim"
 
 script: test/run
 
