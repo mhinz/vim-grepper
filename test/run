@@ -17,4 +17,5 @@ else
 fi
 
 echo '(Be patient.. testing can take a while.)'
-vim -Nnu vimrc -i NONE +'Vader! feature/*.vader'
+# shellcheck disable=SC2086
+${GREPPER_TEST_VIM:-vim} -Nnu vimrc -i NONE +'Vader! feature/*.vader'
