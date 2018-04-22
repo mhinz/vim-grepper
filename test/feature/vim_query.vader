@@ -1,0 +1,41 @@
+Before:
+  enew!
+  only!
+  let w:testing = 1
+
+  " Remove . from grepprg to pick up include only (see #162).
+  Save g:grepper
+  let g:grepper.grep.grepprg = 'grep -RIn $*'
+
+Execute (Does not change @/ by default):
+  Save @/
+  let @/ = 'orig_query'
+  Grepper -noprompt -tool grep -query Foo include
+  AssertEqual @/, 'orig_query'
+  AssertEqual map(getqflist(), 'v:val.text'), ['Foo: This is just a random']
+
+Execute (Simple vim_query):
+  Save @/
+  Log g:grepper.grep
+  Grepper -noprompt -tool grep -highlight -query Foo include
+  AssertEqual @/, 'Foo'
+  AssertEqual map(getqflist(), 'v:val.text'), ['Foo: This is just a random']
+
+Execute (Complex vim_query):
+  Save @/
+  Grepper -noprompt -tool grep -highlight -query "Something \"quoted" include
+  AssertEqual @/, 'Something "quoted'
+  AssertEqual map(getqflist(), 'v:val.lnum'), [7]
+
+Execute (Complex vim_query with leading escaped double quote):
+  Save @/
+  Grepper -noprompt -tool grep -highlight -query \"quoted include
+  AssertEqual @/, '"quoted'
+  AssertEqual map(getqflist(), 'v:val.lnum'), [7]
+
+Execute (Complex vim_query with single quotes):
+  Save @/
+  Grepper -noprompt -tool grep -highlight -query \'inline\ quotes\' include
+  AssertEqual w:quickfix_title, 'grep -RIn \''inline\ quotes\'' include'
+  AssertEqual @/, "'inline quotes'"
+  AssertEqual map(getqflist(), 'v:val.lnum'), [7]
