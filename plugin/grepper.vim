@@ -189,8 +189,8 @@ function! s:on_stdout_vim(_job_id, data) dict abort
 
   try
     noautocmd execute self.addexpr 'a:data'
-    if self.flags.stop > 0
-          \ && len(self.flags.quickfix ? getqflist() : getloclist(0)) >= self.flags.stop
+    let self.num_matches += 1
+    if self.flags.stop > 0 && self.num_matches >= self.flags.stop
       call job_stop(s:id)
       unlet s:id
     endif
@@ -744,6 +744,7 @@ function! s:run(flags)
         \ 'window':    winnr(),
         \ 'tabpage':   tabpagenr(),
         \ 'stdoutbuf': [],
+        \ 'num_matches': 0,
         \ }
 
   call s:store_errorformat(a:flags)
