@@ -145,34 +145,35 @@ function! s:on_stdout_nvim(_job_id, data, _event) dict abort
   let orig_dir = s:chdir_push(self.work_dir)
 
   try
-    if empty(a:data[-1])
-      " Second-last item is the last complete line in a:data.
-      noautocmd execute self.addexpr 'self.stdoutbuf + a:data[:-2]'
-      let self.stdoutbuf = []
-    else
-      if empty(self.stdoutbuf)
-        " Last item in a:data is an incomplete line. Put into buffer.
-        let self.stdoutbuf = [remove(a:data, -1)]
-        noautocmd execute self.addexpr 'a:data'
-      else
-        " Last item in a:data is an incomplete line. Append to buffer.
-        let self.stdoutbuf = self.stdoutbuf[:-2]
-              \ + [self.stdoutbuf[-1] . get(a:data, 0, '')]
-              \ + a:data[1:]
-      endif
-    endif
     if self.flags.stop > 0
-      let nmatches = len(self.flags.quickfix ? getqflist() : getloclist(0))
-      if nmatches >= self.flags.stop || len(self.stdoutbuf) > self.flags.stop
+      " note: do not use the last line of stdoutbuf here, it can be incomplete
+      if self.num_matches + len(self.stdoutbuf) - 1 >= self.flags.stop
         " Add the remaining data
-        let n_rem_lines = self.flags.stop - nmatches - 1
+        let n_rem_lines = self.flags.stop - self.num_matches
         if n_rem_lines > 0
-          noautocmd execute self.addexpr 'self.stdoutbuf[:n_rem_lines]'
+          noautocmd execute self.addexpr 'self.stdoutbuf[:n_rem_lines-1]'
         endif
 
         call jobstop(s:id)
         unlet s:id
+        return
       endif
+    endif
+    if empty(a:data[-1])
+      " Second-last item is the last complete line in a:data.
+      let self.num_matches += len(self.stdoutbuf) + len(a:data) - 1
+      noautocmd execute self.addexpr 'self.stdoutbuf + a:data[:-2]'
+      let self.stdoutbuf = []
+    elseif empty(self.stdoutbuf)
+        " Last item in a:data is an incomplete line. Put into buffer.
+        let self.stdoutbuf = [remove(a:data, -1)]
+        let self.num_matches += len(a:data)
+        noautocmd execute self.addexpr 'a:data'
+    else
+      " Last item in a:data is an incomplete line. Append to buffer.
+      let self.stdoutbuf = self.stdoutbuf[:-2]
+            \ + [self.stdoutbuf[-1] . get(a:data, 0, '')]
+            \ + a:data[1:]
     endif
   finally
     call s:chdir_pop(orig_dir)
