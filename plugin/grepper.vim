@@ -143,36 +143,31 @@ function! s:on_stdout_nvim(_job_id, data, _event) dict abort
   endif
 
   let orig_dir = s:chdir_push(self.work_dir)
+  let lcandidates = []
 
   try
-    if empty(a:data[-1])
+    if len(a:data) > 1 || empty(a:data[-1])
       " Second-last item is the last complete line in a:data.
-      noautocmd execute self.addexpr 'self.stdoutbuf + a:data[:-2]'
-      let self.stdoutbuf = []
-    else
-      if empty(self.stdoutbuf)
-        " Last item in a:data is an incomplete line. Put into buffer.
-        let self.stdoutbuf = [remove(a:data, -1)]
-        noautocmd execute self.addexpr 'a:data'
-      else
-        " Last item in a:data is an incomplete line. Append to buffer.
-        let self.stdoutbuf = self.stdoutbuf[:-2]
-              \ + [self.stdoutbuf[-1] . get(a:data, 0, '')]
-              \ + a:data[1:]
-      endif
+      let lcandidates = [self.stdoutbuf . a:data[0]] + a:data[1:-2]
+      let self.stdoutbuf = ''
     endif
-    if self.flags.stop > 0
-      let nmatches = len(self.flags.quickfix ? getqflist() : getloclist(0))
-      if nmatches >= self.flags.stop || len(self.stdoutbuf) > self.flags.stop
-        " Add the remaining data
-        let n_rem_lines = self.flags.stop - nmatches - 1
-        if n_rem_lines > 0
-          noautocmd execute self.addexpr 'self.stdoutbuf[:n_rem_lines]'
-        endif
+    " Last item in a:data is an incomplete line (or empty), append to buffer
+    let self.stdoutbuf .= a:data[-1]
 
-        call jobstop(s:id)
-        unlet s:id
+    if self.flags.stop > 0 && (self.num_matches + len(lcandidates) >= self.flags.stop)
+      " Add the remaining data
+      let n_rem_lines = self.flags.stop - self.num_matches
+      if n_rem_lines > 0
+        noautocmd execute self.addexpr 'lcandidates[:n_rem_lines-1]'
+        let self.num_matches = self.flags.stop
       endif
+
+      call jobstop(s:id)
+      unlet s:id
+      return
+    else
+      noautocmd execute self.addexpr 'lcandidates'
+      let self.num_matches += len(lcandidates)
     endif
   finally
     call s:chdir_pop(orig_dir)
@@ -743,7 +738,7 @@ function! s:run(flags)
         \ 'addexpr':   a:flags.quickfix ? 'caddexpr' : 'laddexpr',
         \ 'window':    winnr(),
         \ 'tabpage':   tabpagenr(),
-        \ 'stdoutbuf': [],
+        \ 'stdoutbuf': '',
         \ 'num_matches': 0,
         \ }
 
