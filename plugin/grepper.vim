@@ -148,7 +148,8 @@ function! s:on_stdout_nvim(_job_id, data, _event) dict abort
   try
     if len(a:data) > 1 || empty(a:data[-1])
       " Second-last item is the last complete line in a:data.
-      let lcandidates = [self.stdoutbuf . a:data[0]] + a:data[1:-2]
+      let acc_line = self.stdoutbuf . a:data[0]
+      let lcandidates = (empty(acc_line) ? [] : [acc_line]) + a:data[1:-2]
       let self.stdoutbuf = ''
     endif
     " Last item in a:data is an incomplete line (or empty), append to buffer
