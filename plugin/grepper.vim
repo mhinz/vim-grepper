@@ -589,6 +589,8 @@ endfunction
 
 " s:start() {{{1
 function! s:start(flags) abort
+  let s:prompt_op = ''
+
   if empty(g:grepper.tools)
     call s:error('No grep tool found!')
     return
@@ -612,9 +614,21 @@ function! s:prompt(flags)
         \ ? s:get_current_tool_name(a:flags)
         \ : s:get_grepprg(a:flags)
 
-  let mapping = maparg(g:grepper.next_tool, 'c', '', 1)
+  if s:prompt_op == 'option_dir'
+    let changed_mode = '[--dir '. a:flags.dir .'] '
+    let prompt_text = changed_mode . prompt_text
+  elseif s:prompt_op == 'option_side'
+    let changed_mode = '['. (a:flags.side ? '--side' : '--noside') .'] '
+    let prompt_text = changed_mode . prompt_text
+  endif
+
+  let mapping_next_tool   = maparg(g:grepper.next_tool, 'c', '', 1)
+  let mapping_option_dir  = maparg('<c-d>', 'c', '', 1)
+  let mapping_option_side = maparg('<c-s>', 'c', '', 1)
   execute 'cnoremap' g:grepper.next_tool "\<c-\>e\<sid>set_prompt_op('next_tool')<cr><cr>"
-  cnoremap <cr> <end><c-\>e<sid>set_prompt_op('cr')<cr><cr>
+  cnoremap <cr>  <end><c-\>e<sid>set_prompt_op('cr')<cr><cr>
+  cnoremap <c-d> <end><c-\>e<sid>set_prompt_op('option_dir')<cr><cr>
+  cnoremap <c-s> <end><c-\>e<sid>set_prompt_op('option_side')<cr><cr>
 
   " Set low timeout for key codes, so <esc> would cancel prompt faster
   let ttimeoutsave = &ttimeout
@@ -649,7 +663,11 @@ function! s:prompt(flags)
     redraw!
     execute 'cunmap' g:grepper.next_tool
     cunmap <cr>
-    call s:restore_mapping(mapping)
+    cunmap <c-d>
+    cunmap <c-s>
+    call s:restore_mapping(mapping_next_tool)
+    call s:restore_mapping(mapping_option_dir)
+    call s:restore_mapping(mapping_option_side)
 
     " Restore original timeout settings for key codes
     let &ttimeout = ttimeoutsave
@@ -675,6 +693,15 @@ function! s:prompt(flags)
         endif
       endif
     endif
+    return s:prompt(a:flags)
+  elseif s:prompt_op == 'option_dir'
+    let states = ['cwd', 'file', 'filecwd', 'repo']
+    let pattern = printf('v:val =~# "^%s.*"', a:flags.dir)
+    let current_index = index(map(copy(states), pattern), 1)
+    let a:flags.dir = states[(current_index + 1) % len(states)]
+    return s:prompt(a:flags)
+  elseif s:prompt_op == 'option_side'
+    let a:flags.side = !a:flags.side
     return s:prompt(a:flags)
   endif
 endfunction
