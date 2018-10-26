@@ -363,7 +363,9 @@ Populate the prompt with the word under cursor.
                                                                 *:Grepper-query*  >
     -query <query>
 <
-Use a fixed query. This implies `-noprompt`.
+Search using this query. This implies `-noprompt`.
+
+This is NOT meant for adding options to the tool. See |grepper-faq-05|.
 
 This must be the last flag!~
 
@@ -589,6 +591,7 @@ FAQ                                                                *grepper-faq*
     |grepper-faq-02|  How to change the colors of the quickfix window?
     |grepper-faq-03|  How to use queries that begin with dashes?
     |grepper-faq-04|  How to use the default quickfix window height?
+    |grepper-faq-05|  How to change the default options of a tool?
 
 ------------------------------------------------------------------------------
                                                                 *grepper-faq-01*
@@ -647,6 +650,25 @@ many matches grepper found, put this in your vimrc:
     let g:grepper = { 'open': 0 }
     autocmd User Grepper copen
 <
+------------------------------------------------------------------------------
+                                                                *grepper-faq-05*
+How to change the default options of a tool?~
+
+If you use `:Grepper -tool git` the prompt shows how the tool is invoked:
+>
+    git grep -nI
+
+You can change this by setting `g:grepper.<tool>.grepprg`.
+
+E.g. to get case-insensitive git searches, just append to the default:
+>
+    runtime plugin/grepper.vim
+    let g:grepper.git.grepprg .= 'i'
+<
+(The first line is needed to initialize |g:grepper| with default values.)
+
+Use |:Grepper-grepprg| to overwrite the default grepprg on the fly.
+
 ==============================================================================
 EXAMPLE                                                        *grepper-example*
 
