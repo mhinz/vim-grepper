@@ -34,7 +34,7 @@ let s:defaults = {
       \ 'repo':          ['.git', '.hg', '.svn'],
       \ 'tools':         ['ag', 'ack', 'ack-grep', 'grep', 'findstr', 'rg', 'pt', 'sift', 'git'],
       \ 'git':           { 'grepprg':    'git grep -nI',
-      \                    'grepformat': '%f:%l:%m',
+      \                    'grepformat': '%f:%l:%c:%m,%f:%l:%m',
       \                    'escape':     '\^$.*[]' },
       \ 'ag':            { 'grepprg':    'ag --vimgrep',
       \                    'grepformat': '%f:%l:%c:%m,%f:%l:%m',
