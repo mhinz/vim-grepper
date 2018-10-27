@@ -8,3 +8,7 @@ addons:
       - silversearcher-ag
 
 script: test/run
+
+notifcations:
+  email:
+    on_success: never
