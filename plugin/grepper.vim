@@ -30,7 +30,7 @@ let s:defaults = {
       \ 'side_cmd':      'vnew',
       \ 'stop':          5000,
       \ 'dir':           'cwd',
-      \ 'next_tool':     '<tab>',
+      \ 'prompt_mapping_tool': '<tab>',
       \ 'prompt_mapping_dir':  '<c-d>',
       \ 'prompt_mapping_side': '<c-s>',
       \ 'repo':          ['.git', '.hg', '.svn'],
@@ -624,10 +624,12 @@ function! s:prompt(flags)
     let prompt_text = changed_mode . prompt_text
   endif
 
-  let mapping_next_tool   = maparg(g:grepper.next_tool, 'c', '', 1)
-  let mapping_option_dir  = maparg(g:grepper.prompt_mapping_dir, 'c', '', 1)
+  let mapping_option_tool = maparg(get(g:grepper, 'next_tool', g:grepper.prompt_mapping_tool), 'c', '', 1)
+  let mapping_option_dir  = maparg(g:grepper.prompt_mapping_dir,  'c', '', 1)
   let mapping_option_side = maparg(g:grepper.prompt_mapping_side, 'c', '', 1)
-  execute 'cnoremap' g:grepper.next_tool "\<c-\>e\<sid>set_prompt_op('next_tool')<cr><cr>"
+  execute 'cnoremap' g:grepper.prompt_mapping_tool "\<c-\>e\<sid>set_prompt_op('option_tool')<cr><cr>"
+  execute 'cnoremap' g:grepper.prompt_mapping_dir  "\<c-\>e\<sid>set_prompt_op('option_dir')<cr><cr>"
+  execute 'cnoremap' g:grepper.prompt_mapping_side "\<c-\>e\<sid>set_prompt_op('option_side')<cr><cr>"
   cnoremap <cr>  <end><c-\>e<sid>set_prompt_op('cr')<cr><cr>
   cnoremap <c-d> <end><c-\>e<sid>set_prompt_op('option_dir')<cr><cr>
   cnoremap <c-s> <end><c-\>e<sid>set_prompt_op('option_side')<cr><cr>
@@ -647,12 +649,13 @@ function! s:prompt(flags)
   endif
 
   " s:prompt_op indicates which key ended the prompt's input() and is needed to
-  " distinguish different actions. The next_tool mapping sets it to 'next_tool',
-  " and <cr> to 'cr'. It defaults to 'cancelled', which means that the prompt
-  " was cancelled by either <esc> or <c-c>.
-  "   'cancelled':  don't start searching
-  "   'next_tool':  don't start searching, use query as input for the next tool
-  "   'cr':         start searching
+  " distinguish different actions. It defaults to 'cancelled', which means that
+  " the prompt was cancelled by either <esc> or <c-c>.
+  "   'cancelled':    don't start searching
+  "   'option_tool':  don't start searching; toggle -tool flag
+  "   'option_dir':   don't start searching; toggle -dir flag
+  "   'option_side':  don't start searching; toggle -side flag
+  "   'cr':           start searching
   let s:prompt_op = 'cancelled'
 
   echohl GrepperPrompt
@@ -663,11 +666,11 @@ function! s:prompt(flags)
           \ 'customlist,grepper#complete_files')
   finally
     redraw!
-    execute 'cunmap' g:grepper.next_tool
     cunmap <cr>
-    cunmap <c-d>
-    cunmap <c-s>
-    call s:restore_mapping(mapping_next_tool)
+    execute 'cunmap' g:grepper.prompt_mapping_tool
+    execute 'cunmap' g:grepper.prompt_mapping_dir
+    execute 'cunmap' g:grepper.prompt_mapping_side
+    call s:restore_mapping(mapping_option_tool)
     call s:restore_mapping(mapping_option_dir)
     call s:restore_mapping(mapping_option_side)
 
@@ -679,7 +682,7 @@ function! s:prompt(flags)
     call inputrestore()
   endtry
 
-  if s:prompt_op == 'next_tool'
+  if s:prompt_op == 'option_tool'
     call s:next_tool(a:flags)
     if a:flags.cword
       let a:flags.query = s:escape_cword(a:flags, a:flags.query_orig)
