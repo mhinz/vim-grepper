@@ -361,6 +361,24 @@ function! s:unescape_query(flags, query)
   return q
 endfunction
 
+" s:requote_query() {{{2
+function! s:requote_query(flags) abort
+  if a:flags.cword
+    let a:flags.query = s:escape_cword(a:flags, a:flags.query_orig)
+  else
+    let is_findstr = s:get_current_tool_name(a:flags) == 'findstr'
+    if has_key(a:flags, 'query_orig')
+      let a:flags.query = (is_findstr ? '' : '-- '). s:escape_query(a:flags, a:flags.query_orig)
+    else
+      if a:flags.prompt_quote >= 2
+        let a:flags.query = a:flags.query[1:-2]
+      else
+        let a:flags.query = a:flags.query[:-1]
+      endif
+    endif
+  endif
+endfunction
+
 " s:escape_cword() {{{2
 function! s:escape_cword(flags, cword)
   let tool = s:get_current_tool(a:flags)
@@ -682,31 +700,19 @@ function! s:prompt(flags)
     call inputrestore()
   endtry
 
-  if s:prompt_op == 'option_tool'
-    call s:next_tool(a:flags)
-    if a:flags.cword
-      let a:flags.query = s:escape_cword(a:flags, a:flags.query_orig)
-    else
-      let is_findstr = s:get_current_tool_name(a:flags) == 'findstr'
-      if has_key(a:flags, 'query_orig')
-        let a:flags.query = (is_findstr ? '' : '-- '). s:escape_query(a:flags, a:flags.query_orig)
-      else
-        if a:flags.prompt_quote >= 2
-          let a:flags.query = a:flags.query[1:-2]
-        else
-          let a:flags.query = a:flags.query[:-1]
-        endif
-      endif
+  if s:prompt_op != 'cr' && s:prompt_op != 'cancelled'
+    if s:prompt_op == 'option_tool'
+      call s:next_tool(a:flags)
+    elseif s:prompt_op == 'option_dir'
+      let states = ['cwd', 'file', 'filecwd', 'repo']
+      let pattern = printf('v:val =~# "^%s.*"', a:flags.dir)
+      let current_index = index(map(copy(states), pattern), 1)
+      let a:flags.dir = states[(current_index + 1) % len(states)]
+    elseif s:prompt_op == 'option_side'
+      let a:flags.side = !a:flags.side
     endif
-    return s:prompt(a:flags)
-  elseif s:prompt_op == 'option_dir'
-    let states = ['cwd', 'file', 'filecwd', 'repo']
-    let pattern = printf('v:val =~# "^%s.*"', a:flags.dir)
-    let current_index = index(map(copy(states), pattern), 1)
-    let a:flags.dir = states[(current_index + 1) % len(states)]
-    return s:prompt(a:flags)
-  elseif s:prompt_op == 'option_side'
-    let a:flags.side = !a:flags.side
+
+    call s:requote_query(a:flags)
     return s:prompt(a:flags)
   endif
 endfunction
