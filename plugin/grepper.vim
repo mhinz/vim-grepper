@@ -31,6 +31,8 @@ let s:defaults = {
       \ 'stop':          5000,
       \ 'dir':           'cwd',
       \ 'next_tool':     '<tab>',
+      \ 'prompt_mapping_dir':  '<c-d>',
+      \ 'prompt_mapping_side': '<c-s>',
       \ 'repo':          ['.git', '.hg', '.svn'],
       \ 'tools':         ['ag', 'ack', 'ack-grep', 'grep', 'findstr', 'rg', 'pt', 'sift', 'git'],
       \ 'git':           { 'grepprg':    'git grep -nI',
@@ -623,8 +625,8 @@ function! s:prompt(flags)
   endif
 
   let mapping_next_tool   = maparg(g:grepper.next_tool, 'c', '', 1)
-  let mapping_option_dir  = maparg('<c-d>', 'c', '', 1)
-  let mapping_option_side = maparg('<c-s>', 'c', '', 1)
+  let mapping_option_dir  = maparg(g:grepper.prompt_mapping_dir, 'c', '', 1)
+  let mapping_option_side = maparg(g:grepper.prompt_mapping_side, 'c', '', 1)
   execute 'cnoremap' g:grepper.next_tool "\<c-\>e\<sid>set_prompt_op('next_tool')<cr><cr>"
   cnoremap <cr>  <end><c-\>e<sid>set_prompt_op('cr')<cr><cr>
   cnoremap <c-d> <end><c-\>e<sid>set_prompt_op('option_dir')<cr><cr>
