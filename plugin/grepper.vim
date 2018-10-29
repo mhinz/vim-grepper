@@ -502,7 +502,6 @@ function! s:parse_flags(args) abort
         " ..thus you get nicer file completion.
       else
         let flags.query = args
-        let flags.prompt = 0
       endif
       break
     elseif flag =~? '^-tool$'

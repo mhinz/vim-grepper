@@ -363,7 +363,7 @@ Populate the prompt with the word under cursor.
                                                                 *:Grepper-query*  >
     -query <query>
 <
-Search using this query. This implies `-noprompt`.
+Search using this query.
 
 This is NOT meant for adding options to the tool. See |grepper-faq-05|.
 
@@ -692,7 +692,7 @@ This is a possible configuration..
     let g:grepper.jump      = 1
     let g:grepper.next_tool = '<leader>g'
 
-    command! Todo Grepper -tool git -query -E '(TODO|FIXME|XXX):'
+    command! Todo Grepper -noprompt -tool git -query -E '(TODO|FIXME|XXX):'
 <
 ==============================================================================
 vim: tw=78
