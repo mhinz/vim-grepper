@@ -617,10 +617,10 @@ function! s:prompt(flags)
         \ : s:get_grepprg(a:flags)
 
   if s:prompt_op == 'option_dir'
-    let changed_mode = '[--dir '. a:flags.dir .'] '
+    let changed_mode = '[-dir '. a:flags.dir .'] '
     let prompt_text = changed_mode . prompt_text
   elseif s:prompt_op == 'option_side'
-    let changed_mode = '['. (a:flags.side ? '--side' : '--noside') .'] '
+    let changed_mode = '['. (a:flags.side ? '-side' : '-noside') .'] '
     let prompt_text = changed_mode . prompt_text
   endif
 
