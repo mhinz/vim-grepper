@@ -86,7 +86,7 @@ All options:~
     |g:grepper.side|
     |g:grepper.side_cmd|
     |g:grepper.tools|
-    |g:grepper.next_tool|
+    |g:grepper.prompt_mapping_tool|
     |g:grepper.prompt_mapping_dir|
     |g:grepper.prompt_mapping_side|
     |g:grepper.stop|
@@ -236,16 +236,18 @@ If both are included in this option and found to be executable, "ack" will be
 removed, so "ack-grep" gets preferred.
 
 ------------------------------------------------------------------------------
-                                                           *g:grepper.next_tool*  >
-    let g:grepper.next_tool = '<tab>'
+                                                 *g:grepper.prompt_mapping_tool*  >
+    let g:grepper.prompt_mapping_tool = '<tab>'
 <
 The prompt uses this mapping to toggle the |:Grepper-tool| flag.
 
-NOTE: This can also be the same mapping as for opening the prompt:
+This can also be the same mapping as for opening the prompt:
 >
     nnoremap <leader>g :Grepper<cr>
-    let g:grepper.next_tool = '<leader>g'
+    let g:grepper.prompt_mapping_tool = '<leader>g'
 <
+NOTE: The obsolete alias for this option is `g:grepper.next_tool`.
+
 ------------------------------------------------------------------------------
                                                   *g:grepper.prompt_mapping_dir*  >
     let g:grepper.prompt_mapping_dir = '<s-d>'
@@ -422,7 +424,7 @@ MAPPINGS                                                      *grepper-mappings*
 Search prompt:~
 
     <cr>     Start search with current query.
-    <tab>    Toggle -tool flag. (|g:grepper.next_tool|)
+    <tab>    Toggle -tool flag. (|g:grepper.prompt_mapping_tool|)
     <c-d>    Toggle -dir flag. (|g:grepper.prompt_mapping_dir|)
     <c-s>    Toggle -side flag. (|g:grepper.prompt_mapping_side|)
     <esc>    Close prompt without searching.
@@ -702,11 +704,11 @@ This is a possible configuration..
     nnoremap <leader>gs :Grepper -tool ag -side<cr>
     nnoremap <leader>*  :Grepper -tool ag -cword -noprompt<cr>
 
-    let g:grepper           = {}
-    let g:grepper.tools     = ['git', 'ag', 'grep']
-    let g:grepper.open      = 0
-    let g:grepper.jump      = 1
-    let g:grepper.next_tool = '<leader>g'
+    let g:grepper = {}
+    let g:grepper.tools = ['git', 'ag', 'grep']
+    let g:grepper.open = 0
+    let g:grepper.jump = 1
+    let g:grepper.prompt_mapping_tool = '<leader>g'
 
     command! Todo Grepper -noprompt -tool git -query -E '(TODO|FIXME|XXX):'
 <
