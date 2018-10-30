@@ -634,23 +634,25 @@ function! s:prompt(flags)
         \ ? s:get_current_tool_name(a:flags)
         \ : s:get_grepprg(a:flags)
 
-  if s:prompt_op == 'option_dir'
+  if s:prompt_op == 'flag_dir'
     let changed_mode = '[-dir '. a:flags.dir .'] '
     let prompt_text = changed_mode . prompt_text
-  elseif s:prompt_op == 'option_side'
+  elseif s:prompt_op == 'flag_side'
     let changed_mode = '['. (a:flags.side ? '-side' : '-noside') .'] '
     let prompt_text = changed_mode . prompt_text
   endif
 
-  let mapping_option_tool = maparg(get(g:grepper, 'next_tool', g:grepper.prompt_mapping_tool), 'c', '', 1)
-  let mapping_option_dir  = maparg(g:grepper.prompt_mapping_dir,  'c', '', 1)
-  let mapping_option_side = maparg(g:grepper.prompt_mapping_side, 'c', '', 1)
-  execute 'cnoremap' g:grepper.prompt_mapping_tool "\<c-\>e\<sid>set_prompt_op('option_tool')<cr><cr>"
-  execute 'cnoremap' g:grepper.prompt_mapping_dir  "\<c-\>e\<sid>set_prompt_op('option_dir')<cr><cr>"
-  execute 'cnoremap' g:grepper.prompt_mapping_side "\<c-\>e\<sid>set_prompt_op('option_side')<cr><cr>"
-  cnoremap <cr>  <end><c-\>e<sid>set_prompt_op('cr')<cr><cr>
-  cnoremap <c-d> <end><c-\>e<sid>set_prompt_op('option_dir')<cr><cr>
-  cnoremap <c-s> <end><c-\>e<sid>set_prompt_op('option_side')<cr><cr>
+  " Store original mappings
+  let mapping_cr   = maparg('<cr>', 'c', '', 1)
+  let mapping_tool = maparg(get(g:grepper, 'next_tool', g:grepper.prompt_mapping_tool), 'c', '', 1)
+  let mapping_dir  = maparg(g:grepper.prompt_mapping_dir,  'c', '', 1)
+  let mapping_side = maparg(g:grepper.prompt_mapping_side, 'c', '', 1)
+
+  " Set plugin-specific mappings
+  cnoremap <cr> <end><c-\>e<sid>set_prompt_op('cr')<cr><cr>
+  execute 'cnoremap' g:grepper.prompt_mapping_tool "\<c-\>e\<sid>set_prompt_op('flag_tool')<cr><cr>"
+  execute 'cnoremap' g:grepper.prompt_mapping_dir  "\<c-\>e\<sid>set_prompt_op('flag_dir')<cr><cr>"
+  execute 'cnoremap' g:grepper.prompt_mapping_side "\<c-\>e\<sid>set_prompt_op('flag_side')<cr><cr>"
 
   " Set low timeout for key codes, so <esc> would cancel prompt faster
   let ttimeoutsave = &ttimeout
@@ -669,11 +671,11 @@ function! s:prompt(flags)
   " s:prompt_op indicates which key ended the prompt's input() and is needed to
   " distinguish different actions. It defaults to 'cancelled', which means that
   " the prompt was cancelled by either <esc> or <c-c>.
-  "   'cancelled':    don't start searching
-  "   'option_tool':  don't start searching; toggle -tool flag
-  "   'option_dir':   don't start searching; toggle -dir flag
-  "   'option_side':  don't start searching; toggle -side flag
-  "   'cr':           start searching
+  "   'cancelled':  don't start searching
+  "   'flag_tool':  don't start searching; toggle -tool flag
+  "   'flag_dir':   don't start searching; toggle -dir flag
+  "   'flag_side':  don't start searching; toggle -side flag
+  "   'cr':         start searching
   let s:prompt_op = 'cancelled'
 
   echohl GrepperPrompt
@@ -684,13 +686,16 @@ function! s:prompt(flags)
           \ 'customlist,grepper#complete_files')
   finally
     redraw!
+
+    " Restore mappings
     cunmap <cr>
     execute 'cunmap' g:grepper.prompt_mapping_tool
     execute 'cunmap' g:grepper.prompt_mapping_dir
     execute 'cunmap' g:grepper.prompt_mapping_side
-    call s:restore_mapping(mapping_option_tool)
-    call s:restore_mapping(mapping_option_dir)
-    call s:restore_mapping(mapping_option_side)
+    call s:restore_mapping(mapping_cr)
+    call s:restore_mapping(mapping_tool)
+    call s:restore_mapping(mapping_dir)
+    call s:restore_mapping(mapping_side)
 
     " Restore original timeout settings for key codes
     let &ttimeout = ttimeoutsave
@@ -701,14 +706,14 @@ function! s:prompt(flags)
   endtry
 
   if s:prompt_op != 'cr' && s:prompt_op != 'cancelled'
-    if s:prompt_op == 'option_tool'
+    if s:prompt_op == 'flag_tool'
       call s:next_tool(a:flags)
-    elseif s:prompt_op == 'option_dir'
+    elseif s:prompt_op == 'flag_dir'
       let states = ['cwd', 'file', 'filecwd', 'repo']
       let pattern = printf('v:val =~# "^%s.*"', a:flags.dir)
       let current_index = index(map(copy(states), pattern), 1)
       let a:flags.dir = states[(current_index + 1) % len(states)]
-    elseif s:prompt_op == 'option_side'
+    elseif s:prompt_op == 'flag_side'
       let a:flags.side = !a:flags.side
     endif
 
