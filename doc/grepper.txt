@@ -250,13 +250,13 @@ NOTE: The obsolete alias for this option is `g:grepper.next_tool`.
 
 ------------------------------------------------------------------------------
                                                   *g:grepper.prompt_mapping_dir*  >
-    let g:grepper.prompt_mapping_dir = '<s-d>'
+    let g:grepper.prompt_mapping_dir = '<c-d>'
 >
 The prompt uses this mapping to toggle the |:Grepper-dir| flag.
 
 ------------------------------------------------------------------------------
                                                  *g:grepper.prompt_mapping_side*  >
-    let g:grepper.prompt_mapping_side = '<s-s>'
+    let g:grepper.prompt_mapping_side = '<c-s>'
 >
 The prompt uses this mapping to toggle the |:Grepper-side| flag.
 
