@@ -518,7 +518,11 @@ Buffers that are not backed by a file will be ignored.
                is not already recognized by the default |'grepformat'|, define
                it yourself here.
 
-  escape       This is optional. These characters get escaped in the query.
+  escape       This is optional. A query entered in the prompt is used as-is,
+               as if you would use the same query in the shell. Thus you have
+               to escape characters with a special meaning yourself. But when
+               using the |grepper-operator| on a text selection, the characters
+               from this string get escaped automatically.
 
 ==============================================================================
 AUTOCMD                                                        *grepper-autocmd*
