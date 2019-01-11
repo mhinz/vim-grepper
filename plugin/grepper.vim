@@ -10,6 +10,15 @@ let g:loaded_grepper = 1
 
 highlight default link GrepperPrompt Question
 
+function! s:set_git_command() abort
+  let m = matchlist(system('git --version'), '\v \zs(\d+)\.(\d+)')
+  if empty(m) || (m[1] == 2 && m[2] < 19)
+    return 'git grep -nI'
+  else
+    return 'git grep -nI --column'
+  endif
+endfunction
+
 "
 " Default values that get used for missing values in g:grepper.
 "
@@ -35,7 +44,7 @@ let s:defaults = {
       \ 'prompt_mapping_side': '<c-s>',
       \ 'repo':          ['.git', '.hg', '.svn'],
       \ 'tools':         ['ag', 'ack', 'ack-grep', 'grep', 'findstr', 'rg', 'pt', 'sift', 'git'],
-      \ 'git':           { 'grepprg':    'git grep -nI',
+      \ 'git':           { 'grepprg':    s:set_git_command(),
       \                    'grepformat': '%f:%l:%c:%m,%f:%l:%m',
       \                    'escape':     '\^$.*[]' },
       \ 'ag':            { 'grepprg':    'ag --vimgrep',
