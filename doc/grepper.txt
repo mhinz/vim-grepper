@@ -225,11 +225,16 @@ The command used for opening the side window. See |grepper-side| for details.
 ------------------------------------------------------------------------------
                                                                *g:grepper.tools*  >
     let g:grepper.tools =
-      \ ['ag', 'ack', 'ack-grep', 'grep', 'findstr', 'rg', 'pt', 'sift, 'git']
+      \ ['git', 'ag', 'ack', 'ack-grep', 'grep', 'findstr', 'rg', 'pt', 'sift']
 <
 These are the tools that you can choose from. The first tool in this list is
 the default tool and always gets used if no other tool was explicitly
 specified.
+
+Git is a special case since it doesn't work in every directory. If it is in
+front of the list, but `:Grepper` (without |:Grepper-tool|) is used outside of
+a git repo, it will be removed from the list and `:Grepper` falls back to the
+next tool in line.
 
 NOTE: Because of a name clash, some systems use "ack-grep" instead of "ack".
 If both are included in this option and found to be executable, "ack" will be

@@ -43,7 +43,7 @@ let s:defaults = {
       \ 'prompt_mapping_dir':  '<c-d>',
       \ 'prompt_mapping_side': '<c-s>',
       \ 'repo':          ['.git', '.hg', '.svn'],
-      \ 'tools':         ['ag', 'ack', 'ack-grep', 'grep', 'findstr', 'rg', 'pt', 'sift', 'git'],
+      \ 'tools':         ['git', 'ag', 'ack', 'ack-grep', 'grep', 'findstr', 'rg', 'pt', 'sift'],
       \ 'git':           { 'grepprg':    s:set_git_command(),
       \                    'grepformat': '%f:%l:%c:%m,%f:%l:%m',
       \                    'escape':     '\^$.*[]' },
@@ -468,6 +468,10 @@ function! s:get_config() abort
   let flags = deepcopy(g:grepper)
   if exists('b:grepper')
     let flags = s:merge_configs(b:grepper, g:grepper)
+  endif
+  if !empty(flags.tools) && flags.tools[0] == 'git'
+        \ && empty(finddir('.git', '.;'))
+    call remove(flags.tools, 0)
   endif
   return flags
 endfunction
