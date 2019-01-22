@@ -816,7 +816,6 @@ function! s:run(flags)
             \ 'stderr_buffered': 1,
             \ 'on_exit':   function('s:on_exit'),
             \ }))
-      call chanclose(s:id, 'stdin')
     finally
       call s:chdir_pop(orig_dir)
     endtry
