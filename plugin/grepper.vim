@@ -469,10 +469,6 @@ function! s:get_config() abort
   if exists('b:grepper')
     let flags = s:merge_configs(b:grepper, g:grepper)
   endif
-  if !empty(flags.tools) && flags.tools[0] == 'git'
-        \ && empty(finddir('.git', '.;'))
-    call remove(flags.tools, 0)
-  endif
   return flags
 endfunction
 
@@ -623,6 +619,10 @@ endfunction
 " s:start() {{{1
 function! s:start(flags) abort
   let s:prompt_op = ''
+
+  if !empty(g:grepper.tools) && a:flags.tools[0] == 'git' && empty(finddir('.git', '.;'))
+    call remove(a:flags.tools, 0)
+  endif
 
   if empty(g:grepper.tools)
     call s:error('No grep tool found!')
