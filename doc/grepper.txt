@@ -171,8 +171,7 @@ The following values are available:
                                                                  *g:grepper.dir*  >
     let g:grepper.dir = 'cwd'
 <
-Change working directory before grepping. If the directory changes, Grepper
-won't change back after the search finishes.
+Change working directory before grepping and switch back afterwards.
 
  cwd~
     Use the current working directory as reported by |:pwd|.
