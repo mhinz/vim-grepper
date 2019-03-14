@@ -420,9 +420,9 @@ function! s:compute_working_directory(flags) abort
         endif
       endif
       for repo in g:grepper.repo
-        let repopath = finddir(repo, '.;')
+        let repopath = finddir(repo, expand('%:p:h').';')
         if empty(repopath)
-          let repopath = findfile(repo, '.;')
+          let repopath = findfile(repo, expand('%:p:h').';')
         endif
         if !empty(repopath)
           let repopath = fnamemodify(repopath, ':h')
@@ -620,7 +620,8 @@ endfunction
 function! s:start(flags) abort
   let s:prompt_op = ''
 
-  if !empty(g:grepper.tools) && a:flags.tools[0] == 'git' && empty(finddir('.git', '.;'))
+  if !empty(g:grepper.tools) && a:flags.tools[0] == 'git'
+        \ && empty(finddir('.git', expand('%:p:h').';'))
     call remove(a:flags.tools, 0)
   endif
 
