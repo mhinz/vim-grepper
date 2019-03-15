@@ -570,9 +570,12 @@ function! s:process_flags(flags)
   endif
 
   let s:tmp_work_dir = s:compute_working_directory(a:flags)
-  if !empty(g:grepper.tools) && a:flags.tools[0] ==# 'git'
-        \ && empty(finddir('.git', s:tmp_work_dir.';'))
+  if s:get_current_tool_name(a:flags) ==# 'git' && empty(finddir('.git', s:tmp_work_dir.';'))
     call remove(a:flags.tools, 0)
+    if empty(a:flags.tools)
+      call s:error('Using git outside of repo and no other tool to switch to. Try ":Grepper -dir repo,file" instead.')
+      return 1
+    endif
   endif
 
   if a:flags.buffer
