@@ -413,10 +413,10 @@ function! s:compute_working_directory(flags) abort
   for dir in split(a:flags.dir, ',')
     if dir == 'repo'
       if s:get_current_tool_name(a:flags) == 'git'
-        let dir = system(printf('git -C %s rev-parse --show-toplevel',
-              \ expand('%:p:h')))
+        let dir = systemlist(printf('git -C %s rev-parse --show-toplevel',
+              \ shellescape(expand('%:p:h'))))
         if !v:shell_error
-          return dir
+          return dir[0]
         endif
       endif
       for repo in g:grepper.repo
