@@ -626,11 +626,6 @@ endfunction
 function! s:start(flags) abort
   let s:prompt_op = ''
 
-  if !empty(g:grepper.tools) && a:flags.tools[0] == 'git'
-        \ && empty(finddir('.git', expand('%:p:h').';'))
-    call remove(a:flags.tools, 0)
-  endif
-
   if empty(g:grepper.tools)
     call s:error('No grep tool found!')
     return
