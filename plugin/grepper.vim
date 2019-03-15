@@ -569,6 +569,12 @@ function! s:process_flags(flags)
     return 1
   endif
 
+  let s:tmp_work_dir = s:compute_working_directory(a:flags)
+  if !empty(g:grepper.tools) && a:flags.tools[0] ==# 'git'
+        \ && empty(finddir('.git', s:tmp_work_dir.';'))
+    call remove(a:flags.tools, 0)
+  endif
+
   if a:flags.buffer
     let a:flags.buflist = [fnamemodify(bufname(''), ':p')]
     if !filereadable(a:flags.buflist[0])
@@ -777,8 +783,7 @@ function! s:run(flags)
     call setloclist(0, [])
   endif
 
-  let work_dir  = s:compute_working_directory(a:flags)
-  let orig_dir  = s:chdir_push(work_dir)
+  let orig_dir  = s:chdir_push(s:tmp_work_dir)
   let s:cmdline = s:build_cmdline(a:flags)
 
   " 'cmd' and 'options' are only used for async execution.
@@ -790,7 +795,7 @@ function! s:run(flags)
 
   let options = {
         \ 'cmd':       s:cmdline,
-        \ 'work_dir':  work_dir,
+        \ 'work_dir':  s:tmp_work_dir,
         \ 'flags':     a:flags,
         \ 'addexpr':   a:flags.quickfix ? 'caddexpr' : 'laddexpr',
         \ 'window':    winnr(),
