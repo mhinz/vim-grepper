@@ -1111,7 +1111,7 @@ endfunction
 " }}}1
 
 " Operator {{{1
-function! s:operator(type) abort
+function! GrepperOperator(type) abort
   let regsave = @@
   let selsave = &selection
   let &selection = 'inclusive'
@@ -1140,8 +1140,8 @@ function! s:operator(type) abort
 endfunction
 
 " Mappings {{{1
-nnoremap <silent> <plug>(GrepperOperator) :set opfunc=<sid>operator<cr>g@
-xnoremap <silent> <plug>(GrepperOperator) :<c-u>call <sid>operator(visualmode())<cr>
+nnoremap <silent> <plug>(GrepperOperator) :set opfunc=GrepperOperator<cr>g@
+xnoremap <silent> <plug>(GrepperOperator) :<c-u>call GrepperOperator(visualmode())<cr>
 
 if hasmapto('<plug>(GrepperOperator)')
   silent! call repeat#set("\<plug>(GrepperOperator)", v:count)
