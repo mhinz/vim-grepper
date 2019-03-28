@@ -476,7 +476,7 @@ function! s:git_add_column_flag(flags) abort
   if !empty(filter(copy(a:flags.tools), 'v:val == "git"'))
         \ && a:flags.git.grepprg == 'git grep -nI'
     let m = matchlist(system('git --version'), '\v \zs(\d+)\.(\d+)')
-    if !empty(m) || m[1] > 2 || (m[1] == 2 && m[2] >= 19)
+    if !empty(m) && (m[1] > 2 || (m[1] == 2 && m[2] >= 19))
       let a:flags.git.grepprg   = 'git grep -nI --column'  " for current invocation
       let g:grepper.git.grepprg = 'git grep -nI --column'  " for subsequent invocations
     endif
