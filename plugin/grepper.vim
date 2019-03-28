@@ -10,15 +10,6 @@ let g:loaded_grepper = 1
 
 highlight default link GrepperPrompt Question
 
-function! s:set_git_command() abort
-  let m = matchlist(system('git --version'), '\v \zs(\d+)\.(\d+)')
-  if empty(m) || (m[1] == 2 && m[2] < 19)
-    return 'git grep -nI'
-  else
-    return 'git grep -nI --column'
-  endif
-endfunction
-
 "
 " Default values that get used for missing values in g:grepper.
 "
@@ -44,7 +35,7 @@ let s:defaults = {
       \ 'prompt_mapping_side': '<c-s>',
       \ 'repo':          ['.git', '.hg', '.svn'],
       \ 'tools':         ['git', 'ag', 'ack', 'ack-grep', 'grep', 'findstr', 'rg', 'pt', 'sift'],
-      \ 'git':           { 'grepprg':    s:set_git_command(),
+      \ 'git':           { 'grepprg':    'git grep -nI',
       \                    'grepformat': '%f:%l:%c:%m,%f:%l:%m',
       \                    'escape':     '\^$.*[]' },
       \ 'ag':            { 'grepprg':    'ag --vimgrep',
@@ -145,6 +136,8 @@ endif
 
 let s:cmdline = ''
 let s:slash   = exists('+shellslash') && !&shellslash ? '\' : '/'
+
+let s:git_column_flag_checked = 0
 
 " Job handlers {{{1
 " s:on_stdout_nvim() {{{2
@@ -477,6 +470,19 @@ function! s:set_prompt_op(op) abort
   let s:prompt_op = a:op
   return getcmdline()
 endfunction
+
+" s:git_add_column_flag() {{{2
+function! s:git_add_column_flag(flags) abort
+  if !empty(filter(copy(a:flags.tools), 'v:val == "git"'))
+        \ && a:flags.git.grepprg == 'git grep -nI'
+    let m = matchlist(system('git --version'), '\v \zs(\d+)\.(\d+)')
+    if !empty(m) || m[1] > 2 || (m[1] == 2 && m[2] >= 19)
+      let a:flags.git.grepprg   = 'git grep -nI --column'  " for current invocation
+      let g:grepper.git.grepprg = 'git grep -nI --column'  " for subsequent invocations
+    endif
+  endif
+  let s:git_column_flag_checked = 1
+endfunction
 " }}}1
 
 " s:parse_flags() {{{1
@@ -632,6 +638,10 @@ function! s:start(flags) abort
   if empty(g:grepper.tools)
     call s:error('No grep tool found!')
     return
+  endif
+
+  if !s:git_column_flag_checked
+    call s:git_add_column_flag(a:flags)
   endif
 
   if s:process_flags(a:flags)
