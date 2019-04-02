@@ -338,7 +338,7 @@ function! s:restore_mapping(mapping)
           \ (a:mapping.nowait  ? '<nowait>' : ''    ),
           \ (a:mapping.expr    ? '<expr>'   : ''    ),
           \  a:mapping.lhs,
-          \  substitute(a:mapping.rhs, '<sid>', '<SNR>'.a:mapping.sid.'_', 'g'))
+          \  substitute(a:mapping.rhs, '\c<sid>', '<SNR>'.a:mapping.sid.'_', 'g'))
   endif
 endfunction
 
