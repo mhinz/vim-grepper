@@ -22,6 +22,7 @@ let s:defaults = {
       \ 'prompt':        1,
       \ 'simple_prompt': 0,
       \ 'prompt_quote':  0,
+      \ 'prompt_suffix': '>',
       \ 'highlight':     0,
       \ 'buffer':        0,
       \ 'buffers':       0,
@@ -710,8 +711,8 @@ function! s:prompt(flags)
   call inputsave()
 
   try
-    let a:flags.query = input(prompt_text .'> ', a:flags.query,
-          \ 'customlist,grepper#complete_files')
+    let a:flags.query = input(printf('%s%s ', prompt_text, g:grepper.prompt_suffix),
+          \ a:flags.query, 'customlist,grepper#complete_files')
   finally
     redraw!
 

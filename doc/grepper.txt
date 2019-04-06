@@ -80,6 +80,7 @@ All options:~
     |g:grepper.jump|
     |g:grepper.prompt|
     |g:grepper.prompt_quote|
+    |g:grepper.prompt_suffix|
     |g:grepper.dir|
     |g:grepper.repo|
     |g:grepper.simple_prompt|
@@ -166,6 +167,17 @@ The following values are available:
   1    Quote the query automatically.
   2    Populate the prompt with single quotes and put cursor in between.
   3    Populate the prompt with double quotes and put cursor in between.
+
+------------------------------------------------------------------------------
+                                                       *g:grepper.prompt_suffix*  >
+    let g:grepper.prompt_suffix = '>'
+<
+Specifies the string to append when displaying the prompt.
+
+To mimic the actual command-line when entering a query, put this in your vimrc:
+>
+    let g:grepper.prompt_suffix = ''
+<
 
 ------------------------------------------------------------------------------
                                                                  *g:grepper.dir*  >
