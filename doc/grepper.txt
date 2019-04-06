@@ -79,10 +79,10 @@ All options:~
     |g:grepper.switch|
     |g:grepper.jump|
     |g:grepper.prompt|
+    |g:grepper.prompt_text|
     |g:grepper.prompt_quote|
     |g:grepper.dir|
     |g:grepper.repo|
-    |g:grepper.simple_prompt|
     |g:grepper.side|
     |g:grepper.side_cmd|
     |g:grepper.tools|
@@ -148,6 +148,15 @@ don't even handle empty queries, the empty query will be replaced by the word
 under the cursor. Use |:Grepper-query| to use your own query.
 
 ------------------------------------------------------------------------------
+                                                         *g:grepper.prompt_text*  >
+    let g:grepper.prompt_text = '$c> '
+
+The text the prompt displays. It knows two specifiers:
+
+    $c   The full grep command.
+    $t   The grep tool name.
+
+------------------------------------------------------------------------------
                                                         *g:grepper.prompt_quote*  >
     let g:grepper.prompt_quote = 0
 <
@@ -207,6 +216,8 @@ The directories or files to search for when using |g:grepper.dir| with `repo`.
     let g:grepper.simple_prompt = 0
 <
 Only show the tool name in the prompt, without any of its arguments.
+
+DEPRECATED: Use |g:grepper.prompt_text| instead.
 
 ------------------------------------------------------------------------------
                                                                 *g:grepper.side*  >

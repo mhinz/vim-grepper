@@ -20,7 +20,7 @@ let s:defaults = {
       \ 'jump':          0,
       \ 'cword':         0,
       \ 'prompt':        1,
-      \ 'simple_prompt': 0,
+      \ 'prompt_text':   '$c> ',
       \ 'prompt_quote':  0,
       \ 'highlight':     0,
       \ 'buffer':        0,
@@ -465,6 +465,14 @@ function! s:get_config() abort
   return flags
 endfunction
 
+" s:set_prompt_text() {{{2
+function! s:set_prompt_text(flags) abort
+  let text = get(a:flags, 'simple_prompt') ? '$t> ' : a:flags.prompt_text
+  let text = substitute(text, '\V$t', s:get_current_tool_name(a:flags), '')
+  let text = substitute(text, '\V$c', s:get_grepprg(a:flags), '')
+  return text
+endfunction
+
 " s:set_prompt_op() {{{2
 function! s:set_prompt_op(op) abort
   let s:prompt_op = a:op
@@ -658,9 +666,7 @@ endfunction
 
 " s:prompt() {{{1
 function! s:prompt(flags)
-  let prompt_text = a:flags.simple_prompt
-        \ ? s:get_current_tool_name(a:flags)
-        \ : s:get_grepprg(a:flags)
+  let prompt_text = s:set_prompt_text(a:flags)
 
   if s:prompt_op == 'flag_dir'
     let changed_mode = '[-dir '. a:flags.dir .'] '
@@ -710,7 +716,7 @@ function! s:prompt(flags)
   call inputsave()
 
   try
-    let a:flags.query = input(prompt_text .'> ', a:flags.query,
+    let a:flags.query = input(prompt_text, a:flags.query,
           \ 'customlist,grepper#complete_files')
   finally
     redraw!
