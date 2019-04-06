@@ -818,6 +818,8 @@ function! s:run(flags)
     echomsg 'grepper: running' string(cmd)
   endif
 
+  echo printf('Running: %s', s:cmdline)
+
   if has('nvim')
     if exists('s:id')
       silent! call jobstop(s:id)
