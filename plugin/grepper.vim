@@ -26,6 +26,7 @@ let s:defaults = {
       \ 'buffer':        0,
       \ 'buffers':       0,
       \ 'append':        0,
+      \ 'searchreg':     0,
       \ 'side':          0,
       \ 'side_cmd':      'vnew',
       \ 'stop':          5000,
@@ -491,6 +492,51 @@ function! s:git_add_column_flag(flags) abort
   endif
   let s:git_column_flag_checked = 1
 endfunction
+
+" s:query2vimregexp() {{{2
+function! s:query2vimregexp(flags) abort
+  if has_key(a:flags, 'query_orig')
+    let query = a:flags.query_orig
+  else
+    " Remove any flags at the beginning, e.g. when using '-uu' with rg, but
+    " keep plain '-'.
+    let query = substitute(a:flags.query, '\v-\w+\s+', '', 'g')
+  endif
+
+  " Change Vim's '\'' to ' so it can be understood by /.
+  let vim_query = substitute(query, "'\\\\''", "'", 'g')
+
+  " Remove surrounding quotes that denote a string.
+  let start = vim_query[0]
+  let end = vim_query[-1:-1]
+  if start == end && start =~ "\['\"]"
+    let vim_query = vim_query[1:-2]
+  endif
+
+  if a:flags.query_escaped
+    let vim_query = s:unescape_query(a:flags, vim_query)
+    let vim_query = escape(vim_query, '\')
+    if a:flags.cword
+      if a:flags.query_orig =~# '^\k'
+        let vim_query = '\<' . vim_query
+      endif
+      if a:flags.query_orig =~# '\k$'
+        let vim_query = vim_query . '\>'
+      endif
+    endif
+    let vim_query = '\V'. vim_query
+  else
+    " \bfoo\b -> \<foo\> Assume only one pair.
+    let vim_query = substitute(vim_query, '\v\\b(.{-})\\b', '\\<\1\\>', '')
+    " *? -> \{-}
+    let vim_query = substitute(vim_query, '*\\\=?', '\\{-}', 'g')
+    " +? -> \{-1,}
+    let vim_query = substitute(vim_query, '\\\=+\\\=?', '\\{-1,}', 'g')
+    let vim_query = escape(vim_query, '+')
+  endif
+
+  return vim_query
+endfunction
 " }}}1
 
 " s:parse_flags() {{{1
@@ -632,8 +678,12 @@ function! s:process_flags(flags)
     let a:flags.open      = 0
   endif
 
-  if a:flags.highlight
-    call s:highlight_query(a:flags)
+  if a:flags.searchreg || a:flags.highlight
+    let @/ = s:query2vimregexp(a:flags)
+    call histadd('search', @/)
+    if a:flags.highlight
+      call feedkeys(":set hls\<bar>echo\<cr>", 'n')
+    endif
   endif
 
   return 0
@@ -925,54 +975,6 @@ function! s:finish_up(flags)
 endfunction
 
 " }}}1
-
-" -highlight {{{1
-" s:highlight_query() {{{2
-function! s:highlight_query(flags)
-  if has_key(a:flags, 'query_orig')
-    let query = a:flags.query_orig
-  else
-    " Remove any flags at the beginning, e.g. when using '-uu' with rg, but
-    " keep plain '-'.
-    let query = substitute(a:flags.query, '\v-\w+\s+', '', 'g')
-  endif
-
-  " Change Vim's '\'' to ' so it can be understood by /.
-  let vim_query = substitute(query, "'\\\\''", "'", 'g')
-
-  " Remove surrounding quotes that denote a string.
-  let start = vim_query[0]
-  let end = vim_query[-1:-1]
-  if start == end && start =~ "\['\"]"
-    let vim_query = vim_query[1:-2]
-  endif
-
-  if a:flags.query_escaped
-    let vim_query = s:unescape_query(a:flags, vim_query)
-    let vim_query = escape(vim_query, '\')
-    if a:flags.cword
-      if a:flags.query_orig =~# '^\k'
-        let vim_query = '\<' . vim_query
-      endif
-      if a:flags.query_orig =~# '\k$'
-        let vim_query = vim_query . '\>'
-      endif
-    endif
-    let vim_query = '\V'. vim_query
-  else
-    " \bfoo\b -> \<foo\> Assume only one pair.
-    let vim_query = substitute(vim_query, '\v\\b(.{-})\\b', '\\<\1\\>', '')
-    " *? -> \{-}
-    let vim_query = substitute(vim_query, '*\\\=?', '\\{-}', 'g')
-    " +? -> \{-1,}
-    let vim_query = substitute(vim_query, '\\\=+\\\=?', '\\{-1,}', 'g')
-    let vim_query = escape(vim_query, '+')
-  endif
-
-  let @/ = vim_query
-  call histadd('search', vim_query)
-  call feedkeys(":set hls\<bar>echo\<cr>", 'n')
-endfunction
 
 " -side {{{1
 let s:filename_regexp = '\v^%(\>\>\>|\]\]\]) ([[:alnum:][:blank:]\/\-_.~]+):(\d+)'

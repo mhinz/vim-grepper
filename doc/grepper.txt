@@ -91,6 +91,7 @@ All options:~
     |g:grepper.prompt_mapping_side|
     |g:grepper.stop|
     |g:grepper.append|
+    |g:grepper.searchreg|
 
 ------------------------------------------------------------------------------
                                             *g:grepper.buffer* *g:grepper.buffers*  >
@@ -109,7 +110,7 @@ work on actual files, not Vim buffers.
                                                            *g:grepper.highlight*  >
     let g:grepper.highlight = 0
 <
-Highlight found matches.
+Highlight found matches. This implies |g:grepper.searchreg|.
 
 ------------------------------------------------------------------------------
                                                             *g:grepper.quickfix*  >
@@ -292,6 +293,16 @@ both. This limits the impact of otherwise long-running processes.
     let g:grepper.append = 0
 <
 Append matches to the current quickfix or location list.
+
+------------------------------------------------------------------------------
+                                                           *g:grepper.searchreg*  >
+    let g:grepper.searchreg = 0
+<
+The query, after changed to a Vim regexp, is added to the last search register
+(|quote/|) and search |history|.
+
+This can be used to quickly jump between matches in the current buffer via the
+usual |n|/|N|.
 
 ==============================================================================
 COMMANDS                                                      *grepper-:Grepper*
