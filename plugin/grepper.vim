@@ -632,9 +632,7 @@ function! s:process_flags(flags)
     let a:flags.open      = 0
   endif
 
-  if a:flags.highlight
-    call s:highlight_query(a:flags)
-  endif
+  call s:search_query(a:flags)
 
   return 0
 endfunction
@@ -926,9 +924,9 @@ endfunction
 
 " }}}1
 
-" -highlight {{{1
-" s:highlight_query() {{{2
-function! s:highlight_query(flags)
+" -search {{{1
+" s:search_query() {{{2
+function! s:search_query(flags)
   if has_key(a:flags, 'query_orig')
     let query = a:flags.query_orig
   else
@@ -971,7 +969,10 @@ function! s:highlight_query(flags)
 
   let @/ = vim_query
   call histadd('search', vim_query)
-  call feedkeys(":set hls\<bar>echo\<cr>", 'n')
+
+  if a:flags.highlight
+    call feedkeys(":set hls\<bar>echo\<cr>", 'n')
+  endif
 endfunction
 
 " -side {{{1
