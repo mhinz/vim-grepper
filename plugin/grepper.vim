@@ -666,10 +666,13 @@ function! s:process_flags(flags)
     endif
     if empty(a:flags.query)
       let a:flags.query = s:escape_cword(a:flags, expand('<cword>'))
+      " input() got empty input, so no query was added to the history.
+      call histadd('input', a:flags.query)
     elseif a:flags.prompt_quote == 1
       let a:flags.query = shellescape(a:flags.query)
     endif
   else
+    " input() was skipped, so add query to the history manually.
     call histadd('input', a:flags.query)
   endif
 
