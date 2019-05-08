@@ -800,6 +800,7 @@ function! s:prompt(flags)
       let pattern = printf('v:val =~# "^%s.*"', a:flags.dir)
       let current_index = index(map(copy(states), pattern), 1)
       let a:flags.dir = states[(current_index + 1) % len(states)]
+      let s:tmp_work_dir = s:compute_working_directory(a:flags)
     elseif s:prompt_op == 'flag_side'
       let a:flags.side = !a:flags.side
     endif
