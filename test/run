@@ -24,4 +24,9 @@ if ! [ -e vader.vim ]; then
 fi
 
 echo '(Be patient.. testing can take a while.)'
-env HOME=/dev/null vim -Nnesu vimrc -i NONE +'Vader! feature/*.vader'
+
+if [[ $CI = true ]]; then
+    vim -Nnu vimrc -i NONE +'Vader! feature/*.vader'
+else
+    env HOME=/dev/null vim -Nnesu vimrc -i NONE +'Vader! feature/*.vader'
+fi
