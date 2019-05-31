@@ -845,10 +845,12 @@ endfunction
 
 " s:run() {{{1
 function! s:run(flags)
-  if a:flags.quickfix
-    call setqflist([])
-  else
-    call setloclist(0, [])
+  if !a:flags.append
+    if a:flags.quickfix
+      call setqflist([])
+    else
+      call setloclist(0, [])
+    endif
   endif
 
   let orig_dir  = s:chdir_push(s:tmp_work_dir)
