@@ -215,7 +215,8 @@ function! grepper#complete(lead, line, _pos) abort
     let flags = ['-append', '-buffer', '-buffers', '-cword', '-dir', '-grepprg',
           \ '-highlight', '-jump', '-open', '-prompt', '-query', '-quickfix',
           \ '-side', '-stop', '-switch', '-tool', '-noappend', '-nohighlight',
-          \ '-nojump', '-noopen', '-noprompt', '-noquickfix', '-noswitch']
+          \ '-nojump', '-noopen', '-noprompt', '-noquickfix', '-noside',
+          \ '-noswitch']
     return filter(map(flags, 'v:val." "'), 'v:val[:strlen(a:lead)-1] ==# a:lead')
   elseif a:line =~# '-dir \w*$'
     return filter(map(['cwd', 'file', 'filecwd', 'repo'], 'v:val." "'),
@@ -556,8 +557,8 @@ function! s:parse_flags(args) abort
     elseif flag =~? '\v^-%(no)?buffer$'        | let flags.buffer    = flag !~? '^-no'
     elseif flag =~? '\v^-%(no)?buffers$'       | let flags.buffers   = flag !~? '^-no'
     elseif flag =~? '\v^-%(no)?append$'        | let flags.append    = flag !~? '^-no'
+    elseif flag =~? '\v^-%(no)?side$'          | let flags.side      = flag !~? '^-no'
     elseif flag =~? '^-cword$'                 | let flags.cword     = 1
-    elseif flag =~? '^-side$'                  | let flags.side      = 1
     elseif flag =~? '^-stop$'
       if empty(args) || args[0] =~ '^-'
         let flags.stop = -1
