@@ -383,7 +383,7 @@ Overrules |g:grepper.dir|.
 
 ------------------------------------------------------------------------------
                                                                  *:Grepper-side*  >
-    -side
+    -[no]side
 <
 Overrules |g:grepper.side|.
 
