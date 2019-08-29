@@ -432,6 +432,10 @@ function! s:compute_working_directory(flags) abort
     elseif dir == 'file'
       let bufdir = expand('%:p:h')
       return fnameescape(bufdir)
+    elseif dir == 'cwd'
+      return getcwd()
+    else
+      call s:error("Invalid dir flag '" . a:flags.dir . "'")
     endif
   endfor
   return ''
