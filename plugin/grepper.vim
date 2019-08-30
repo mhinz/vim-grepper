@@ -212,11 +212,11 @@ endfunction
 " grepper#complete() {{{2
 function! grepper#complete(lead, line, _pos) abort
   if a:lead =~ '^-'
-    let flags = ['-append', '-buffer', '-buffers', '-cword', '-dir', '-grepprg',
-          \ '-highlight', '-jump', '-open', '-prompt', '-query', '-quickfix',
-          \ '-side', '-stop', '-switch', '-tool', '-noappend', '-nohighlight',
-          \ '-nojump', '-noopen', '-noprompt', '-noquickfix', '-noside',
-          \ '-noswitch']
+    let flags = ['-append', '-buffer', '-buffers', '-cd', '-cword', '-dir',
+          \ '-grepprg', '-highlight', '-jump', '-open', '-prompt', '-query',
+          \ '-quickfix', '-side', '-stop', '-switch', '-tool', '-noappend',
+          \ '-nohighlight', '-nojump', '-noopen', '-noprompt', '-noquickfix',
+          \ '-noside', '-noswitch']
     return filter(map(flags, 'v:val." "'), 'v:val[:strlen(a:lead)-1] ==# a:lead')
   elseif a:line =~# '-dir \w*$'
     return filter(map(['cwd', 'file', 'filecwd', 'repo'], 'v:val." "'),
@@ -405,6 +405,9 @@ endfunction
 
 " s:compute_working_directory() {{{2
 function! s:compute_working_directory(flags) abort
+  if has_key(a:flags, 'cd')
+    return a:flags.cd
+  endif
   for dir in split(a:flags.dir, ',')
     if dir == 'repo'
       if s:get_current_tool_name(a:flags) == 'git'
@@ -436,7 +439,7 @@ function! s:compute_working_directory(flags) abort
     elseif dir == 'cwd'
       return getcwd()
     else
-      call s:error("Invalid dir flag '" . a:flags.dir . "'")
+      call s:error("Invalid -dir flag '" . a:flags.dir . "'")
     endif
   endfor
   return ''
@@ -610,6 +613,18 @@ function! s:parse_flags(args) abort
       else
         call s:error('No such tool: '. tool)
       endif
+    elseif flag ==# '-cd'
+      if empty(args)
+        call s:error('Missing argument for: -cd')
+        break
+      endif
+      let dir = fnamemodify(args, ':p')
+      if !isdirectory(dir)
+        call s:error('Invalid directory: '. dir)
+        break
+      endif
+      let flags.cd = dir
+      break
     else
       call s:error('Ignore unknown flag: '. flag)
     endif

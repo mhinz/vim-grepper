@@ -326,6 +326,7 @@ All flags:~
     |:Grepper-side|
     |:Grepper-tool|
     |:Grepper-cword|
+    |:Grepper-cd|
     |:Grepper-query|
     |:Grepper-grepprg|
     |:Grepper-stop|
@@ -401,6 +402,15 @@ Populate the prompt with the word under cursor.
 >
     nnoremap <leader>* :Grepper -tool git -open -switch -cword -noprompt<cr>
 <
+------------------------------------------------------------------------------
+                                                                   *:Grepper-cd*  >
+    -cd <dir>
+<
+Run tool in given directory. When the tool is done, change back to original
+directory.
+
+This must be the last flag!~
+
 ------------------------------------------------------------------------------
                                                                 *:Grepper-query*  >
     -query <query>
