@@ -168,8 +168,8 @@ function! s:on_stdout_nvim(_job_id, data, _event) dict abort
         let self.num_matches = self.flags.stop
       endif
 
-      call jobstop(s:id)
-      unlet s:id
+      silent! call jobstop(s:id)
+      unlet! s:id
       return
     else
       noautocmd execute self.addexpr 'lcandidates'
@@ -192,8 +192,8 @@ function! s:on_stdout_vim(_job_id, data) dict abort
     noautocmd execute self.addexpr 'a:data'
     let self.num_matches += 1
     if self.flags.stop > 0 && self.num_matches >= self.flags.stop
-      call job_stop(s:id)
-      unlet s:id
+      silent! call job_stop(s:id)
+      unlet! s:id
     endif
   finally
     call s:chdir_pop(orig_dir)
@@ -204,7 +204,7 @@ endfunction
 function! s:on_exit(...) dict abort
   execute 'tabnext' self.tabpage
   execute self.window .'wincmd w'
-  silent! unlet s:id
+  unlet! s:id
   return s:finish_up(self.flags)
 endfunction
 
@@ -640,11 +640,11 @@ function! s:process_flags(flags)
   if a:flags.stop == -1
     if exists('s:id')
       if has('nvim')
-        call jobstop(s:id)
+        silent! call jobstop(s:id)
       else
-        call job_stop(s:id)
+        silent! call job_stop(s:id)
       endif
-      unlet s:id
+      unlet! s:id
     endif
     return 1
   endif
