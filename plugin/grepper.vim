@@ -902,7 +902,11 @@ function! s:run(flags)
     echomsg 'grepper: running' string(cmd)
   endif
 
-  echo printf('Running: %s', s:cmdline)
+  let msg = printf('Running: %s', s:cmdline)
+  if exists('v:echospace') && strwidth(msg) > v:echospace
+    let msg = printf('%.*S...', v:echospace - 3, msg)
+  endif
+  echo msg
 
   if has('nvim')
     if exists('s:id')
