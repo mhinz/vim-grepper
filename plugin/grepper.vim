@@ -36,7 +36,7 @@ let s:defaults = {
       \ 'prompt_mapping_side': '<c-s>',
       \ 'repo':          ['.git', '.hg', '.svn'],
       \ 'tools':         ['git', 'ag', 'ack', 'ack-grep', 'grep', 'findstr', 'rg', 'pt', 'sift'],
-      \ 'git':           { 'grepprg':    'git grep -nI',
+      \ 'git':           { 'grepprg':    'git grep -nGI',
       \                    'grepformat': '%f:%l:%c:%m,%f:%l:%m',
       \                    'escape':     '\^$.*[]' },
       \ 'ag':            { 'grepprg':    'ag --vimgrep',
