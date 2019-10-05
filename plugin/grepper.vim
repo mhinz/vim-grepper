@@ -508,7 +508,20 @@ function! s:query2vimregexp(flags) abort
   else
     " Remove any flags at the beginning, e.g. when using '-uu' with rg, but
     " keep plain '-'.
-    let query = substitute(a:flags.query, '\v-\w+\s+', '', 'g')
+    let query = substitute(a:flags.query, '\v^\s+', '', '')
+    let query = substitute(query, '\v\s+$', '', '')
+    let pos = 0
+    while 1
+      let [mtext, mstart, mend] = matchstrpos(query, '\v^-\S+\s*', pos)
+      if mstart < 0
+        break
+      endif
+      let pos = mend
+      if mtext =~ '\v^--\s*$'
+        break
+      endif
+    endwhile
+    let query = strpart(query, pos)
   endif
 
   " Change Vim's '\'' to ' so it can be understood by /.
