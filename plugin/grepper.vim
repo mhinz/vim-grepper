@@ -1072,7 +1072,9 @@ function! s:side_create_window(flags) abort
   execute a:flags.side_cmd
 
   " write error messages first
-  call append('$', map(errors + [''], 's:error_marker . v:val'))
+  if !empty(errors)
+    call append('$', map(errors + [''], 's:error_marker . v:val'))
+  endif
 
   " write contexts to buffer
   for filename in sort(keys(regions))
@@ -1135,6 +1137,7 @@ function! s:side_buffer_settings() abort
   execute 'syntax match GrepperSideError /^'.s:error_marker.'.*/ contains=GrepperSideCaret'
 
   highlight default link GrepperSideFile Directory
+  highlight default link GrepperSideSquareBrackets Conceal
   highlight default link GrepperSideError ErrorMsg
 endfunction
 
