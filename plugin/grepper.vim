@@ -772,10 +772,10 @@ function! s:prompt(flags)
   let mapping_side = maparg(g:grepper.prompt_mapping_side, 'c', '', 1)
 
   " Set plugin-specific mappings
-  cnoremap <esc> <c-\>e<sid>set_prompt_op('cancelled')<cr><c-c>
-  execute 'cnoremap' g:grepper.prompt_mapping_tool "\<c-\>e\<sid>set_prompt_op('flag_tool')<cr><cr>"
-  execute 'cnoremap' g:grepper.prompt_mapping_dir  "\<c-\>e\<sid>set_prompt_op('flag_dir')<cr><cr>"
-  execute 'cnoremap' g:grepper.prompt_mapping_side "\<c-\>e\<sid>set_prompt_op('flag_side')<cr><cr>"
+  cnoremap <silent> <esc> <c-\>e<sid>set_prompt_op('cancelled')<cr><c-c>
+  execute 'cnoremap <silent>' g:grepper.prompt_mapping_tool "\<c-\>e\<sid>set_prompt_op('flag_tool')<cr><cr>"
+  execute 'cnoremap <silent>' g:grepper.prompt_mapping_dir  "\<c-\>e\<sid>set_prompt_op('flag_dir')<cr><cr>"
+  execute 'cnoremap <silent>' g:grepper.prompt_mapping_side "\<c-\>e\<sid>set_prompt_op('flag_side')<cr><cr>"
 
   " Set low timeout for key codes, so <esc> would cancel prompt faster
   let ttimeoutsave = &ttimeout
