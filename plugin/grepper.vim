@@ -745,11 +745,6 @@ function! s:start(flags) abort
     return
   endif
 
-  if a:flags.prompt && empty(a:flags.query)
-    redraw!
-    return
-  endif
-
   return s:run(a:flags)
 endfunction
 
