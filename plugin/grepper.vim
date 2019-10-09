@@ -799,8 +799,17 @@ function! s:prompt(flags)
   call inputsave()
 
   try
-    let a:flags.query = input(prompt_text, a:flags.query,
-          \ 'customlist,grepper#complete_files')
+    if has('nvim-0.3.4')
+      let a:flags.query = input({
+            \ 'prompt':     prompt_text,
+            \ 'default':    a:flags.query,
+            \ 'completion': 'customlist,grepper#complete_files',
+            \ 'highlight':  { cmdline -> [[0, len(cmdline), 'String']] },
+            \ })
+    else
+      let a:flags.query = input(prompt_text, a:flags.query,
+            \ 'customlist,grepper#complete_files')
+    endif
   catch /^Vim:Interrupt$/  " Ctrl-c was pressed
     let s:prompt_op = 'cancelled'
   finally
