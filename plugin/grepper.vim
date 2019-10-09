@@ -700,7 +700,7 @@ function! s:process_flags(flags)
       return
     endif
 
-    if empty(a:flags.query)
+    if a:flags.query =~ '^\s*$'
       let a:flags.query = s:escape_cword(a:flags, expand('<cword>'))
       " input() got empty input, so no query was added to the history.
       call histadd('input', a:flags.query)
