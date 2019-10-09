@@ -697,7 +697,7 @@ function! s:process_flags(flags)
   if a:flags.prompt
     call s:prompt(a:flags)
     if s:prompt_op == 'cancelled'
-      return
+      return 1
     endif
 
     if a:flags.query =~ '^\s*$'
