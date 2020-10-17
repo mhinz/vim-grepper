@@ -616,7 +616,7 @@ Implies -noopen and -highlight.
 
 Mappings:~
 
-  Use `}`and `{` to jump to contexts. `o` opens the current context in the
+  Use `}` and `{` to jump to contexts. `o` opens the current context in the
   last window. `<cr>` opens the current context in the last window, but closes
   the current window first.
 
