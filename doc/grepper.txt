@@ -278,7 +278,7 @@ The prompt uses this mapping to toggle the |:Grepper-side| flag.
 
 ------------------------------------------------------------------------------
                                                                 *g:grepper.stop*  >
-    let g:grepper.stop = 5000
+    let g:grepper.stop = 0
 <
 This limits the number of matches for asynchronous searches. Thus, the grep
 tool is terminated early when the given number is reached. All present matches
@@ -287,6 +287,10 @@ that were found so far can be accessed.
 Chances are, if you have more than 5000 matches, you executed Grepper in a
 place with too many subdirectories or your search query was too general or
 both. This limits the impact of otherwise long-running processes.
+
+NOTE: Any value greater than 0 automatically disables buffering and therefore
+reduces performance a bit. It is recommended not to set this, but to use
+|:Grepper-stop| on demand, instead.
 
 ------------------------------------------------------------------------------
                                                               *g:grepper.append*  >

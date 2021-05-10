@@ -29,7 +29,7 @@ let s:defaults = {
       \ 'searchreg':     0,
       \ 'side':          0,
       \ 'side_cmd':      'vnew',
-      \ 'stop':          5000,
+      \ 'stop':          0,
       \ 'dir':           'cwd',
       \ 'prompt_mapping_tool': '<tab>',
       \ 'prompt_mapping_dir':  '<c-d>',
@@ -931,14 +931,17 @@ function! s:run(flags)
     if exists('s:id')
       silent! call jobstop(s:id)
     endif
+    let opts = {
+          \ 'on_stdout': function('s:on_stdout_nvim'),
+          \ 'on_stderr': function('s:on_stdout_nvim'),
+          \ 'on_exit':   function('s:on_exit'),
+          \ }
+    if !a:flags.stop
+      let opts.stdout_buffered = 1
+      let opts.stderr_buffered = 1
+    endif
     try
-      let s:id = jobstart(cmd, extend(options, {
-            \ 'on_stdout': function('s:on_stdout_nvim'),
-            \ 'on_stderr': function('s:on_stdout_nvim'),
-            \ 'stdout_buffered': 1,
-            \ 'stderr_buffered': 1,
-            \ 'on_exit':   function('s:on_exit'),
-            \ }))
+      let s:id = jobstart(cmd, extend(options, opts))
     finally
       call s:chdir_pop(orig_dir)
     endtry
