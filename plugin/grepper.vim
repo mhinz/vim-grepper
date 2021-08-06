@@ -9,6 +9,7 @@ let g:loaded_grepper = 1
 " ..ad\\f40+$':-# @=,!;%^&&*()_{}/ /4304\'""?`9$343%$ ^adfadf[ad)[(
 
 highlight default link GrepperPrompt Question
+highlight default link GrepperQuery String
 
 "
 " Default values that get used for missing values in g:grepper.
@@ -804,7 +805,7 @@ function! s:prompt(flags)
             \ 'prompt':     prompt_text,
             \ 'default':    a:flags.query,
             \ 'completion': 'customlist,grepper#complete_files',
-            \ 'highlight':  { cmdline -> [[0, len(cmdline), 'String']] },
+            \ 'highlight':  { cmdline -> [[0, len(cmdline), 'GrepperQuery']] },
             \ })
     else
       let a:flags.query = input(prompt_text, a:flags.query,

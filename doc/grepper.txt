@@ -594,6 +594,12 @@ Prompt:~
 >
     highlight GrepperPrompt ctermfg=160 guifg=#ff0000 cterm=NONE
 >
+Query:~
+
+    Default highlight group: GrepperQuery linked to |hl-String|. To change:
+>
+    highlight link GrepperQuery Normal
+>
 Error messages:~
 
     Default highlight group: |hl-ErrorMsg|
