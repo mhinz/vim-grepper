@@ -940,7 +940,7 @@ function! s:run(flags)
       " Starting with version 13, ripgrep always stats stdin and if it's not a
       " TTY it uses it to read data. Unfortunately, Neovim always attaches a
       " pipe to stdin by default and that leads to ripgrep reading nothing...
-      " (see https://github.com/neovim/neovim/pull/14812 for more info)
+      " (see https://github.com/mhinz/vim-grepper/issues/244 for more info)
       " This was fixed in nvim by adding an option to jobstart to not pipe stdin
       " (see https://github.com/neovim/neovim/pull/14812).
       let opts.stdin = 'null'
