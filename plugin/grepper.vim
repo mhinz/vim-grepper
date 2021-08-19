@@ -936,6 +936,15 @@ function! s:run(flags)
           \ 'on_stderr': function('s:on_stdout_nvim'),
           \ 'on_exit':   function('s:on_exit'),
           \ }
+    if has('nvim-0.5.1')
+      " Starting with version 13, ripgrep always stats stdin and if it's not a
+      " TTY it uses it to read data. Unfortunately, Neovim always attaches a
+      " pipe to stdin by default and that leads to ripgrep reading nothing...
+      " (see https://github.com/neovim/neovim/pull/14812 for more info)
+      " This was fixed in nvim by adding an option to jobstart to not pipe stdin
+      " (see https://github.com/neovim/neovim/pull/14812).
+      let opts.stdin = 'null'
+    endif
     if !a:flags.stop
       let opts.stdout_buffered = 1
       let opts.stderr_buffered = 1
