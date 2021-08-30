@@ -590,13 +590,19 @@ COLORS                                                          *grepper-colors*
 
 Prompt:~
 
-    Default highlight group: GrepperPrompt linked to |hl-Question|.
+    Default highlight group: GrepperPrompt linked to |hl-Question|. To change:
 >
     highlight GrepperPrompt ctermfg=160 guifg=#ff0000 cterm=NONE
 >
+Query:~
+
+    Default highlight group: GrepperQuery linked to |hl-String|. To change:
+>
+    highlight link GrepperQuery Normal
+>
 Error messages:~
 
-    Default highlight group: |hl-ErrorMsg|
+    Default highlight group: |hl-ErrorMsg|. To change:
 >
     highlight ErrorMsg ctermfg=160 ctermbg=NONE cterm=NONE
 <
