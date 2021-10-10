@@ -899,12 +899,7 @@ function! s:run(flags)
   let s:cmdline = s:build_cmdline(a:flags)
 
   " 'cmd' and 'options' are only used for async execution.
-  if has('win32')
-    let cmd = 'cmd.exe /c '. s:cmdline
-  else
-    let cmd = ['sh', '-c', s:cmdline]
-  endif
-
+  let cmd = [&shell, &shellcmdflag, s:cmdline]
   let options = {
         \ 'cmd':       s:cmdline,
         \ 'work_dir':  s:tmp_work_dir,
