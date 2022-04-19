@@ -236,7 +236,7 @@ endfunction
 function! grepper#complete_files(lead, _line, _pos)
   let [head, path] = s:extract_path(a:lead)
   " handle relative paths
-  if empty(path) || (path =~ '\s$')
+  if empty(path) || (path =~ '\s$') || (path =~ '^\s*\w\+')
     return map(split(globpath('.'.s:slash, path.'*'), '\n'), 'head . "." . v:val[1:] . (isdirectory(v:val) ? s:slash : "")')
   " handle sub paths
   elseif path =~ '^.\/'
