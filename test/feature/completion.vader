@@ -38,13 +38,13 @@ Execute (command: flags, -tool options):
   AssertEqual count(grepper#complete('', 'Grepper -tool ', v:null), 'grep '), 1
 
 Execute (prompt: relative path, empty string):
-  AssertEqual grepper#complete_files('x ', v:null, v:null), ['x ./foo/']
+  AssertEqual grepper#complete_files('x ', v:null, v:null), ['x foo/']
 
 Execute (prompt: relative path, whitespace only):
-  AssertEqual grepper#complete_files('x  ', v:null, v:null), ['x  ./foo/']
+  AssertEqual grepper#complete_files('x  ', v:null, v:null), ['x  foo/']
 
 Execute (prompt: relative path, leading word chars):
-  AssertEqual grepper#complete_files('x f', v:null, v:null), ['x ./foo/']
+  AssertEqual grepper#complete_files('x f', v:null, v:null), ['x foo/']
 
 Execute (prompt: sub-path, ./ exact match):
   AssertEqual grepper#complete_files('x ./', v:null, v:null), ['x ./foo/']
