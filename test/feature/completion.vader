@@ -37,6 +37,15 @@ Execute (command: flags, -tool options):
   Assert len(grepper#complete('', 'Grepper -tool ', v:null)) > 1
   AssertEqual count(grepper#complete('', 'Grepper -tool ', v:null), 'grep '), 1
 
+Execute (prompt: path, tilde expansion):
+  AssertEqual grepper#complete_files('x ~', v:null, v:null), ['x '.$HOME]
+
+Execute (prompt: path, relative to $HOME):
+  let home = $HOME
+  let $HOME = getcwd()
+  AssertEqual grepper#complete_files('x ~/f', v:null, v:null), ['x ~/foo/']
+  let $HOME = home
+
 Execute (prompt: relative path, empty string):
   AssertEqual grepper#complete_files('x ', v:null, v:null), ['x foo/']
 

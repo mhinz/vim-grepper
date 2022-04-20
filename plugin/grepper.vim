@@ -235,8 +235,14 @@ endfunction
 " grepper#complete_files() {{{2
 function! grepper#complete_files(lead, _line, _pos)
   let [head, path] = s:extract_path(a:lead)
+  " tilde expansion to $HOME
+  if path ==# '~'
+    return [head . $HOME]
+  " handle paths in $HOME (~/foo)
+  elseif path[0:1] ==# '~/'
+    return map(split(globpath($HOME, path[2:].'*'), '\n'), 'head . "~" . v:val['.len($HOME).':] . (isdirectory(v:val) ? s:slash : "")')
   " handle relative paths
-  if empty(path) || (path =~ '\s$') || (path =~ '^\s*\w\+')
+  elseif empty(path) || (path =~ '\s$') || (path =~ '^\s*\w\+')
     return map(
           \ map(split(globpath('.'.s:slash, path.'*'), '\n'), "substitute(v:val, '^\\s*.'.s:slash, '', '')"),
           \ 'head . v:val . (isdirectory(v:val) ? s:slash : "")'
