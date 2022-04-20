@@ -55,6 +55,15 @@ Execute (prompt: relative path, whitespace only):
 Execute (prompt: relative path, leading word chars):
   AssertEqual grepper#complete_files('x f', v:null, v:null), ['x foo/']
 
+Execute (prompt: relative path, hidden files):
+  AssertEqual grepper#complete_files('x .f', '', v:null), ['x .foo']
+
+Execute (prompt: relative path, nested hidden dirs):
+  AssertEqual grepper#complete_files('x foo/.b', '', v:null), ['x foo/.bar/']
+
+Execute (prompt: relative path, nested hidden files):
+  AssertEqual grepper#complete_files('x foo/bar/.b', '', v:null), ['x foo/bar/.baz']
+
 Execute (prompt: sub-path, ./ exact match):
   AssertEqual grepper#complete_files('x ./', v:null, v:null), ['x ./foo/']
 
