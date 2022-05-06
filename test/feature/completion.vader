@@ -37,6 +37,9 @@ Execute (command: flags, -tool options):
   Assert len(grepper#complete('', 'Grepper -tool ', v:null)) > 1
   AssertEqual count(grepper#complete('', 'Grepper -tool ', v:null), 'grep '), 1
 
+Execute (command: flags, default, no completion):
+  Assert len(grepper#complete('', '', v:null)) == 0
+
 Execute (prompt: path, tilde expansion):
   AssertEqual grepper#complete_files('x ~', v:null, v:null), ['x '.$HOME]
 

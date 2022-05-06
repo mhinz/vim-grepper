@@ -228,7 +228,7 @@ function! grepper#complete(lead, line, _pos) abort
     return filter(map(sort(copy(g:grepper.tools)), 'v:val." "'),
           \ 'empty(a:lead) || v:val[:strlen(a:lead)-1] ==# a:lead')
   else
-    return grepper#complete_files(a:lead, 0, 0)
+    return []
   endif
 endfunction
 
