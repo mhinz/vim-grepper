@@ -237,7 +237,7 @@ function! grepper#complete_files(lead, _line, _pos)
   let [head, path] = s:extract_path(a:lead)
   " tilde expansion to $HOME
   if path ==# '~'
-    return [head . $HOME]
+    return [head . $HOME . '/']
   " handle paths in $HOME (~/foo)
   elseif path[0:1] ==# '~/'
     return map(split(globpath($HOME, path[2:].'*'), '\n'), 'head . "~" . v:val['.len($HOME).':] . (isdirectory(v:val) ? s:slash : "")')
