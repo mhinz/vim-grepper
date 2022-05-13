@@ -49,7 +49,7 @@ Execute (prompt: path, tilde expansion):
 Execute (prompt: path, relative to $HOME):
   let home = $HOME
   let $HOME = getcwd()
-  AssertEqual grepper#complete_files('x ~/f', v:null, v:null), ['x ~/foo/']
+  AssertEqual grepper#complete_files('x ~/f', v:null, v:null), ['x '.$HOME.'/foo/']
   let $HOME = home
 
 Execute (prompt: relative path, empty string):

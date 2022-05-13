@@ -235,10 +235,6 @@ endfunction
 " grepper#complete_files() {{{2
 function! grepper#complete_files(lead, _line, _pos)
   let [head, path] = s:extract_path(a:lead)
-  if path[0:1] ==# '~/'
-    " undo tilde expansion, shorter completions
-    return map(getcompletion(path, 'file'), "head . substitute(v:val, $HOME, '~', '')")
-  endif
   return map(getcompletion(path, 'file'), 'head . v:val')
 endfunction
 
