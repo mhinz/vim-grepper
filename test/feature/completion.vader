@@ -41,7 +41,10 @@ Execute (command: flags, default, no completion):
   Assert len(grepper#complete('', '', v:null)) == 0
 
 Execute (prompt: path, tilde expansion):
+  let home = $HOME
+  let $HOME = getcwd()
   AssertEqual grepper#complete_files('x ~', v:null, v:null), ['x '.$HOME.'/']
+  let $HOME = home
 
 Execute (prompt: path, relative to $HOME):
   let home = $HOME
