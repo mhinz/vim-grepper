@@ -334,14 +334,26 @@ endfunction
 " s:restore_mapping() {{{2
 function! s:restore_mapping(mapping)
   if !empty(a:mapping)
-    execute printf('%s %s%s%s%s %s %s',
-          \ (a:mapping.noremap ? 'cnoremap' : 'cmap'),
-          \ (a:mapping.silent  ? '<silent>' : ''    ),
-          \ (a:mapping.buffer  ? '<buffer>' : ''    ),
-          \ (a:mapping.nowait  ? '<nowait>' : ''    ),
-          \ (a:mapping.expr    ? '<expr>'   : ''    ),
-          \  a:mapping.lhs,
-          \  substitute(a:mapping.rhs, '\c<sid>', '<SNR>'.a:mapping.sid.'_', 'g'))
+    if has('nvim') && has_key(a:mapping, 'callback')
+      " https://github.com/neovim/neovim/issues/23666
+      let opts = {
+            \ 'desc': get(a:mapping, 'desc', ''),
+            \ 'noremap': a:mapping.noremap,
+            \ 'silent': a:mapping.silent,
+            \ 'buffer': a:mapping.buffer ? 0 : -1,
+            \ 'nowait': a:mapping.nowait,
+            \}
+      call v:lua.vim.keymap.set(a:mapping.mode, a:mapping.lhs, a:mapping.callback, opts)
+    else
+      execute printf('%s %s%s%s%s %s %s',
+            \ (a:mapping.noremap ? 'cnoremap' : 'cmap'),
+            \ (a:mapping.silent  ? '<silent>' : ''    ),
+            \ (a:mapping.buffer  ? '<buffer>' : ''    ),
+            \ (a:mapping.nowait  ? '<nowait>' : ''    ),
+            \ (a:mapping.expr    ? '<expr>'   : ''    ),
+            \  a:mapping.lhs,
+            \  substitute(a:mapping.rhs, '\c<sid>', '<SNR>'.a:mapping.sid.'_', 'g'))
+    endif
   endif
 endfunction
 
