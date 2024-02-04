@@ -43,7 +43,7 @@ let s:defaults = {
       \ 'ag':            { 'grepprg':    'ag --vimgrep',
       \                    'grepformat': '%f:%l:%c:%m,%f:%l:%m,%f',
       \                    'escape':     '\^$.*+?()[]{}|' },
-      \ 'rg':            { 'grepprg':    'rg -H --no-heading --vimgrep' . (has('win32') ? ' $* .' : ''),
+      \ 'rg':            { 'grepprg':    'rg -H --no-heading --vimgrep',
       \                    'grepformat': '%f:%l:%c:%m,%f',
       \                    'escape':     '\^$.*+?()[]{}|' },
       \ 'pt':            { 'grepprg':    'pt --nogroup',
