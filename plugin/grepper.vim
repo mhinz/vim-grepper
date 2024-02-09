@@ -560,13 +560,25 @@ function! s:query2vimregexp(flags) abort
     endif
     let vim_query = '\V'. vim_query
   else
+    let tool = s:get_current_tool(a:flags)
+    " if tool escapes literal {} or () or | or ? or +, then unescape them
+    let chars = [ '{', '}', '(', ')', '|', '?', '+' ]
+    for c in chars
+      if match(tool.escape, c) != -1
+        let vim_query = escape(vim_query, c)
+        let vim_query = substitute(vim_query, '\\\\' . c, c, 'g')
+      endif
+    endfor
+    " # is escaped in Sift; not sure what it corresponds in Vim to though
+    if match(tool.escape, '#') != -1
+      let vim_query = substitute(vim_query, '\\#', '#', 'g')
+    endif
     " \bfoo\b -> \<foo\> Assume only one pair.
     let vim_query = substitute(vim_query, '\v\\b(.{-})\\b', '\\<\1\\>', '')
     " *? -> \{-}
     let vim_query = substitute(vim_query, '*\\\=?', '\\{-}', 'g')
     " +? -> \{-1,}
     let vim_query = substitute(vim_query, '\\\=+\\\=?', '\\{-1,}', 'g')
-    let vim_query = escape(vim_query, '+')
   endif
 
   return vim_query
