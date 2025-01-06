@@ -1088,9 +1088,13 @@ function! s:side_create_window(flags) abort
   let errors = []
   let list = a:flags.quickfix ? getqflist() : getloclist(0)
 
+  " Count unique filenames
+  let filenames = {}
+
   " process quickfix entries
   for entry in list
     let bufname = bufname(entry.bufnr)
+    let filenames[bufname] = 1
     if !entry.valid
       " collect lines with error messages
       call add(errors, entry.text)
@@ -1138,9 +1142,11 @@ function! s:side_create_window(flags) abort
 
   silent 1delete _
 
-  let nummatches = len(getqflist())
-  let numfiles = len(uniq(map(getqflist(), 'bufname(v:val.bufnr)')))
-  let &l:statusline = printf(' Found %d matches in %d files.', nummatches, numfiles)
+  let b:grepper_side_status = {
+        \ 'matches': len(list),
+        \ 'files': len(filenames),
+        \ }
+  let &l:statusline = printf(' Found %d matches in %d files.', b:grepper_side_status.matches, b:grepper_side_status.files)
 endfunction
 
 " s:side_buffer_settings() {{{2
