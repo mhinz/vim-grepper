@@ -228,23 +228,14 @@ function! grepper#complete(lead, line, _pos) abort
     return filter(map(sort(copy(g:grepper.tools)), 'v:val." "'),
           \ 'empty(a:lead) || v:val[:strlen(a:lead)-1] ==# a:lead')
   else
-    return grepper#complete_files(a:lead, 0, 0)
+    return []
   endif
 endfunction
 
 " grepper#complete_files() {{{2
 function! grepper#complete_files(lead, _line, _pos)
   let [head, path] = s:extract_path(a:lead)
-  " handle relative paths
-  if empty(path) || (path =~ '\s$')
-    return map(split(globpath('.'.s:slash, path.'*'), '\n'), 'head . "." . v:val[1:] . (isdirectory(v:val) ? s:slash : "")')
-  " handle sub paths
-  elseif path =~ '^.\/'
-    return map(split(globpath('.'.s:slash, path[2:].'*'), '\n'), 'head . "." . v:val[1:] . (isdirectory(v:val) ? s:slash : "")')
-  " handle absolute paths
-  elseif path[0] == '/'
-    return map(split(globpath(s:slash, path.'*'), '\n'), 'head . v:val[1:] . (isdirectory(v:val) ? s:slash : "")')
-  endif
+  return map(getcompletion(path, 'file'), 'head . v:val')
 endfunction
 
 " s:extract_path() {{{2
