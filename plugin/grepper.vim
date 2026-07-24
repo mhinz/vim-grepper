@@ -140,11 +140,13 @@ let s:cmdline = ''
 let s:slash   = exists('+shellslash') && !&shellslash ? '\' : '/'
 
 let s:git_column_flag_checked = 0
+let s:job_count = 0
+let s:current_job_id = 0
 
 " Job handlers {{{1
 " s:on_stdout_nvim() {{{2
 function! s:on_stdout_nvim(_job_id, data, _event) dict abort
-  if !exists('s:id')
+  if !has_key(self, 'job_id') || self.job_id != s:current_job_id
     return
   endif
 
@@ -183,7 +185,7 @@ endfunction
 
 " s:on_stdout_vim() {{{2
 function! s:on_stdout_vim(_job_id, data) dict abort
-  if !exists('s:id')
+  if !has_key(self, 'job_id') || self.job_id != s:current_job_id
     return
   endif
 
@@ -203,9 +205,22 @@ endfunction
 
 " s:on_exit() {{{2
 function! s:on_exit(...) dict abort
-  execute 'tabnext' self.tabpage
-  execute self.window .'wincmd w'
+  if !has_key(self, 'job_id') || self.job_id != s:current_job_id
+    return
+  endif
+
+  if get(self, 'winid', 0) > 0 && win_gotoid(self.winid)
+    " win_gotoid successfully restored window and tab
+  else
+    if self.tabpage <= tabpagenr('$')
+      execute 'tabnext' self.tabpage
+    endif
+    if self.window <= winnr('$')
+      execute self.window .'wincmd w'
+    endif
+  endif
   unlet! s:id
+  let s:current_job_id = 0
   return s:finish_up(self.flags)
 endfunction
 
@@ -696,6 +711,7 @@ function! s:process_flags(flags)
         silent! call job_stop(s:id)
       endif
       unlet! s:id
+      let s:current_job_id = 0
     endif
     return 1
   endif
@@ -942,13 +958,18 @@ function! s:run(flags)
     let cmd = ['sh', '-c', s:cmdline]
   endif
 
+  let s:job_count += 1
+  let s:current_job_id = s:job_count
+
   let options = {
+        \ 'job_id':    s:current_job_id,
         \ 'cmd':       s:cmdline,
         \ 'work_dir':  s:tmp_work_dir,
         \ 'flags':     a:flags,
         \ 'addexpr':   a:flags.quickfix ? 'caddexpr' : 'laddexpr',
         \ 'window':    winnr(),
         \ 'tabpage':   tabpagenr(),
+        \ 'winid':     exists('*win_getid') ? win_getid() : 0,
         \ 'stdoutbuf': '',
         \ 'num_matches': 0,
         \ }
