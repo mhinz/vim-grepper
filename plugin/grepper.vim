@@ -235,15 +235,19 @@ endfunction
 " grepper#complete_files() {{{2
 function! grepper#complete_files(lead, _line, _pos)
   let [head, path] = s:extract_path(a:lead)
-  " handle relative paths
-  if empty(path) || (path =~ '\s$')
-    return map(split(globpath('.'.s:slash, path.'*'), '\n'), 'head . "." . v:val[1:] . (isdirectory(v:val) ? s:slash : "")')
-  " handle sub paths
-  elseif path =~ '^.\/'
-    return map(split(globpath('.'.s:slash, path[2:].'*'), '\n'), 'head . "." . v:val[1:] . (isdirectory(v:val) ? s:slash : "")')
+  " handle paths in $HOME (~/foo)
+  if path[0:1] ==# '~/'
+    let home = expand('~')
+    return map(split(globpath(home, path[2:].'*'), '\n'), "head . '~' . v:val[".len(home).":] . (isdirectory(v:val) ? s:slash : '')")
+  " handle (explicit) relative paths
+  elseif path[0:1] ==# './'
+    return map(split(globpath('.'.s:slash, path[2:].'*'), '\n'), "head . v:val . (isdirectory(v:val) ? s:slash : '')")
   " handle absolute paths
-  elseif path[0] == '/'
-    return map(split(globpath(s:slash, path.'*'), '\n'), 'head . v:val[1:] . (isdirectory(v:val) ? s:slash : "")')
+  elseif path[0] ==# '/'
+    return map(split(globpath(s:slash, path.'*'), '\n'), "head . v:val[1:] . (isdirectory(v:val) ? s:slash : '')")
+  " handle relative paths
+  else
+    return map(split(globpath('.'.s:slash, path.'*'), '\n'), "head . '.' . v:val[1:] . (isdirectory(v:val) ? s:slash : '')")
   endif
 endfunction
 
